@@ -24,16 +24,13 @@ class Command(BaseCommand):
         blog_type.save()
 
         user_cs = BlockSpecifier(name='User Content', key='blurb', 
-            pagetype=article_type, mod='yacon.models.content', 
-            content_handler='FlatContent')
+            mod='yacon.models.content', content_handler='FlatContent')
         user_cs.save()
-        poll_cs = BlockSpecifier(name='Poll Content', pagetype=article_type, 
-            key='poll', mod='yacon.models.content', 
-            content_handler='FlatContent')
+        poll_cs = BlockSpecifier(name='Poll Content', key='poll', 
+            mod='yacon.models.content', content_handler='FlatContent')
         poll_cs.save()
-        blog_cs = BlockSpecifier(name='Blog Content', pagetype=blog_type, 
-            key='blog', mod='yacon.models.content', 
-            content_handler='FlatContent')
+        blog_cs = BlockSpecifier(name='Blog Content', key='blog', 
+            mod='yacon.models.content', content_handler='FlatContent')
         blog_cs.save()
 
         # -----------------

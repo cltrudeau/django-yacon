@@ -1,0 +1,11 @@
+{% extends "block_errors/block_error_base.html"%}
+
+{% block message %}
+<p>
+An exception occurred during the rendering of the block.  The exception was:
+</p>
+
+<p>
+{{exception}}
+</p>
+{% endblock message %}

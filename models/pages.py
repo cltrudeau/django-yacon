@@ -1,8 +1,9 @@
 # yacon.models.pages.py
 # blame ctrudeau chr(64) arsensa.com
 
-import exceptions
+import exceptions, logging
 from django.db import models
+from django.utils import simplejson as json
 from yacon.models.hierarchy import Node, ContentHierarchy
 
 # ============================================================================
@@ -10,13 +11,10 @@ from yacon.models.hierarchy import Node, ContentHierarchy
 # ============================================================================
 
 class PageType(models.Model):
-    """Defines how a page is constructed, tied to a template for rendering.
-    Includes name of a ContentHandler class that is used to"""
+    """Defines how a page is constructed, tied to a template for rendering."""
 
     name = models.CharField(max_length=25, unique=True)
     template = models.CharField(max_length=50)
-
-    # One-to-Many FK on BlockSpecifier
 
     class Meta:
         app_label = 'yacon'
@@ -27,40 +25,58 @@ class BlockSpecifier(models.Model):
     content on a page.  A PageType references to multiple BlockSpecifiers"""
     name = models.CharField(max_length=25, unique=True)
     key = models.CharField(max_length=25, unique=True)
-    pagetype = models.ForeignKey(PageType)
 
     # '%s.%s' % (mod, content_handler) should produce the fully qualified name
     # of an object that inherits from ContentHandler (or at least duck-types)
     mod = models.CharField(max_length=100)
     content_handler = models.CharField(max_length=50)
+    content_handler_parms = models.TextField(null=True, blank=True)
 
-    class Meta:
-        app_label = 'yacon'
-
-class BadContentHandler(exceptions.Exception):
-    pass
-
-class Block(models.Model):
-    specifier = models.ForeignKey(BlockSpecifier)
-
-    parameters = models.TextField()
-    content = models.TextField()
-
-    # management of owner, groups, privileges etc. should go here (?)
-
-    class Meta:
-        app_label = 'yacon'
-
-    @property
-    def render(self):
-        """Uses associated ContentHandler to render and return our _content 
-        blob"""
-
-        # instantiate our ContentHandler
+    def __init__(self, *args, **kwargs):
         try:
+            parms = kwargs['content_handler_parms']
+        except KeyError:
+            # no content_handler_parms passed in, store empty dict
+            parms = {}
+
+        serialized = json.JSONEncoder().encode(parms)
+        kwargs['content_handler_parms'] = serialized
+
+        super(BlockSpecifier, self).__init__(*args, **kwargs)
+        self.content_handler_instance = None
+
+    def __unicode__(self):
+        return u'BlockSpecifier(name=%s, key=%s)' % (self.name, self.key)
+
+    class Meta:
+        app_label = 'yacon'
+
+    def get_content_handler_parms(self):
+        """De-serializes and returns a hash representing the parameters for
+        the content handler"""
+        parms = json.loads(self.content_handler_parms)
+        return parms
+
+    def set_content_handler_parms(self, parms):
+        serialized = json.JSONEncoder.encode(parms)
+        self.content_handler_parms = serialized
+        self.save()
+
+    def get_content_handler(self):
+        print 'inside get-content_handler()'
+        if self.content_handler_instance != None:
+            logging.debug('returning cached content_handler_instance')
+            return self.content_handler_instance
+
+        # instantiate a content handler
+        try:
+            print 'loading mod'
             mod = __import__(self.specifier.mod, globals(), locals(),
                 [self.specifier.content_handler])
+            print 'loaded mod'
+            logging.debug('imported mod')
         except Exception, e:
+            print 'exception'
             t = e.__class__.__name__
             msg = \
 """
@@ -74,11 +90,18 @@ Exceptions during import are usually caused by syntax errors or
 import errors in the module.
 """
 
-            bch = BadContentHandler(msg % (self.specifier.mod, t, e))
+            print 'creating bch'
+            try:
+                bch = BadContentHandler(msg % (self.specifier.mod, t, e))
+            except Exception, e:
+                print e
+            print 'created bch: ', bch
+            logging.error('%s' % bch)
             raise bch
 
         try:
             klass = getattr(mod, self.specifier.content_handler)
+            logging.debug('found class')
         except Exception, e:
             t = e.__class__.__name__
             msg = \
@@ -94,7 +117,9 @@ exception was: "%s" with the message:
             raise bch
 
         try:
-            handler = klass(self)
+            self.content_handler_instance = klass(self,
+                self.get_content_handler_parms())
+            logging.debug('instantiated class')
         except Exception, e:
             t = e.__class__.__name__
             msg = \
@@ -111,7 +136,45 @@ Instantiation errors are usually caused by problems in the constructor.
                 self.specifier.content_handler, t, e))
             raise bch
 
-        return handler.render()
+        logging.debug('returning handler: %s' % self.content_handler_instance)
+        return self.content_handler_instance
+
+class BadContentHandler(exceptions.Exception):
+    pass
+
+class Block(models.Model):
+    specifier = models.ForeignKey(BlockSpecifier)
+
+    parameters = models.TextField(null=True, blank=True)
+    content = models.TextField()
+
+    # management of owner, groups, privileges etc. should go here (?)
+
+    def __init__(self, *args, **kwargs):
+        super(Block, self).__init__(*args, **kwargs)
+        self.context = {}
+        self.is_editable = False
+
+    def extend_context(self, context):
+        self.context.update(context)
+
+    def __unicode__(self):
+        return u'Block(specifier=%s, content=%s)' % (self.specifier,
+            self.content)
+
+    class Meta:
+        app_label = 'yacon'
+
+    @property
+    def render(self):
+        """Uses associated ContentHandler to render and return our _content 
+        blob"""
+        logging.debug('starting to render')
+
+        handler = self.specifier.get_content_handler()
+        logging.debug('calling render() on handler %s' % handler)
+        return handler.render(self.context['request'], self.context['uri'],
+            self.context['node'], self.context['slugs'])
 
 
 class Page(models.Model):
@@ -126,27 +189,41 @@ class Page(models.Model):
     class Meta:
         app_label = 'yacon'
 
-    def content_dict(self):
-        """Returns a dictionary of content blocks.  Keys to the dictionary are
-        based on the Block's key.  If there is more than one Block with the
-        same key then the corresponding value will be a list."""
+    def get_blocks_by_key(self, key):
+        """Returns a list of blocks with the corresponding key"""
+        results = []
+        for block in self.blocks.all():
+            if block.specifier.key == key:
+                results.append(block)
+
+        return results
+
+    def content_dict(self, request, uri, slugs):
+        """Builds a content dictionary comprised of all of the blocks for this
+        page.  Each block has context attached to it for later rendering (i.e.
+        the request, uri and slugs passed into this method) and then is
+        grouped by the block's key in a list.  The content dictionary is a
+        dictionary of block keys corresponding to lists of blocks for that
+        key.
+        
+        @param request -- the HTTP request object
+        @param uri -- URI used in the request
+        @param slugs -- list of slugs associated with the content, slug[0]
+            will correspond to the content, values after that are optional"""
 
         data = {}
         for block in self.blocks.all():
+            block.extend_context({'request':request, 'uri':uri, 'slugs':slugs,
+                'node':self.node})
             key = block.specifier.key
-            if key in data:
-                # key already exists in data, check if it is a list
-                value = data[key]
-                if type(value) is list:
-                    # already has a list, add to it
-                    data[key].append(value)
-                else:
-                    # had single value, change it to a list
-                    data[key] = [value, block]
-            else:
-                # key wasn't in data, add this key/value pair
-                data[key] = block
+            if key not in data:
+                # no key in the data dictionary yet, add an empty list
+                data[key] = []
 
+            # add the block to the data dictionary list
+            data[key].append(block)
+
+        logging.debug('returning content dictionary: %s' % data)
         return data
 
 # ============================================================================

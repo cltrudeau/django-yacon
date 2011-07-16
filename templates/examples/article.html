@@ -5,10 +5,15 @@
 
 <h2> Content </h2>
 
-{{ blocks.blurb.render }}
+<ul>
+    <li>{{ blocks }}
+    <li>{{ blocks.blurb }}
+    <li>{{ blocks.blurb.0 }}
+    <li>{{ blocks.blurb.0.render }}
+</ul>
 
 <h2> Poll </h2>
 
-{{ blocks.poll.render }}
+{{ blocks.poll.0.render }}
 
 {% endblock body %}

@@ -1,0 +1,65 @@
+<div class="yacon_error">
+{% block message %}
+{% endblock message %}
+<p>
+The block was specified using the following details:
+</p>
+<table>
+    <tr>
+        <th>Template Tag</th>
+        <td>{{tag_name}}</td>
+    </tr>
+    <tr>
+        <th>Template Parameters</th>
+        <td>{{tag_parameters}}</td>
+    </tr>
+    <tr>
+        <th>URI</th>
+        <td>{{uri}}</td>
+    </tr>
+    <tr>
+        <th>Slugs</th>
+        <td>{{slugs}}</td>
+    </tr>
+    <tr>
+        <th>Page Title</th>
+        <td>{{page.title}}</td>
+    </tr>
+    <tr>
+        <th>Page Slug</th>
+        <td>{{page.slug}}</td>
+    </tr>
+    <tr>
+        <th>Node ID</th>
+        <td>{{page.node.id}}</td>
+    </tr>
+    <tr>
+        <th>Page Type</th>
+        <td>{{page.pagetype.name}}</td>
+    </tr>
+    <tr>
+        <th>Page Template</th>
+        <td>{{page.pagetype.template}}</td>
+    </tr>
+    <tr>
+        <th>Block ID</th>
+        <td>{{block.id}}</td>
+    </tr>
+    <tr>
+        <th>Block Specifier Name</th>
+        <td>{{block.specifier.name}}</td>
+    </tr>
+    <tr>
+        <th>Block Content Handler</th>
+        <td>{{block.specifier.content_handler}}</td>
+    </tr>
+    <tr>
+        <th>Block Content Handler Parameters</th>
+        <td>{{block.specifier.content_handler_parms}}</td>
+    </tr>
+    <tr>
+        <th>Block Parameters</th>
+        <td>{{block.parameters}}</td>
+    </tr>
+</table>
+</div>
