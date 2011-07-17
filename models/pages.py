@@ -4,7 +4,11 @@
 import exceptions, logging
 from django.db import models
 from django.utils import simplejson as json
+from django.core.exceptions import FieldError
+
 from yacon.models.hierarchy import Node, ContentHierarchy
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # Page Management Classes
@@ -20,16 +24,20 @@ class PageType(models.Model):
         app_label = 'yacon'
 
 
-class BlockSpecifier(models.Model):
+class BadContentHandler(exceptions.Exception):
+    pass
+
+
+class BlockType(models.Model):
     """Contains the name of a ContentHandler object which is used for managing
-    content on a page.  A PageType references to multiple BlockSpecifiers"""
+    content on a page.  A PageType references to multiple BlockType objects"""
     name = models.CharField(max_length=25, unique=True)
     key = models.CharField(max_length=25, unique=True)
 
     # '%s.%s' % (mod, content_handler) should produce the fully qualified name
     # of an object that inherits from ContentHandler (or at least duck-types)
-    mod = models.CharField(max_length=100)
-    content_handler = models.CharField(max_length=50)
+    module_name = models.CharField(max_length=100)
+    content_handler_name = models.CharField(max_length=50)
     content_handler_parms = models.TextField(null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
@@ -42,11 +50,11 @@ class BlockSpecifier(models.Model):
         serialized = json.JSONEncoder().encode(parms)
         kwargs['content_handler_parms'] = serialized
 
-        super(BlockSpecifier, self).__init__(*args, **kwargs)
+        super(BlockType, self).__init__(*args, **kwargs)
         self.content_handler_instance = None
 
     def __unicode__(self):
-        return u'BlockSpecifier(name=%s, key=%s)' % (self.name, self.key)
+        return u'BlockType(name=%s, key=%s)' % (self.name, self.key)
 
     class Meta:
         app_label = 'yacon'
@@ -63,20 +71,20 @@ class BlockSpecifier(models.Model):
         self.save()
 
     def get_content_handler(self):
-        print 'inside get-content_handler()'
         if self.content_handler_instance != None:
-            logging.debug('returning cached content_handler_instance')
+            logger.debug('returning cached content_handler_instance')
             return self.content_handler_instance
 
         # instantiate a content handler
         try:
-            print 'loading mod'
-            mod = __import__(self.specifier.mod, globals(), locals(),
-                [self.specifier.content_handler])
-            print 'loaded mod'
-            logging.debug('imported mod')
+            logger.debug('about to import mod %s.%s' % (self.module_name,
+                self.content_handler_name))
+
+            mod = __import__(self.module_name, globals(), locals(),
+                [self.content_handler_name])
+            logger.debug('mod import successful')
         except Exception, e:
-            print 'exception'
+            logger.exception('importing mod caused exception')
             t = e.__class__.__name__
             msg = \
 """
@@ -88,21 +96,18 @@ with the message:
 
 Exceptions during import are usually caused by syntax errors or 
 import errors in the module.
-"""
+""" % (self.module_name, t, e)
 
-            print 'creating bch'
-            try:
-                bch = BadContentHandler(msg % (self.specifier.mod, t, e))
-            except Exception, e:
-                print e
-            print 'created bch: ', bch
-            logging.error('%s' % bch)
+            bch = BadContentHandler(msg) 
             raise bch
 
         try:
-            klass = getattr(mod, self.specifier.content_handler)
-            logging.debug('found class')
+            logger.debug('getting class object for content handler')
+            klass = getattr(mod, self.content_handler_name)
+            logger.debug('found class for content handler')
         except Exception, e:
+            logger.exception(\
+                'getting class object for content handler caused exception')
             t = e.__class__.__name__
             msg = \
 """
@@ -111,16 +116,18 @@ class "%s" from the module "%s".  The
 exception was: "%s" with the message:
 
 %s
-"""
-            bch = BadContentHandler(msg % (self.specifier.content_handler, 
-                self.specifier.mod, t, e))
+""" % (self.content_handler_name, self.module_name, t, e)
+
+            bch = BadContentHandler(msg)
             raise bch
 
         try:
-            self.content_handler_instance = klass(self,
-                self.get_content_handler_parms())
-            logging.debug('instantiated class')
+            parms = self.get_content_handler_parms()
+            logger.debug('instantiatiing class with parms: %s' % parms)
+
+            self.content_handler_instance = klass(self, parms)
         except Exception, e:
+            logger.exception('instantiating content handler caused exception')
             t = e.__class__.__name__
             msg = \
 """
@@ -131,19 +138,17 @@ exception was: "%s" with the message:
 %s
 
 Instantiation errors are usually caused by problems in the constructor.
-"""
-            bch = BadContentHandler(msg % (self.specifier.mod, 
-                self.specifier.content_handler, t, e))
+""" % (self.module_name, self.content_handler_name, t, e)
+
+            bch = BadContentHandler(msg)
             raise bch
 
-        logging.debug('returning handler: %s' % self.content_handler_instance)
+        logger.debug('returning handler: %s' % self.content_handler_instance)
         return self.content_handler_instance
 
-class BadContentHandler(exceptions.Exception):
-    pass
 
 class Block(models.Model):
-    specifier = models.ForeignKey(BlockSpecifier)
+    block_type = models.ForeignKey(BlockType)
 
     parameters = models.TextField(null=True, blank=True)
     content = models.TextField()
@@ -152,79 +157,125 @@ class Block(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Block, self).__init__(*args, **kwargs)
-        self.context = {}
         self.is_editable = False
 
-    def extend_context(self, context):
-        self.context.update(context)
-
     def __unicode__(self):
-        return u'Block(specifier=%s, content=%s)' % (self.specifier,
+        return u'Block(block_type=%s, content=%s)' % (self.block_type,
             self.content)
 
     class Meta:
         app_label = 'yacon'
 
-    @property
-    def render(self):
-        """Uses associated ContentHandler to render and return our _content 
-        blob"""
-        logging.debug('starting to render')
-
-        handler = self.specifier.get_content_handler()
-        logging.debug('calling render() on handler %s' % handler)
-        return handler.render(self.context['request'], self.context['uri'],
-            self.context['node'], self.context['slugs'])
-
 
 class Page(models.Model):
-    title = models.CharField(max_length=25)
-    slug = models.CharField(max_length=25, unique=True)
     node = models.ForeignKey(Node)
-    pagetype = models.ForeignKey(PageType)
+    slug = models.CharField(max_length=25, unique=True)
+    _alias = models.ForeignKey('self', blank=True, null=True)
+    _title = models.CharField(max_length=25, blank=True, null=True)
+    _page_type = models.ForeignKey(PageType, blank=True, null=True)
 
     # what pages this content apperas on
-    blocks = models.ManyToManyField(Block)
+    _blocks = models.ManyToManyField(Block)
 
     class Meta:
         app_label = 'yacon'
 
+    # -------------------------------------------
+    # Constructors/Factories
+
+    def __init__(self, *args, **kwargs):
+        """A Page object represents a page to be rendered for a given slug
+        within a location in a hierarchy.  In order to allow the page to exist
+        in multiple places, the Page object can contain an alias to another
+        Page object.  An alias, although still a Page object, can only be
+        constructed through the create_alias() call on an existing Page.
+
+        The following parameters are always expected to construct a page:
+
+        @param node -- hierarchical node of this page
+        @param slug -- slug within the hierarchy uniquely identifying this
+            page
+        @param title -- the title of this page
+        @param page_type -- a PageType object that defines the template that
+            this Page instance will be using
+
+        The 'title' and 'page_type' parameters correspond to private fields,
+        the private fields should not be used to construct the object
+        directly.
+        """
+        if 'title' in kwargs and 'page_type' not in kwargs:
+                raise FieldError('Parameter "title" is mandatory')
+
+        if 'page_type' in kwargs and 'title' not in kwargs:
+                raise FieldError('Parameter "page_type" is mandatory')
+
+        if 'title' in kwargs:
+            kwargs['_title'] = kwargs['title']
+            del kwargs['title']
+
+        if 'page_type' in kwargs:
+            kwargs['_page_type'] = kwargs['page_type']
+            del kwargs['page_type']
+
+        # parms have been checked and set correctly, just call parent
+        super(Page, self).__init__(*args, **kwargs)
+
+    def create_alias(self, node, slug):
+        """Returns a Page object that is an alias to this Page instance.
+        Attempting to create an alias of an alias will result in an
+        AttributeError is raised.  The save() call is done on the newly
+        created object so a successful call results in a new entry in the
+        database.
+
+        @param node -- node in hierarchy for the newly aliased Page
+        @param slug -- slug uniquely identifying the alias within the node
+            hierarchy
+
+        @returns Page -- a new Page object that is an alias to this one
+        """
+        if self._alias != None:
+            raise AttributeError('Aliases of aliases not allowed')
+
+        page = Page(node=node, slug=slug, _alias=self)
+        page.save()
+        return page
+
+    # -------------------------------------------
+    # Accessors for referencing private fields
+
+    @property
+    def title(self):
+        if self._alias == None:
+            return self._title
+
+        return self._alias.title
+
+    @property 
+    def page_type(self):
+        if self._alias == None:
+            return self._page_type
+
+        return self._alias.page_type
+
+    @property 
+    def blocks(self):
+        if self._alias == None:
+            return self._blocks
+
+        return self._alias.blocks
+
+    # -------------------------------------------
+    # Accessors
+    def is_alias(self):
+        return self._alias != None
+
+    # -------------------------------------------
+    # Block Finding Methods
+
     def get_blocks_by_key(self, key):
         """Returns a list of blocks with the corresponding key"""
-        results = []
-        for block in self.blocks.all():
-            if block.specifier.key == key:
-                results.append(block)
+        return list(self.blocks.filter(block_type__key=key))
 
-        return results
-
-    def content_dict(self, request, uri, slugs):
-        """Builds a content dictionary comprised of all of the blocks for this
-        page.  Each block has context attached to it for later rendering (i.e.
-        the request, uri and slugs passed into this method) and then is
-        grouped by the block's key in a list.  The content dictionary is a
-        dictionary of block keys corresponding to lists of blocks for that
-        key.
-        
-        @param request -- the HTTP request object
-        @param uri -- URI used in the request
-        @param slugs -- list of slugs associated with the content, slug[0]
-            will correspond to the content, values after that are optional"""
-
-        data = {}
-        for block in self.blocks.all():
-            block.extend_context({'request':request, 'uri':uri, 'slugs':slugs,
-                'node':self.node})
-            key = block.specifier.key
-            if key not in data:
-                # no key in the data dictionary yet, add an empty list
-                data[key] = []
-
-            # add the block to the data dictionary list
-            data[key].append(block)
-
-        logging.debug('returning content dictionary: %s' % data)
-        return data
 
 # ============================================================================
 # Helper Methods

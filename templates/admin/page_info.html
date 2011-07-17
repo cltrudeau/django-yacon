@@ -3,6 +3,14 @@
 {% block body %}
 <h1> Page Info for: {{page.title}} </h1>
 
+{% if alias %}
+<p>
+    <strong>This page is an alias.  <a href="/yacon/admin/page_info/{{alias}}/">
+        Actual page</a>
+    </strong>
+</p>
+{% endif %}
+
 <table>
     <tr>
         <th>Title</th>
@@ -18,46 +26,48 @@
     </tr>
     <tr>
         <th>Page Type</th>
-        <td>{{page.pagetype.name}}</td>
+        <td>{{page.page_type.name}}</td>
     </tr>
     <tr>
         <th>Template</th>
-        <td>{{page.pagetype.template}}</td>
+        <td>{{page.page_type.template}}</td>
     </tr>
 </table>
 
 <h2>Blocks</h2>
 
-{% for key, value in blocks.items %}
-    <h3>{{key}}</h3>
-    {% for block in value %}
-        <table>
-            <tr>
-                <th>ID</th>
-                <td>{{block.id}}</td>
-            </tr>
-            <tr>
-                <th>Specifier Name</th>
-                <td>{{block.specifier.name}}</td>
-            </tr>
-            <tr>
-                <th>Content Handler</th>
-                <td>{{block.specifier.content_handler}}</td>
-            </tr>
-            <tr>
-                <th>Content Handler Parameters</th>
-                <td>{{block.specifier.content_handler_parms}}</td>
-            </tr>
-            <tr>
-                <th>Block Parameters</th>
-                <td>{{block.parameters}}</td>
-            </tr>
-            <tr>
-                <th>Content</th>
-                <td>{{block.content}}</td>
-            </tr>
-        </table>
-    {% endfor %}
+{% for block in blocks %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <td>{{block.id}}</td>
+        </tr>
+        <tr>
+            <th>Key</th>
+            <td>{{block.block_type.key}}</td>
+        </tr>
+        <tr>
+            <th>Specifier Name</th>
+            <td>{{block.block_type.name}}</td>
+        </tr>
+        <tr>
+            <th>Content Handler</th>
+            <td>{{block.block_type.content_handler}}</td>
+        </tr>
+        <tr>
+            <th>Content Handler Parameters</th>
+            <td>{{block.block_type.content_handler_parms}}</td>
+        </tr>
+        <tr>
+            <th>Block Parameters</th>
+            <td>{{block.parameters}}</td>
+        </tr>
+        <tr>
+            <th>Content</th>
+            <td>{{block.content}}</td>
+        </tr>
+    </table>
+    <br/>
 {% endfor %}
 
 {% endblock body %}

@@ -9,6 +9,8 @@ from django.http import Http404
 from yacon.models.hierarchy import ContentHierarchy
 from yacon.models.pages import Page
 
+logger = logging.getLogger(__name__)
+
 # ============================================================================
 # Generic Page Display Views
 # ============================================================================
@@ -31,12 +33,14 @@ def display_page(request, uri):
         raise Http404('Page not found for: node=%s, slug=%s' % \
             (parsed.node, parsed.slugs_after_node[0]))
 
-    logging.debug('displaying page: %s' % page)
+    logger.debug('displaying page: %s' % page)
     data = {}
     data['page'] = page
-    data['blocks'] = page.content_dict(request, uri, parsed.slugs_after_node)
+    data['request'] = request
+    data['uri'] = uri
+    data['slugs'] = parsed.slugs_after_node
 
-    return render_to_response(page.pagetype.template, data, 
+    return render_to_response(page.page_type.template, data, 
         context_instance=RequestContext(request))
 
 

@@ -3,8 +3,12 @@
 #
 # Defines specialized template tags for the rendering of content from the CMS
 
+import logging, traceback
 from django import template
 from django.template import loader
+
+register = template.Library()
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # Utility Methods
@@ -12,7 +16,7 @@ from django.template import loader
 
 # templates for errors
 templates = {
-    'no_such_block': loader.get_template('block_errors/no_such_block.html')
+    'no_such_block': loader.get_template('block_errors/no_such_block.html'),
     'exception': loader.get_template('block_errors/exception.html')
 }
 
@@ -35,10 +39,10 @@ def _render_block(context, page, blocks, tag_name, tag_parameters):
     # grab the first block sent in
     block = blocks[0]
     try:
-        handler = block.specifier.get_content_handler()
-        return handler.render(request, uri, node, slugs)
+        handler = block.block_type.get_content_handler()
+        return handler.render(request, uri, page.node, slugs, block)
     except Exception, e:
-        context['exception'] = e
+        context['exception'] = traceback.format_exc()
         return templates['exception'].render(context)
 
 # ============================================================================
@@ -73,8 +77,9 @@ def block_by_key(context, key):
     the template variable 'key'.  If the variable contained "poll" it would be
     equivalent to the previous example.
     """
+    logger.debug('key is: %s' % key)
 
     page = context['page']
-    blocks = page.blocks_set.filter(key=key)
+    blocks = page.get_blocks_by_key(key)
 
     return _render_block(context, page, blocks, 'block_by_key', 'key:%s' % key)

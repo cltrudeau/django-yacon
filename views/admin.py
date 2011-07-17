@@ -40,6 +40,7 @@ def content_listing(request):
     output.append('</ul>')
 
     data = {}
+    data['title'] = 'Content Listing'
     data['tree'] = "\n".join(output)
 
     return render_to_response('admin/content_list.html', data, 
@@ -49,8 +50,12 @@ def content_listing(request):
 def page_info(request, page_id):
     page = get_object_or_404(Page, id=page_id)
     data = {}
+    data['title'] = 'Page Info'
     data['page'] = page
-    data['blocks'] = page.content_dict(request, 'fake uri', ['fake slug'])
+    data['blocks'] = page.blocks.all()
+
+    if page.is_alias():
+        data['alias'] = page._alias.id
 
     return render_to_response('admin/page_info.html', data, 
         context_instance=RequestContext(request))

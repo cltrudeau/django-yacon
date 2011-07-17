@@ -1,19 +1,15 @@
 {% extends "examples/base.html" %}
+{% load yacon_tags %}
 
 {% block body %}
 <h1> {{page.title}} </h1>
 
 <h2> Content </h2>
 
-<ul>
-    <li>{{ blocks }}
-    <li>{{ blocks.blurb }}
-    <li>{{ blocks.blurb.0 }}
-    <li>{{ blocks.blurb.0.render }}
-</ul>
+{% block_by_key "blurb" %}
 
 <h2> Poll </h2>
 
-{{ blocks.poll.0.render }}
+{% block_by_key "poll" %}
 
 {% endblock body %}
