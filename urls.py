@@ -17,9 +17,9 @@ urlpatterns = patterns('',
     # (r'^admin/', include(admin.site.urls)),
 )
 
-if settings.YACON_STATIC_SERVE and (settings.YACON_ADMIN_ENABLED or 
+if settings.YACON_STATIC_SERVE and (settings.YACON_NEXUS_ENABLED or 
     settings.YACON_EXAMPLES_ENABLED):
-    # enable static serving of pages for admin and examples
+    # enable static serving of pages for nexus and examples
     import os
     cur_dir = os.path.dirname(__file__)
     static_root = os.path.join(cur_dir, 'static_media')
@@ -29,11 +29,11 @@ if settings.YACON_STATIC_SERVE and (settings.YACON_ADMIN_ENABLED or
             {'document_root':static_root}),
     )
 
-if settings.YACON_ADMIN_ENABLED:
+if settings.YACON_NEXUS_ENABLED:
     urlpatterns += patterns('',
-        (r'^admin/content_listing/$', 'yacon.views.admin.content_listing'),
-        (r'^admin/page_info/(\d+)/$', 'yacon.views.admin.page_info'),
-        (r'^$', direct_to_template, {'template':'admin/index.html'}),
+        (r'^nexus/content_listing/$', 'yacon.views.nexus.content_listing'),
+        (r'^nexus/page_info/(\d+)/$', 'yacon.views.nexus.page_info'),
+        (r'^$', direct_to_template, {'template':'nexus/index.html'}),
     )
 
 if settings.YACON_EXAMPLES_ENABLED:
