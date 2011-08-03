@@ -1,0 +1,68 @@
+<h3> Page Info for: {{page.title}} </h3>
+
+{% if alias %}
+<p>
+    <strong>This page is an alias.  <a href="/yacon/nexus/page_info/{{alias}}/">
+        Actual page</a>
+    </strong>
+</p>
+{% endif %}
+
+<table class="content_list">
+    <tr>
+        <th>Title</th>
+        <td>{{page.title}} (<a href="{{uri}}">view</a>)</td>
+    </tr>
+    <tr>
+        <th>Slug</th>
+        <td>{{page.slug}}</td>
+    </tr>
+    <tr>
+        <th>Node ID</th>
+        <td>{{page.node.id}}</td>
+    </tr>
+    <tr>
+        <th>Page Type</th>
+        <td>{{page.page_type.name}}</td>
+    </tr>
+    <tr>
+        <th>Template</th>
+        <td>{{page.page_type.template}}</td>
+    </tr>
+</table>
+
+<h3>Blocks</h3>
+
+{% for block in blocks %}
+    <table class="content_list">
+        <tr>
+            <th>ID</th>
+            <td>{{block.id}}</td>
+        </tr>
+        <tr>
+            <th>Key</th>
+            <td>{{block.block_type.key}}</td>
+        </tr>
+        <tr>
+            <th>Specifier Name</th>
+            <td>{{block.block_type.name}}</td>
+        </tr>
+        <tr>
+            <th>Content Handler</th>
+            <td>{{block.block_type.content_handler_name}}</td>
+        </tr>
+        <tr>
+            <th>Content Handler Parameters</th>
+            <td>{{block.block_type.content_handler_parms}}</td>
+        </tr>
+        <tr>
+            <th>Block Parameters</th>
+            <td>{{block.parameters}}</td>
+        </tr>
+        <tr>
+            <th>Content</th>
+            <td>{{block.content}}</td>
+        </tr>
+    </table>
+    <br/>
+{% endfor %}

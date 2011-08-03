@@ -4,9 +4,9 @@
 import urllib, logging
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponse
 
-from yacon.models.hierarchy import ContentHierarchy
+from yacon.models.hierarchy import Site
 from yacon.models.pages import Page
 
 logger = logging.getLogger(__name__)
@@ -16,11 +16,12 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 def display_page(request, uri):
-    """Renders a page corresponding to the uri passed in.  Uses the uri to
-    look up a node in the ContentHierarchy and finds a corresponding page.  A
-    dictionary of the content blocks is created and passed to the template for
-    the page."""
-    parsed = ContentHierarchy.parse_path('/' + uri)
+    """Default page rendering method for the CMS.  Uses the request object to
+    determine what site is being displayed and the uri passed in to find an
+    page to render. """
+    site = Site.get_site(request)
+
+    parsed = site.parse_path('/' + uri)
     if parsed.node == None:
         # weren't able to parse the path
         raise Http404('Path not found.  Parsed: path=%s' % parsed.path)
@@ -45,8 +46,31 @@ def display_page(request, uri):
 
 
 # ============================================================================
-# Submittal Views
+# Ajax Views
 # ============================================================================
+
+def _ajax_preconditions(request):
+    """Common code called by ajax_ view methods"""
+    if request.method != 'POST':
+        raise Http404('GET method not supported for ajax_submit')
+
+    if not request.REQUEST.has_key('block_id'):
+        raise Http404('ajax_submit requires "block_id" parameter')
+
+    try:
+        # find the block corresponding to the id passed in
+        block = Block.objects.get(pk=request.POST['block_id'])
+    except:
+        raise Http404( 'no block with id "%s"' % request.POST['block'])
+
+    return block
+
+
+def ajax_display(request):
+    block = _ajax_preconditions(request)
+
+    return HttpResponse(block.render( ))
+
 
 def ajax_submit(request):
     """Used for submitting user generated content to the system"""

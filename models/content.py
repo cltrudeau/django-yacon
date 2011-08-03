@@ -49,17 +49,16 @@ class ContentHandler(object):
         self.parms = parms
         self.block_type = block_type
 
-    def internal_render(self, request, uri, node, slugs, block):
+    def internal_render(self, request, block):
         """Method that inheritors should over-ride to return content.  Called
         by render()"""
         pass
 
-    def render(self, request, uri, node, slugs, block):
+    def render(self, request, block):
         """Wraps internal_render() by adding information to any exceptions 
         caught and marking what is returned as safe."""
         try:
-            return mark_safe(self.internal_render(request, uri, node, slugs,
-                block))
+            return mark_safe(self.internal_render(request, block))
         except Exception, e:
             et = e.__class__.__name__
             ot = self.__class__.__name__
@@ -84,7 +83,7 @@ Typical causes are errors in the internal_render() method.
 class FlatContent(ContentHandler):
     """ContentHandler for content that requires no permission checking or
     other work, essentially just outputs what is in the db for the block"""
-    def internal_render(self, request, uri, node, slugs, block):
+    def internal_render(self, request, block):
         logger.debug('returning content')
         return block.content
 
@@ -118,11 +117,14 @@ class EditableContent(ContentHandler):
         return block.content
 
 
-class AjaxEditableContent(EditableContent):
-    """Same as EditableContent except that it wraps all block content in a 
-    <div> to make it easier to manipulate with the ajax_submit view"""
+class AjaxEditableContent(ContentHandler):
+    """This ContentHandler allows for fetching and editing of the content through Ajax
+    calls.  The user's permission level is checked and determines whether they can see
+    and/or edit the block.  If the user has edit permissions then an Edit link is added
+    to the content along with a block identifier.
+    """
 
-    def internal_render(self, request, uri, node, slugs, block):
+    def internal_render(self, request, block):
         original = super(EditableContent, self).internal_render(request, uri,
             node, slugs)
 

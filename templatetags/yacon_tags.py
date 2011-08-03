@@ -27,8 +27,6 @@ def _render_block(context, page, blocks, tag_name, tag_parameters):
     block"""
 
     request = context['request']
-    uri = context['uri']
-    slugs = context['slugs']
     context['tag_name'] = tag_name
     context['tag_parameters'] = tag_parameters
 
@@ -39,8 +37,7 @@ def _render_block(context, page, blocks, tag_name, tag_parameters):
     # grab the first block sent in
     block = blocks[0]
     try:
-        handler = block.block_type.get_content_handler()
-        return handler.render(request, uri, page.node, slugs, block)
+        return block.render(request)
     except Exception, e:
         context['exception'] = traceback.format_exc()
         return templates['exception'].render(context)

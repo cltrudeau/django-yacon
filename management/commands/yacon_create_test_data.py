@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.core import management
 
-from yacon.models.hierarchy import ContentHierarchy
+from yacon.models.hierarchy import Site
 from yacon.models.pages import PageType, BlockType, Page, Block
 from yacon.utils import create_page_type, create_page, create_block_type
 
@@ -8,14 +9,31 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # this management command is used to create test data for yacon
 
-        # create content hierarchy tree
-        root = ContentHierarchy.get_root()
-        articles = root.add_child(name='Articles', slug='articles')
-        health = articles.add_child(name='Health', slug='health')
-        fitness = articles.add_child(name='Fitness', slug='fitness')
-        money = articles.add_child(name='Money', slug='money')
+        # if it hasn't been done already, use the yacon_create_defaults script
+        # as the basis for our data
+        try:
+            # get the default site
+            site = Site.objects.get(name='Localhost Site')
+        except Site.DoesNotExist:
+            # default site creation script wasn't run, do it ourselves
+            management.call_command('yacon_create_defaults')
+            site = Site.objects.get(name='Localhost Site')
 
-        blog = root.add_child(name='Blogs', slug='blogs')
+        # add another language to the Site
+        site.add_config('language', 'fr')
+
+        # create content hierarchy tree
+        articles = site.doc_root.create_child('Articles', 'articles', {\
+            'fr':("L'Article", 'lesarticles')})
+        health = articles.create_child('Health', 'health', {\
+            'fr':("La Sante", 'sante')})
+        fitness = articles.create_child('Fitness', 'fitness', {\
+            'fr':("De Fitness", 'defitness')})
+        money = articles.create_child('Money', 'money', {\
+            'fr':("L'Argent", 'argent')})
+
+        blog = site.doc_root.create_child('Blogs', 'blogs', {\
+            'fr':("Le Blog", 'leblog')})
 
         # create templates for our content
         pt_article = create_page_type('Article Type', 'examples/article.html' )
@@ -30,7 +48,7 @@ class Command(BaseCommand):
 
         # -----------------
         # create some pages
-        create_page('Steak is good', 'steak', health, pt_article, [\
+        p = create_page('Steak is good', 'steak', health, pt_article, [\
             ('<p>Steak should be as good for you as it tastes.</p>', bt_user),
             ("""
 <ul>
@@ -42,7 +60,8 @@ class Command(BaseCommand):
                 bt_poll),
             ]
         )
-
+        health.default_page = p
+        health.save()
 
         smoking = create_page('Smoking is bad', 'smoking', health, pt_article, 
             [('<p>Smoking is bad unless you are salmon.</p>', bt_user),

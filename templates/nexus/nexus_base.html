@@ -3,8 +3,20 @@
 <head>
     <title>Admin: {{title}}</title>
     <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
+
+    {% block headers %}
+        {% comment %}
+            Additional headers can go here
+        {% endcomment %}
+    {% endblock headers %}
 </head>
 <body>
+    <table>
+        <tr>
+            <td><a href="/yacon/nexus/content_listing">Page Management</a></td>
+            <td><a href="">Configuration</a></td>
+        </tr>
+    </table>
     {% block body %}
     {% endblock body %}
 </body>

@@ -1,0 +1,39 @@
+<h2> Node Info for: {{path}} </h2>
+
+<table class="content_list">
+    <tr>
+        <th>Default Page</th>
+        {% if default_page %}
+            <td>{{default_page.title}} 
+                (<a href="{{default_page_uri}}">view</a>)</td>
+        {% else %}
+            <td><i>None</i></td>
+        {% endif %}
+    </tr>
+    <tr>
+        <th>Number of Pages in Section</th>
+        <td>{{num_pages}}</td>
+    </tr>
+    <tr>
+        <th>Node Aliases</th>
+
+        {% if path_aliases %}
+        <td>
+            <table class="content_list">
+                <tr>
+                    <th>Language</th>
+                    <th>Alias</th>
+                </tr>
+            {% for alias in path_aliases %}
+                <tr>
+                    <td>{{alias.0}}</td>
+                    <td>{{alias.1}}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </td>
+        {% else %}
+        <td><i>None</i></td>
+        {% endif %}
+    </tr>
+</table>

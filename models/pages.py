@@ -6,7 +6,7 @@ from django.db import models
 from django.utils import simplejson as json
 from django.core.exceptions import FieldError
 
-from yacon.models.hierarchy import Node, ContentHierarchy
+from yacon.models.hierarchy import Site, Node
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +166,12 @@ class Block(models.Model):
     class Meta:
         app_label = 'yacon'
 
+    def render(self, request):
+        """Returns a rendered version of the block via its ContentHandler"""
+
+        handler = self.block_type.get_content_handler()
+        return handler.render(request, self)
+
 
 class Page(models.Model):
     node = models.ForeignKey(Node)
@@ -269,6 +275,9 @@ class Page(models.Model):
     def is_alias(self):
         return self._alias != None
 
+    def get_uri(self, language=None):
+        return '%s%s' % (self.node.node_to_path(language), self.slug)
+
     # -------------------------------------------
     # Block Finding Methods
 
@@ -281,7 +290,7 @@ class Page(models.Model):
 # Helper Methods
 # ============================================================================
 
-def page_list(uri):
+def page_list(site, uri):
     """Returns a list of pages that are found underneath the node
     corresponding to the given URI.
     
@@ -292,7 +301,7 @@ def page_list(uri):
     @return -- list of pages for the Node; empty list for invalid URI or one
         with no pages associated"""
 
-    parsed = ContentHierarchy.parse_path('/' + uri)
+    parsed = site.parse_path('/' + uri)
     if parsed.node == None:
         # weren't able to parse the path
         return []
