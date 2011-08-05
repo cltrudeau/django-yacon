@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core import management
 
-from yacon.models.hierarchy import Site
+from yacon.models.language import Language
+from yacon.models.site import Site
 from yacon.models.pages import PageType, BlockType, Page, Block
 from yacon.utils import create_page_type, create_page, create_block_type
 
@@ -20,20 +21,22 @@ class Command(BaseCommand):
             site = Site.objects.get(name='Localhost Site')
 
         # add another language to the Site
-        site.add_config('language', 'fr')
+        french = Language(name='French', identifier='fr')
+        french.save()
+        site.alternate_language.add(french)
 
         # create content hierarchy tree
         articles = site.doc_root.create_child('Articles', 'articles', {\
-            'fr':("L'Article", 'lesarticles')})
+            french:("L'Article", 'lesarticles')})
         health = articles.create_child('Health', 'health', {\
-            'fr':("La Sante", 'sante')})
+            french:("La Sante", 'sante')})
         fitness = articles.create_child('Fitness', 'fitness', {\
-            'fr':("De Fitness", 'defitness')})
+            french:("De Fitness", 'defitness')})
         money = articles.create_child('Money', 'money', {\
-            'fr':("L'Argent", 'argent')})
+            french:("L'Argent", 'argent')})
 
         blog = site.doc_root.create_child('Blogs', 'blogs', {\
-            'fr':("Le Blog", 'leblog')})
+            french:("Le Blog", 'leblog')})
 
         # create templates for our content
         pt_article = create_page_type('Article Type', 'examples/article.html' )

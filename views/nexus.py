@@ -104,7 +104,7 @@ def ajax_node_info(request, node_id):
     data['path_aliases'] = []
 
     langs = node.site.get_languages()
-    default = node.site.get_default_language()
+    default = node.site.default_language
     for lang in langs:
         if lang == default:
             continue

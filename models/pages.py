@@ -6,7 +6,8 @@ from django.db import models
 from django.utils import simplejson as json
 from django.core.exceptions import FieldError
 
-from yacon.models.hierarchy import Site, Node
+from yacon.models.site import Site
+from yacon.models.hierarchy import Node
 
 logger = logging.getLogger(__name__)
 

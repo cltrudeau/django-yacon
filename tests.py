@@ -2,25 +2,58 @@
 # blame ctrudeau chr(64) arsensa.com
 
 from django.utils import unittest
-from yacon.models.hierarchy import Site, Node, BadSlug, PathNotFound
+from yacon.models.language import Language
+from yacon.models.site import Site, PathNotFound
+from yacon.models.hierarchy import Node, BadSlug
 
 # ============================================================================
-# ContentHierachy Test Cases
+# Yacon Management Commands Test Cases
+# ============================================================================
+
+class ManagementCommands(unittest.TestCase):
+    def setUp(self):
+        management.call_command('yacon_add_site', 'blah', 'blah')
+        management.call_command('yacon_create_defaults')
+        management.call_command('yacon_create_test_data')
+
+    def test_check_commands(self):
+        # check that the 'foo' site was created
+        site = Site.objects.get(name='blah')
+        self.assertTrue(site)
+
+        # check that the default site was created
+        site = Site.objects.get(name='Localhost Site')
+        self.assertTrue(site)
+
+        # check that test data was created
+        node = site.node_from_path('/articles/health/')
+        self.assertTrue(node)
+
+# ============================================================================
+# Site and Hierachy Test Cases
 # ============================================================================
 
 class SiteTestCase(unittest.TestCase):
     def test_hierarchy(self):
+        english = Language(name='GB English', identifier='en-gb')
+        english.save()
+        french = Language(name='French', identifier='fr')
+        french.save()
+
         # create a test site
-        site = Site.create_site('Test Site', 'foo', ['en', 'fr'])
+        site = Site.create_site('Test Site', 'foo', [english, french])
         self.assertTrue(site)
 
         # test languages were created properly
-        lang = site.get_default_language()
-        self.assertEquals(lang, 'en')
+        lang = site.default_language
+        self.assertEquals(lang, english)
         langs = site.get_languages()
         self.assertEquals(len(langs), 2)
-        self.assertTrue('en' in langs)
-        self.assertTrue('fr' in langs)
+        self.assertTrue(english in langs)
+        self.assertTrue(french in langs)
+        langs = site.get_languages('en')
+        self.assertEquals(len(langs), 1)
+        self.assertTrue(english in langs)
 
         # test adding and retrieving config
         site.add_config('foo', 'bar')
@@ -30,16 +63,16 @@ class SiteTestCase(unittest.TestCase):
 
         # add some child nodes
         child1 = site.doc_root.create_child('Child1', 'child1', {\
-            'fr':('Enfant1', 'enfant1')})
+            french:('Enfant1', 'enfant1')})
         self.assertTrue(child1)
         child2 = site.doc_root.create_child('Child2', 'child2', {\
-            'fr':('Enfant2', 'enfant2')})
+            french:('Enfant2', 'enfant2')})
         self.assertTrue(child2)
         grandchild1 = child1.create_child('Grandchild1', 'grandchild1', {\
-            'fr':('Grandenfant1', 'grandenfant1')})
+            french:('Grandenfant1', 'grandenfant1')})
         self.assertTrue(grandchild1)
         grandchild2 = child1.create_child('Grandchild2', 'grandchild2', {\
-            'fr':('Grandenfant2', 'grandenfant2')})
+            french:('Grandenfant2', 'grandenfant2')})
         self.assertTrue(grandchild2)
 
         # attempt to add with a bad slug
@@ -50,24 +83,24 @@ class SiteTestCase(unittest.TestCase):
         # properly and that right things are returned
         (find, lang) = site.node_lang_from_path('child1')
         self.assertEquals(find, child1)
-        self.assertEquals(lang, 'en')
+        self.assertEquals(lang, english)
         (find, lang) = site.node_lang_from_path('/child1')
         self.assertEquals(find, child1)
-        self.assertEquals(lang, 'en')
+        self.assertEquals(lang, english)
         (find, lang) = site.node_lang_from_path('/child1/')
         self.assertEquals(find, child1)
-        self.assertEquals(lang, 'en')
+        self.assertEquals(lang, english)
         (find, lang) = site.node_lang_from_path('/child1/grandchild2')
         self.assertEquals(find, grandchild2)
-        self.assertEquals(lang, 'en')
+        self.assertEquals(lang, english)
 
         # search for some paths using something besides default lang
         (find, lang) = site.node_lang_from_path('/enfant1/')
         self.assertEquals(find, child1)
-        self.assertEquals(lang, 'fr')
+        self.assertEquals(lang, french)
         (find, lang) = site.node_lang_from_path('/enfant1/grandenfant2')
         self.assertEquals(find, grandchild2)
-        self.assertEquals(lang, 'fr')
+        self.assertEquals(lang, french)
 
         # make sure a bad path causes an exception
         self.assertRaises(PathNotFound, site.node_from_path, '/foo')
@@ -116,10 +149,9 @@ from yacon.models.pages import Page, page_list
 
 class PageTestCase(unittest.TestCase):
     def setUp(self):
-        # load test data
-        management.call_command('yacon_create_test_data')
-
-        # fetch pages explicitly for test comparisons
+        # test data was loaded during the ManagementCommands test, use that
+        # data to test page interactions, start by getting some of the nodes
+        # and pages themselves
         self.site = Site.objects.get(name='Localhost Site')
         self.health = self.site.node_from_path('/articles/health/')
         self.steak = Page.objects.get(node=self.health, slug='steak')
