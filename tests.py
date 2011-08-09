@@ -2,9 +2,14 @@
 # blame ctrudeau chr(64) arsensa.com
 
 from django.utils import unittest
+from django.core import management
+from django.contrib.auth.models import User, Group
+
 from yacon.models.language import Language
-from yacon.models.site import Site, PathNotFound
+from yacon.models.site import Site, ParsedPath
+from yacon.models.pages import Page
 from yacon.models.hierarchy import Node, BadSlug
+from yacon.models.groupsq import GroupOfGroups, OwnedGroupOfGroups
 
 # ============================================================================
 # Yacon Management Commands Test Cases
@@ -26,8 +31,8 @@ class ManagementCommands(unittest.TestCase):
         self.assertTrue(site)
 
         # check that test data was created
-        node = site.node_from_path('/articles/health/')
-        self.assertTrue(node)
+        pp = site.parse_path('/articles/health/')
+        self.assertTrue(pp.node)
 
 # ============================================================================
 # Site and Hierachy Test Cases
@@ -35,25 +40,23 @@ class ManagementCommands(unittest.TestCase):
 
 class SiteTestCase(unittest.TestCase):
     def test_hierarchy(self):
-        english = Language(name='GB English', identifier='en-gb')
-        english.save()
-        french = Language(name='French', identifier='fr')
-        french.save()
+        british = Language.factory(name='GB English', identifier='en-gb')
+        french = Language.factory(name='French', identifier='fr')
 
         # create a test site
-        site = Site.create_site('Test Site', 'foo', [english, french])
+        site = Site.create_site('Test Site', 'foo', [british, french])
         self.assertTrue(site)
 
         # test languages were created properly
         lang = site.default_language
-        self.assertEquals(lang, english)
+        self.assertEquals(lang, british)
         langs = site.get_languages()
         self.assertEquals(len(langs), 2)
-        self.assertTrue(english in langs)
+        self.assertTrue(british in langs)
         self.assertTrue(french in langs)
         langs = site.get_languages('en')
         self.assertEquals(len(langs), 1)
-        self.assertTrue(english in langs)
+        self.assertTrue(british in langs)
 
         # test adding and retrieving config
         site.add_config('foo', 'bar')
@@ -81,43 +84,46 @@ class SiteTestCase(unittest.TestCase):
 
         # search for some paths, testing leading and trailing slashes ignored
         # properly and that right things are returned
-        (find, lang) = site.node_lang_from_path('child1')
-        self.assertEquals(find, child1)
-        self.assertEquals(lang, english)
-        (find, lang) = site.node_lang_from_path('/child1')
-        self.assertEquals(find, child1)
-        self.assertEquals(lang, english)
-        (find, lang) = site.node_lang_from_path('/child1/')
-        self.assertEquals(find, child1)
-        self.assertEquals(lang, english)
-        (find, lang) = site.node_lang_from_path('/child1/grandchild2')
-        self.assertEquals(find, grandchild2)
-        self.assertEquals(lang, english)
+        pp = site.parse_path('child1')
+        self.assertEquals(pp.node, child1)
+        self.assertEquals(pp.language, british)
+
+        pp = site.parse_path('/child1')
+        self.assertEquals(pp.node, child1)
+        self.assertEquals(pp.language, british)
+
+        pp = site.parse_path('/child1/')
+        self.assertEquals(pp.node, child1)
+        self.assertEquals(pp.language, british)
+
+        pp = site.parse_path('/child1/grandchild2')
+        self.assertEquals(pp.node, grandchild2)
+        self.assertEquals(pp.language, british)
 
         # search for some paths using something besides default lang
-        (find, lang) = site.node_lang_from_path('/enfant1/')
-        self.assertEquals(find, child1)
-        self.assertEquals(lang, french)
-        (find, lang) = site.node_lang_from_path('/enfant1/grandenfant2')
-        self.assertEquals(find, grandchild2)
-        self.assertEquals(lang, french)
+        pp = site.parse_path('/enfant1/')
+        self.assertEquals(pp.node, child1)
+        self.assertEquals(pp.language, french)
 
-        # make sure a bad path causes an exception
-        self.assertRaises(PathNotFound, site.node_from_path, '/foo')
-        self.assertRaises(PathNotFound, site.node_from_path, '/child1/foo')
+        pp = site.parse_path('/enfant1/grandenfant2')
+        self.assertEquals(pp.node, grandchild2)
+        self.assertEquals(pp.language, french)
 
         # test path parser with a mismatched path
-        parsed = site.parse_path('/foo')
-        self.assertEquals(parsed.path, '/foo')
-        self.assertEquals(parsed.slugs_in_path, [])
-        self.assertEquals(parsed.slugs_after_node, ['foo'])
-        self.assertEquals(parsed.node, None)
+        pp = site.parse_path('/foo')
+        self.assertEquals(pp.path, '/foo')
+        self.assertEquals(pp.slugs_in_path, [])
+        self.assertEquals(pp.slugs_after_item, ['foo'])
+        self.assertEquals(pp.node, None)
+        self.assertEquals(pp.page, None)
+        self.assertEquals(pp.language, None)
+        self.assertEquals(pp.item_type, ParsedPath.UNKNOWN)
 
         # test path parser with a good path, including bits past the node
         parsed = site.parse_path('/child1/grandchild2/foo/b')
         self.assertEquals(parsed.path, '/child1/grandchild2/foo/b')
         self.assertEquals(parsed.slugs_in_path, ['child1', 'grandchild2'])
-        self.assertEquals(parsed.slugs_after_node, ['foo', 'b'])
+        self.assertEquals(parsed.slugs_after_item, ['foo', 'b'])
         self.assertEquals(parsed.node, grandchild2)
 
         # test tree printing
@@ -144,41 +150,52 @@ class SiteTestCase(unittest.TestCase):
 # Page Test Cases
 # ============================================================================
 
-from django.core import management
-from yacon.models.pages import Page, page_list
-
 class PageTestCase(unittest.TestCase):
     def setUp(self):
         # test data was loaded during the ManagementCommands test, use that
         # data to test page interactions, start by getting some of the nodes
         # and pages themselves
         self.site = Site.objects.get(name='Localhost Site')
-        self.health = self.site.node_from_path('/articles/health/')
-        self.steak = Page.objects.get(node=self.health, slug='steak')
-        self.smoking = Page.objects.get(node=self.health, slug='smoking')
+        pp = self.site.parse_path('/articles/health/')
+        self.health = pp.node
+
+        pp = self.site.parse_path('/articles/health/steak')
+        self.steak = pp.page.page_data
+
+        pp = self.site.parse_path('/articles/health/smoking')
+        self.smoking = pp.page.page_data
+
+        # get our languages from the site
+        self.english = self.site.get_languages('en')[0]
+        self.french = self.site.get_languages('fr')[0]
 
     def test_tree(self):
+        # ---------------------------------
+        # Test in english
+
         # test invalid URI
-        pages = page_list(self.site, '/foo/bar')
-        self.assertEquals(pages, [])
+        page = self.site.find_page('/foo/bar')
+        self.assertEquals(page, None)
 
-        # test URI with a slug in it
-        pages = page_list(self.site, '/articles/health/steak')
-        self.assertEquals(pages, [self.steak])
+        # test a valid URI without a page slug but with default page
+        page = self.site.find_page('/articles/health/')
+        self.assertEquals(page.page_data, self.steak)
+        self.assertEquals(page.language, self.english)
 
-        # test URI without a slug
-        pages = page_list(self.site, '/articles/health/')
-        self.assertEquals(len(pages), 2)
-        self.assertTrue(self.steak in pages)
-        self.assertTrue(self.smoking in pages)
+        # test a valid URI without a page slug and without default page
+        page = self.site.find_page('/articles/fitness/')
+        self.assertEquals(page, None)
+
+        # ---------------------------------
+        # Test Multi-lingual
+        page = self.site.find_page('/lesarticles/sante/lesteak')
+        self.assertEquals(page.page_data, self.steak)
+        self.assertEquals(page.language, self.french)
 
 
 # ============================================================================
 # GroupOfGroups Test Cases
 # ============================================================================
-
-from django.contrib.auth.models import User, Group
-from yacon.models.groupsq import GroupOfGroups, OwnedGroupOfGroups
 
 class GroupOfGroupsTestCase(unittest.TestCase):
     def _user(self, username, email, password):

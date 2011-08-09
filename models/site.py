@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
 from yacon.models.language import Language
+from yacon.models.pages import Page
 from yacon.models.hierarchy import Node, NodeTranslation
 
 logger = logging.getLogger(__name__)
@@ -15,28 +16,33 @@ logger = logging.getLogger(__name__)
 match_slash = re.compile('/')
 
 # ============================================================================
-# Exceptions
-# ============================================================================
-
-class PathNotFound(exceptions.Exception):
-    pass
-
-# ============================================================================
 # Utility Classes
 # ============================================================================
 
-class ParsedPath():
+class ParsedPath(object):
+    UNKNOWN = 0
+    NODE = 1
+    PAGE = 2
+    ITEM_TYPES = {
+        UNKNOWN:'Unknown',
+        NODE:'NODE',
+        PAGE:'PAGE',
+    }
+
     def __init__(self, *args, **kwargs):
         self.slugs_in_path = []
-        self.slugs_after_node = []
+        self.slugs_after_item = []
         self.path = ''
         self.language = None
         self.node = None
+        self.page = None
+        self.item_type = ParsedPath.UNKNOWN
 
     def __str__(self):
-        return \
-        'ParsedPath(path=%s, slugs_in_path=%s, slugs_after_node=%s, node=%s)' \
-            % (self.path, self.slugs_in_path, self.slugs_after_node, self.node)
+        return 'ParsedPath(path=%s, slugs_in_path=%s, slugs_after_item=%s, '\
+            'item_type=%s, node=%s, page=%s)' % (self.path, self.slugs_in_path, 
+            self.slugs_after_item, self.ITEM_TYPES[self.item_type], self.node, 
+            self.page)
 
 # ============================================================================
 # Site Management
@@ -183,109 +189,128 @@ class Site(models.Model):
     # -----------------------------------------------------------------------
     # Search Methods
 
-    def node_lang_from_path(self, path):
-        """A path of slugs is used to uniquely identify a Node in the document
-        hierarchy, this method walks a given path to return a tuple consisting
-        of Node and Language object for the Node at the end of the given path.
-
-        For example, '/blogs/health/milk' will return the Node object
-        corresponding to 'milk' (which is a child of health which is a child
-        of blogs) along with the Language object containing 'en'.  
+    def parse_path(self, path):
+        """A path of slugs is used to uniquely identify a Node or Page in the
+        document hierarchy, this method walks a given path until it runs out
+        of either tree or the path, generating a ParsedPath object along the
+        way.  The ParsedPath object contains the list of slugs in the path,
+        any slugs after the path (i.e. if we run out of tree) and a resulting
+        Node or Page object that corresponds to the path.  If the path does
+        not result in finding a Node or Page then a ParsedPath object is still
+        returned.  
 
         As consistency of path language is not required, each level of the
-        path can in theory be aliases in other languages.  The language
-        returned is technically the Language of the last portion of the path.
+        path can in theory be aliased in other languages.  The language
+        returned is technically the Language of the last portion of the path,
+        i.e. of either the last Node or Page found.
 
-        @param path -- path portion of a URI for the desired Node.  Leading
-            and trailing slashes are optional and ignored
-        @raise PathNotFound -- if the path passed in doesn't correspond to the
-            hierarchy
-        @return -- (Node, Language)
-        """
-
-        node = self.doc_root
-        language = None
-        parts = match_slash.split(path)
-        for part in parts:
-            if part == '':
-                continue 
-
-            kids = node.get_children()
-            found = False
-            for kid in kids:
-                if kid.has_slug(part):
-                    found = True
-                    language = kid.language_of_slug(part)
-                    node = kid
-                    break
-
-            if not found:
-                raise PathNotFound('%s has no child %s' % (node.slug, part))
-
-        # if you get here succesfully then node is the last piece
-        return (node, language)
-
-    def node_from_path(self, path):
-        """Calls node_lang_from_path, ignoring the language and returning just
-        the Node
-
-        @returns: Node object for the path
-        """
-
-        (node, lang) = self.node_lang_from_path(path)
-        return node
-
-    def parse_path(self, path):
-        """Returns a ParsedPath object by walking the path given until it
-        runs out of either tree or the path.  The ParsedPath object contains
-        the list of slugs in the path and any slugs after the path (i.e. if we
-        run out of tree) along with a Node object.  If the path does not
-        result in finding a node then a ParsedPath object is still returned
+        If a Node object has a default_page setting and the path indicates the
+        Node, then both a Node and Page object are returned, but the item_type
+        will indicate a Page.
 
         @param path: path to walk to find a container Node 
         @returns: ParsedPath object.
+            ParsedPath.path: path that was parsed
             ParsedPath.slugs_in_path: a list of slugs in the path passed in
-            ParsedPath.language: Language object for the slug where Node object 
-                is found.  In theory the Language should be the same for all
-                slugs, but in practice this isn't enforced
-            ParsedPath.slugs_after_node: a list of slugs found in the path
+            ParsedPath.slugs_after_item: a list of slugs found in the path
                 after we ran out of tree to walk
-            ParsedPath.Node: the Node object corresponding to the part of
-                the tree where we ran out of path.  If the path does not
-                correspond to the tree then Node will be None and all slugs in
-                the path will be in ParsedPath.slugs_after_node"""
-
+            ParsedPath.language: Language object for the slug where final item
+                object is found.  In theory the Language should be the same 
+                for all slugs, but in practice this isn't enforced
+            ParsedPath.Node: if the end of the path walked is a Node then this
+                will contain that Node object
+            ParsedPath.Page: if the end of the path walked is a Page or a Node
+                with a default_page setting then this will contain that Page
+            ParsedPath.item_type: one of:
+                ParsedPath.UNKNOWN: if the walking the path did not result in
+                    a Page or Node
+                ParsedPath.Node: if the walking the path resulted in a Node
+                ParsedPath.Page: if the walking the path resulted in a Page
+                    or a Node with a default_page setting
+        """
         node = self.doc_root
         parsed = ParsedPath()
         parsed.path = path
         parts = match_slash.split(path)
-        end_of_tree = False
+        found_end_node = False
+        # step through the parts of the path looking for Node objects
         for part in parts:
+            # if the path contained double slashes, ignore them
             if part == '':
                 continue 
 
-            if not end_of_tree:
-                kids = node.get_children()
-                found = False
-                for kid in kids:
-                    if kid.slug == part:
-                        found = True
-                        parsed.slugs_in_path.append(part)
-                        parsed.node = kid
-                        node = kid
-                        break
+            if not found_end_node:
+                # search the children of this Node for the slug we've parsed
+                kids = list(node.get_children())
+                nts = NodeTranslation.objects.filter(slug=part, node__in=kids)
+                if len(nts) > 0:
+                    # found slugs -- there should only be one, but to play it
+                    # safe we don't enforce that
+                    if len(nts) > 1:
+                        logger.warning('Multiple slugs matched for children '
+                            + 'of node=%s' % node + ' and slug=%s' % part)
 
-                if not found:
-                    parsed.slugs_after_node.append(part)
-                    end_of_tree = True
+                    parsed.slugs_in_path.append(part)
+                    parsed.node = nts[0].node
+                    parsed.item_type = ParsedPath.NODE
+                    node = nts[0].node
+                else:
+                    parsed.slugs_after_item.append(part)
+                    found_end_node = True
             else:
-                parsed.slugs_after_node.append(part)
+                # already found leaf Node, all slugs after this get stored
+                parsed.slugs_after_item.append(part)
 
-        if len(parsed.slugs_in_path) > 0:
+        if parsed.item_type == ParsedPath.UNKNOWN:
+            # didn't find a Node in the path, return what we've built
+            return parsed
+
+        # if you get here then we found a Node, check for Pages and default
+        # pages 
+        if len(parsed.slugs_after_item) > 0:
+            # there are still slugs left after we found the last Node, see if
+            # there is a Page for it
+            page = Page.find_page(parsed.node, parsed.slugs_after_item[0])
+            if page != None:
+                parsed.page = page
+                parsed.language = page.language
+                parsed.item_type = ParsedPath.PAGE
+
+        # either there were no slugs after we found the Node, or there
+        # were and there was no Page for it; so we're only a Node, check
+        # for default page for this Node
+        if parsed.item_type == ParsedPath.NODE:
+            # find the language of the Node so we can check for a default page
             last = parsed.slugs_in_path[-1]
             parsed.language = parsed.node.language_of_slug(last)
+
+            # get the default page
+            page = parsed.node.get_default_page(parsed.language)
+            if page != None:
+                # Node has a default_page
+                parsed.item_type = ParsedPath.PAGE
+                parsed.page = page
+
         return parsed
 
+    def find_page(self, uri):
+        """Returns a Page object corresponding to the given URI.  The URI can
+        either be a path to a Page or to a Node with a default page.  If it is
+        neither then None is returned
+
+        @param uri: URI corresponding to a path to a Page or Node with a
+            default page
+
+        @returns Page: returns Page object for given URI or None if no match
+        """
+        parsed = self.parse_path('/' + uri)
+        if parsed.item_type == ParsedPath.PAGE:
+            return parsed.page
+
+        # If you get here, then either: 1) URI was invalid, 2) URI was for a
+        # Node without a default_page
+        return None
+            
 
 class SiteURL(models.Model):
     """Defines the URLs that are associated with a Site"""

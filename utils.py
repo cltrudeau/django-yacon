@@ -38,25 +38,43 @@ def create_block_type(name, key, module_name, content_handler_name):
     return bt
 
 
-def create_page(title, slug, node, page_type, content_list):
-    """Takes a list of tuples of (content, BlockType objects), creates the
-    corresponding Block objects, saves them, and creates a new Page that
-    contains these objects.
+def create_page(spec):
+    """Creates a Page object by processing a dictionary that specifies how to 
+    construct the page.  
 
-    @param title -- title for the page
-    @param slug -- slug that identifies the page uniquely within the node
-    @param node -- a hierarchy node where this page is found
-    @param page_type -- a PageType instance to be associated with
-    @param content_list -- a list of tuples of content and associated
-        BlockType objects.  E.g. [("<i>stuff</i>", blurb_type),]
+    @param specifier: a dictionaries that indicates how to construct a Page.  
+        The format of the dictionary is as follows:
 
-    @returns -- the new Page object
+        spec = {
+            'page_type': page_type,   # the Page's PageType object
+            'node': node,             # Node where the Page resides
+            'language': language,     # default Language for the Page
+            'translations': {         # container for translated items
+                language : {          # maps Language object to translatables
+                    'slug': slug,     # slug for page
+                    'title': title,   # optional title for page
+                    'blocks': [       # list of tuples for blocks
+                        (block_type,  # BlockType object
+                        content),     # content for block
+                    ],
+                }
+            }
+        }
     """
-    page = Page(title=title, slug=slug, node=node, page_type=page_type)
-    page.save()
-    for (content, block_type) in content_list:
-        block = Block(block_type=block_type, content=content)
-        block.save()
-        page.blocks.add(block)
+    tx = {}
+    for lang, stuff in spec['translations'].items():
+        if stuff.has_key('title'):
+            tx[lang] = (stuff['slug'], stuff['title'])
+        else:
+            tx[lang] = stuff['slug']
+
+    # create the Page
+    page = Page.create_page(spec['node'], spec['page_type'], spec['language'], 
+        tx)
+
+    # create the blocks in the page
+    for lang in spec['translations'].keys():
+        for block_type, content in spec['translations'][lang]['blocks']:
+            page.create_block(block_type, content, lang)
 
     return page

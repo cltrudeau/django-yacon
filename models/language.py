@@ -22,10 +22,31 @@ class Language(models.Model):
     """
 
     name = models.CharField(max_length=25)
-    identifier = models.CharField(max_length=25)
+    identifier = models.CharField(max_length=25, unique=True)
 
     class Meta:
         app_label = 'yacon'
+
+    # --------------------------------------------
+    # Factories/Constructors
+    @classmethod
+    def factory(cls, name, identifier):
+        """Returns a Language object by either fetching one with a matching
+        identifier or creating a new one if no match is found.
+
+        @param name: human readable name of Language (usually in
+            English/installation default language
+        @param identifier: unique language identifier
+
+        @returns Language: matching Language class
+        """
+        try:
+            lang = Language.objects.get(identifier=identifier)
+        except Language.DoesNotExist:
+            lang = Language(name=name, identifier=identifier)
+            lang.save()
+
+        return lang
 
     # --------------------------------------------
     # Getters

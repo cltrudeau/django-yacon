@@ -1,9 +1,15 @@
+# -*- coding: latin-1 -*-
+#
+# yacon_create_test_data.py
+# blame ctrudeau chr(64) arsensa.com
+#
+# Unit tests for Yacon
+
 from django.core.management.base import BaseCommand, CommandError
 from django.core import management
 
 from yacon.models.language import Language
 from yacon.models.site import Site
-from yacon.models.pages import PageType, BlockType, Page, Block
 from yacon.utils import create_page_type, create_page, create_block_type
 
 class Command(BaseCommand):
@@ -20,9 +26,11 @@ class Command(BaseCommand):
             management.call_command('yacon_create_defaults')
             site = Site.objects.get(name='Localhost Site')
 
+        # fetch default language
+        english = site.default_language
+
         # add another language to the Site
-        french = Language(name='French', identifier='fr')
-        french.save()
+        french = Language.factory(name='French', identifier='fr')
         site.alternate_language.add(french)
 
         # create content hierarchy tree
@@ -51,41 +59,102 @@ class Command(BaseCommand):
 
         # -----------------
         # create some pages
-        p = create_page('Steak is good', 'steak', health, pt_article, [\
-            ('<p>Steak should be as good for you as it tastes.</p>', bt_user),
-            ("""
+        spec = {\
+            'page_type': pt_article, 
+            'node': health, 
+            'language': english,
+            'translations': {
+                english : { 
+                    'slug': 'steak',
+                    'title': 'Steak is good',
+                    'blocks': [       
+                        (bt_user, 
+                        '<p>Steak should be as good for you as it tastes.</p>'),
+                        (bt_poll, """
+<h3>Poll: Favourite Steak?</h3>
 <ul>
 <li>T-Bone</li>
-<li>Filet</li>
+<li>Filet Mignon</li>
 <li>Porterhouse</li>
 </ul>
-""",
-                bt_poll),
-            ]
-        )
-        health.default_page = p
-        health.save()
-
-        smoking = create_page('Smoking is bad', 'smoking', health, pt_article, 
-            [('<p>Smoking is bad unless you are salmon.</p>', bt_user),
-                ("""
+"""),
+                    ],
+                },
+                french : { 
+                    'slug': 'lesteak',
+                    'title': 'Le steak est bon',
+                    'blocks': [       
+                        (bt_user, 
+                        '<p>Steak devrait être aussi bon pour vous comme ' \
+                        + 'il les goûts.</p>'),
+                        (bt_poll, """
+<h3>Poll: Steak Favourite?</h3>
 <ul>
-    <li>Regular</li>
-    <li>Slim</li>
-    <li>Menthol</li>
+<li>Steak T-Bone</li>
+<li>Filet Mignon</li>
+<li>Chateaubriand</li>
 </ul>
-""",
-                    bt_poll),
-            ]
-        )
+"""),
+                    ],
+                }
+            }
+        }
+        p = create_page(spec)
+        health.set_default_page(p)
 
+        spec = {\
+            'page_type': pt_article, 
+            'node': health, 
+            'language': english,
+            'translations': {
+                english : { 
+                    'slug': 'smoking',
+                    'title': 'Smoking is bad',
+                    'blocks': [       
+                        (bt_user, 
+                        '<p>Smoking is bad unless you are a salmon.</p>'),
+                    ],
+                },
+                french : { 
+                    'slug': 'fumer',
+                    'title': 'Fumer est mauvais',
+                    'blocks': [       
+                        (bt_user, 
+                        '<p>Fumer est mauvais, sauf si vous êtes un saumon'),
+                    ],
+                }
+            }
+        }
+        smoking = create_page(spec)
+
+        # add steak poll blocks to smoking pages
+        english_polls = p.blocks(block_type=bt_poll)
+        smoking.add_block(english_polls[0], english)
+
+        french_page = p.get_page_translation(french)
+        french_poll = french_page.blocks(block_type=bt_poll)[0]
+        smoking.add_block(french_poll, french)
 
         # Smoking alias in Fitness
-        page = smoking.create_alias(fitness, 'smoking_fit')
+        page = smoking.create_alias_with_default_language(fitness, 
+            'smoking_fit')
 
         # blog pages
         for x in range(1, 4):
-            create_page('blog %s' % x, 'blog_%s' % x, blog, pt_blog, [\
-                    ('<p>Blog entry %s</p>' % x, bt_blog),
-                ]
-            )
+            spec = {
+                'page_type': pt_blog, 
+                'node': blog,
+                'language': english,
+                'translations': {
+                    english : { 
+                        'slug': 'blog_%s' % x,
+                        'title': 'Blog %s' % x,
+                        'blocks': [       
+                            (bt_user, 
+                            '<p>Blog entry %s.</p>' % x),
+                        ],
+                    },
+                }
+            }
+
+            create_page(spec)

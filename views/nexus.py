@@ -71,8 +71,8 @@ def _construct_page_info(request, page_id):
     data = {}
     data['title'] = 'Page Info'
     data['page'] = page
-    data['blocks'] = page.blocks.all()
-    data['uri'] = page.get_uri()
+    data['block_translations'] = BlockTranslations.objects.filter(page=page)
+    data['uris'] = page.get_uris()
 
     if page.is_alias():
         data['alias'] = page._alias.id

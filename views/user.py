@@ -20,26 +20,21 @@ def display_page(request, uri):
     determine what site is being displayed and the uri passed in to find an
     page to render. """
     site = Site.get_site(request)
-
-    parsed = site.parse_path('/' + uri)
+    (page, language) = site.find_page_with_language(uri)
+    
+    if page == None:
     if parsed.node == None:
         # weren't able to parse the path
-        raise Http404('Path not found.  Parsed: path=%s' % parsed.path)
-
-    # find the page that corresponds to the uri
-    try:
-        page = Page.objects.get(node=parsed.node, 
-            slug=parsed.slugs_after_node[0])
-    except Page.DoesNotExist:
-        raise Http404('Page not found for: node=%s, slug=%s' % \
-            (parsed.node, parsed.slugs_after_node[0]))
+        raise Http404('CMS did not contain a page for uri: %s' % uri)
 
     logger.debug('displaying page: %s' % page)
     data = {}
     data['page'] = page
+    data['language'] = lang
+    data['translations'] = page.available_translations(lang)
     data['request'] = request
     data['uri'] = uri
-    data['slugs'] = parsed.slugs_after_node
+    data['slugs'] = parsed.slugs_after_item
 
     return render_to_response(page.page_type.template, data, 
         context_instance=RequestContext(request))

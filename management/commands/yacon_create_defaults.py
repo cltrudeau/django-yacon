@@ -8,6 +8,5 @@ class Command(BaseCommand):
         name='Localhost Site'
         url='localhost:8000'
 
-        language = Language(name='English', identifier='en')
-        language.save()
+        language = Language.factory(name='English', identifier='en')
         site = Site.create_site(name, url, languages=[language])

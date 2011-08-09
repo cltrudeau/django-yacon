@@ -6,11 +6,12 @@ import re, exceptions, logging
 from django.db import models
 from treebeard.mp_tree import MP_Node
 from yacon.models.language import Language
+from yacon.models.pages import Page
+from yacon.definitions import SLUG_LENGTH
 
 logger = logging.getLogger(__name__)
 
 match_word = re.compile('^\w*$')
-match_slash = re.compile('/')
 
 # ============================================================================
 # Exceptions
@@ -44,8 +45,8 @@ class Node(MP_Node):
     around formatting of slugs, etc.  
     """
     site = models.ForeignKey('yacon.Site')
-    default_page = models.ForeignKey('yacon.Page', blank=True, null=True,
-        related_name='+')
+    default_page_data = models.ForeignKey('yacon.PageData', blank=True, 
+        null=True, related_name='+')
 
     class Meta:
         app_label = 'yacon'
@@ -79,8 +80,9 @@ class Node(MP_Node):
         for key, value in translations.items():
             (name, slug) = value
 
-            if len(slug) > 25:
-                raise BadSlug('Maximum slug length is 25 characters')
+            if len(slug) > SLUG_LENGTH:
+                raise BadSlug('Maximum slug length is %d characters' %
+                    SLUG_LENGTH)
 
             if not match_word.search(slug):
                 raise BadSlug('Slug must be of form [0-9a-zA-Z_]*')
@@ -108,6 +110,22 @@ class Node(MP_Node):
     def slug(self):
         """Returns the slug for this Node in the Site's default translation"""
         return self.get_slug()
+
+    def get_default_page(self, language):
+        """If this Node has an associated default PageData item return a Page
+        for it in the given Language.  
+
+        @param language: Language object for the rendering Page object for
+            associated PageData object
+        @returns Page: Page object representing the default page for this
+            Node, or None if there isn't one, or isn't one in the given 
+            language
+        """
+        if self.default_page_data == None:
+            return self.default_page_data
+
+        # we have default PageData, return a Page for it
+        return Page._factory(self.default_page_data, language)
 
     def get_name(self, language=None):
         """Returns the name for this Node in the given Language.  If no
@@ -163,6 +181,22 @@ class Node(MP_Node):
         return tx.language
 
     # -----------------------------------------------------------------------
+    # Setters
+    def set_default_page(self, page):
+        """Sets the Page to display if this Node is given as a URI in the CMS.
+        Underlying storage isn't of the Page but its associated PageData
+        object, so multiple Language aliases of the URI for the Node will work
+        producing the appropriately translated Page.
+
+        Note that the Node object is automatically saved() during this call.
+        
+        @param page: Page object that wraps a PageData to set as the default
+            for this Node
+        """
+        self.default_page_data = page.page_data
+        self.save()
+
+    # -----------------------------------------------------------------------
     # Tree Walking Methods
 
     def _walk_tree_to_string(self, node, output, indent):
@@ -216,7 +250,7 @@ class NodeTranslation(models.Model):
     """
     language = models.ForeignKey(Language, related_name='+')
     name = models.CharField(max_length=30)
-    slug = models.CharField(max_length=25)
+    slug = models.CharField(max_length=SLUG_LENGTH)
     node = models.ForeignKey(Node)
 
     class Meta:
