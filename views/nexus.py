@@ -11,7 +11,8 @@ import logging
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
-from yacon.models.hierarchy import Site, Node
+from yacon.models.hierarchy import Node
+from yacon.models.site import Site
 from yacon.models.pages import Page
 
 logger = logging.getLogger(__name__)
@@ -24,9 +25,10 @@ def _tree_to_html_list(node, output, indent):
     spacer = 3 * (indent + 1) * ' '
     output.append( spacer + '   <li>' +\
         '<img src="/static/icons/fatcow/node-tree.png">&nbsp;' +\
-        '<a class="obj_info" href="/yacon/nexus/ajax_node_info/%d/">%s (%s)<a/>' %
-            (node.id, node.name, node.slug) + '</li>')
+        '<a class="obj_info" href="/yacon/nexus/ajax_node_info' +\
+        '/%d/">%s (%s)<a/>' % (node.id, node.name, node.slug) + '</li>')
     
+    default_lang = node.site.default_language
     if node.has_children():
         output.append('%s<ul>' % spacer)
         for child in node.get_children():
@@ -34,15 +36,30 @@ def _tree_to_html_list(node, output, indent):
         output.append('%s</ul>' % spacer)
     else: 
         # leaf node, check for pages
-        pages = Page.objects.filter(node=node)
+        pages = Page.list_pages(node=node)
         if len(pages) != 0:
             output.append('%s<ul class="content_list">' % spacer)
-            for page in pages:
+            for page_hash in pages:
+                primary_lang = page_hash.get(default_lang)
+                if primary_lang != None:
+                    del page_hash[default_lang]
+                else:
+                    key = page_hash.keys()[0]
+                    primary_lang = page_hash[key]
+                    del page_hash[key]
+
+                # output the list item for the primary language
                 output.append(spacer + '   <li>' +\
                     '<img src="/static/icons/fatcow/page.png">&nbsp;' +\
                     '<a class="obj_info" ' + \
-                    'href="/yacon/nexus/ajax_page_info/%d/">%s</a></li>' % 
-                    (page.id, page.title))
+                    'href="/yacon/nexus/ajax_page_info/%d/">%s</a>' % 
+                    (primary_lang.page_data.id, primary_lang.title))
+
+                # make a indicator for each additional translation
+                for key in page_hash.keys():
+                    output.append('(%s)' % key.identifier.upper())
+
+                output.append('</li>')
             output.append('%s</ul>' % spacer)
 
 

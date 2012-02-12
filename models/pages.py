@@ -313,6 +313,35 @@ class Page(object):
 
         return cls._factory(pt.page_data, pt.language)
 
+    @classmethod
+    def list_pages(cls, node):
+        """Returns a list of hashes of Page objects where each hash contains
+        all of the translations for a Page, with the key being the language
+        mapping to the value of the Page.
+        
+        :param node: Node to look for PageData objects within
+        """
+        try:
+            datum = PageData.objects.filter(node=node)
+        except PageData.DoesNotExist:
+            return []
+
+        pages = []
+        for pagedata in datum:
+            try:
+                pts = PageTranslation.objects.filter(page_data=pagedata)
+                content = {}
+                for pt in pts:
+                    content[pt.language] = cls._factory(pt.page_data, 
+                        pt.language)
+
+                pages.append(content)
+            except PageTranslation.DoesNotExist:
+                # no content for this PageData object, skip it
+                continue
+
+        return pages
+
     def create_alias_with_default_language(self, node, slug, title=None, 
         translations={}):
         """Creates a PageData object that is an alias to this Page's PageData
