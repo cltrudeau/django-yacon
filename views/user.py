@@ -6,7 +6,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse
 
-from yacon.models.hierarchy import Site
+from yacon.models.sites import Site
 from yacon.models.pages import Page
 
 logger = logging.getLogger(__name__)
@@ -20,21 +20,18 @@ def display_page(request, uri):
     determine what site is being displayed and the uri passed in to find an
     page to render. """
     site = Site.get_site(request)
-    (page, language) = site.find_page_with_language(uri)
+    page = site.find_page(uri)
     
     if page == None:
-    if parsed.node == None:
-        # weren't able to parse the path
+        # no such page found for uri
         raise Http404('CMS did not contain a page for uri: %s' % uri)
 
     logger.debug('displaying page: %s' % page)
     data = {}
     data['page'] = page
-    data['language'] = lang
-    data['translations'] = page.available_translations(lang)
+    data['translations'] = page.other_translations()
     data['request'] = request
     data['uri'] = uri
-    data['slugs'] = parsed.slugs_after_item
 
     return render_to_response(page.page_type.template, data, 
         context_instance=RequestContext(request))
@@ -64,7 +61,7 @@ def _ajax_preconditions(request):
 def ajax_display(request):
     block = _ajax_preconditions(request)
 
-    return HttpResponse(block.render( ))
+    return HttpResponse(block.render())
 
 
 def ajax_submit(request):

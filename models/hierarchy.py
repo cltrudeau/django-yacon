@@ -45,8 +45,8 @@ class Node(MP_Node):
     around formatting of slugs, etc.  
     """
     site = models.ForeignKey('yacon.Site')
-    default_page_data = models.ForeignKey('yacon.PageData', blank=True, 
-        null=True, related_name='+')
+    default_page = models.ForeignKey('yacon.Page', blank=True, null=True, 
+        related_name='+')
 
     class Meta:
         app_label = 'yacon'
@@ -62,16 +62,16 @@ class Node(MP_Node):
         Language objects mapped to name/slug tuples can be used to
         populate other translations.
 
-        @param name: name of Node in default language
-        @param slug: slug for Node in default language
-        @param translations: dictionary mapping language codes to tuples of
+        :param name: name of Node in default language
+        :param slug: slug for Node in default language
+        :param translations: dictionary mapping language codes to tuples of
             name/slug pairs to be used to populate translations.  Example:
             {Language('en-GB'):('Colour','colour'), Language('fr'):('Couleur', 
             'couleur'), }
 
-        @returns: newly created child Node
+        :returns: newly created child Node
 
-        @raise BadSlug: if the slug contains any non-alpha-numeric character
+        :raises: BadSlug, if the slug contains any non-alpha-numeric character
             or exceeds 25 characters in length
         """
         translations[self.site.default_language] = (name, slug)
@@ -111,31 +111,32 @@ class Node(MP_Node):
         """Returns the slug for this Node in the Site's default translation"""
         return self.get_slug()
 
-    def get_default_page(self, language):
-        """If this Node has an associated default PageData item return a Page
-        for it in the given Language.  
+    def get_default_pagetranslation(self, language):
+        """If this Node has an associated default Page item return a
+        PageTranslation for it in the given Language.  
 
-        @param language: Language object for the rendering Page object for
-            associated PageData object
-        @returns Page: Page object representing the default page for this
+        :param language: Language object to use for getting the
+            PageTranslation
+
+        :returns: PageTranslation representing the default page for this
             Node, or None if there isn't one, or isn't one in the given 
             language
         """
-        if self.default_page_data == None:
-            return self.default_page_data
+        if self.default_page == None:
+            return None
 
-        # we have default PageData, return a Page for it
-        return Page._factory(self.default_page_data, language)
+        # we have default Page, return a PageTranslation for it
+        return page.get_translation(language)
 
     def get_name(self, language=None):
         """Returns the name for this Node in the given Language.  If no
         Language is passed in then the Site's default Language is used.  
 
-        @param langauge: optional parameter specifying the Language to return
+        :param langauge: optional parameter specifying the Language to return
             the Node's name in.  If not given the Site's default Language is
             used
 
-        @returns: string containing desired Node name
+        :returns: string containing desired Node name
         """
         if language == None:
             language = self.site.default_language
@@ -147,11 +148,11 @@ class Node(MP_Node):
         """Returns the slug for this Node in the given Language.  If no
         Language is passed in then the Site's default language is used.  
 
-        @param langauge: optional parameter specifying the Language to return
+        :param langauge: optional parameter specifying the Language to return
             the Node's slug in.  If not given the Site's default Language is
             used
 
-        @returns: string containing desired Node slug
+        :returns: string containing desired Node slug
         """
         if language == None:
             language = self.site.default_language
@@ -163,8 +164,9 @@ class Node(MP_Node):
         """Returns true if one of the NodeTranslation for this Node contains
         the given slug.
 
-        @param find_slug: slug to search for
-        @returns: True if find_slug matches one of the slug translations
+        :param find_slug: slug to search for
+
+        :returns: True if find_slug matches one of the slug translations
         """
 
         txs = NodeTranslation.objects.filter(node=self, slug=find_slug)
@@ -174,27 +176,12 @@ class Node(MP_Node):
         """Returns the Language object in the NodeTranslation object that
         contains the given slug
 
-        @param find_slug: slug to find the Language for
-        @returns: Language object
+        :param find_slug: slug to find the Language for
+
+        :returns: Language object
         """
         tx = NodeTranslation.objects.get(node=self, slug=find_slug)
         return tx.language
-
-    # -----------------------------------------------------------------------
-    # Setters
-    def set_default_page(self, page):
-        """Sets the Page to display if this Node is given as a URI in the CMS.
-        Underlying storage isn't of the Page but its associated PageData
-        object, so multiple Language aliases of the URI for the Node will work
-        producing the appropriately translated Page.
-
-        Note that the Node object is automatically saved() during this call.
-        
-        @param page: Page object that wraps a PageData to set as the default
-            for this Node
-        """
-        self.default_page_data = page.page_data
-        self.save()
 
     # -----------------------------------------------------------------------
     # Tree Walking Methods
@@ -202,11 +189,11 @@ class Node(MP_Node):
     def _walk_tree_to_string(self, node, output, indent):
         """Breadth first walk of tree returning node as string
 
-        @param node -- node to walk
-        @param string -- string to append to before returning
-        @param output -- list of lines containing a string from each node
+        :param node -- node to walk
+        :param string -- string to append to before returning
+        :param output -- list of lines containing a string from each node
             visited
-        @param indent -- how much to indent the displayed node
+        :param indent -- how much to indent the displayed node
         """
         output.append('%s%s (%s)' % (3*indent*' ', node.name, node.slug))
         for child in node.get_children():
@@ -223,7 +210,7 @@ class Node(MP_Node):
     def node_to_path(self, language=None):
         """Returns a path string for this node
 
-        @param language: optional parameter specifying the Language to express
+        :param language: optional parameter specifying the Language to express
             the path in.  If none specified then Site object's default
             Language is used
         """

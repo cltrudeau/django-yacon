@@ -5,10 +5,9 @@ import re, exceptions, logging
 
 from django.db import models
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 
 from yacon.models.language import Language
-from yacon.models.pages import Page
+from yacon.models.pages import PageTranslation
 from yacon.models.hierarchy import Node, NodeTranslation
 
 logger = logging.getLogger(__name__)
@@ -20,13 +19,34 @@ match_slash = re.compile('/')
 # ============================================================================
 
 class ParsedPath(object):
+    """Temporary object representing a URI path that has been parsed into a
+    series of slugs.  
+
+    :param path: path that was parsed
+    :param slugs_in_path: a list of slugs in the path passed in
+    :param slugs_after_item: a list of slugs found in the path
+        after we ran out of tree to walk
+    :param language: Language object for the slug where final item
+        object is found.  In theory the Language should be the same 
+        for all slugs, but in practice this isn't enforced
+    :param node: if the end of the path walked is a Node then this
+        will contain that Node object
+    :param pagetranslation: if the end of the path walked is a translated 
+        page or a Node with a default_page setting then this will contain the
+        corresponding PageTranslation object
+    :param item_type: one of:
+        * UNKNOWN: if walking the path did not result in a page or Node
+        * NODE: if walking the path resulted in a Node
+        * PAGETRANSLATION: if the walking the path resulted in a page
+            or a Node with a default_page setting
+    """
     UNKNOWN = 0
     NODE = 1
-    PAGE = 2
+    PAGETRANSLATION = 2
     ITEM_TYPES = {
         UNKNOWN:'Unknown',
-        NODE:'NODE',
-        PAGE:'PAGE',
+        NODE:'Node',
+        PAGETRANSLATION:'PageTranslation',
     }
 
     def __init__(self, *args, **kwargs):
@@ -70,17 +90,17 @@ class Site(models.Model):
         """Creates a Site object with corresponding SiteURL and SiteConfig
         entries.
 
-        @param name -- name of site
-        @param base_url -- url that this site is responsible for
-        @param languages -- a list of Language objects that will be the
+        :param name -- name of site
+        :param base_url -- url that this site is responsible for
+        :param languages -- a list of Language objects that will be the
             allowed languages for this site.   First item in the list is
             treated as the default language for the site.  If no list is given
             then Languages.default_language() is used to determine the sites
             default language.
-        @param config -- optional dictionary which is converted into
+        :param config -- optional dictionary which is converted into
             name/value pairs as SiteConfig entries
 
-        @returns -- Site object
+        :returns: Site object
         """
         default_language = None
         if len(languages) == 0:
@@ -142,8 +162,8 @@ class Site(models.Model):
     def add_config(self, name, value):
         """Adds a SiteConfig name/value pair to this site
 
-        @param name -- name of config to add
-        @param value -- value of config to hold
+        :param name -- name of config to add
+        :param value -- value of config to hold
         """
         config = SiteConfig(site=self, name=name, value=value)
         config.save()
@@ -151,9 +171,9 @@ class Site(models.Model):
     def get_config(self, name):
         """Returns a list of values for the given config name
 
-        @param name -- name of config items to retrieve
+        :param name -- name of config items to retrieve
 
-        @returns -- list of values, or empty list if no matching names
+        :returns: list of values, or empty list if no matching names
         """
         configs = SiteConfig.objects.filter(site=self, name=name)
         values = configs.values_list('value', flat=True)
@@ -166,9 +186,10 @@ class Site(models.Model):
     def get_languages(self, language_code=None):
         """Returns a list of Language objects supported by this site.
 
-        @param language_code -- restricts languages returned to just those who
+        :param language_code -- restricts languages returned to just those who
             have a matching language_code
-        @returns -- list of strings which are the language codes for this
+
+        :returns: list of strings which are the language codes for this
             site.  List may be empty if there are no matching codes
         """
         langs = []
@@ -190,43 +211,27 @@ class Site(models.Model):
     # Search Methods
 
     def parse_path(self, path):
-        """A path of slugs is used to uniquely identify a Node or Page in the
+        """A path of slugs is used to uniquely identify a Node or page in the
         document hierarchy, this method walks a given path until it runs out
         of either tree or the path, generating a ParsedPath object along the
         way.  The ParsedPath object contains the list of slugs in the path,
         any slugs after the path (i.e. if we run out of tree) and a resulting
-        Node or Page object that corresponds to the path.  If the path does
-        not result in finding a Node or Page then a ParsedPath object is still
-        returned.  
+        Node or PageTranslation object that corresponds to the path.  If the
+        path does not result in finding a Node or page then a ParsedPath
+        object is still returned.  
 
         As consistency of path language is not required, each level of the
         path can in theory be aliased in other languages.  The language
         returned is technically the Language of the last portion of the path,
-        i.e. of either the last Node or Page found.
+        i.e. of either the last Node or PageTranslation found.
 
         If a Node object has a default_page setting and the path indicates the
-        Node, then both a Node and Page object are returned, but the item_type
-        will indicate a Page.
+        Node, then both a Node and PageTranslation object are returned, but 
+        the item_type will indicate a PageTranslation.
 
-        @param path: path to walk to find a container Node 
-        @returns: ParsedPath object.
-            ParsedPath.path: path that was parsed
-            ParsedPath.slugs_in_path: a list of slugs in the path passed in
-            ParsedPath.slugs_after_item: a list of slugs found in the path
-                after we ran out of tree to walk
-            ParsedPath.language: Language object for the slug where final item
-                object is found.  In theory the Language should be the same 
-                for all slugs, but in practice this isn't enforced
-            ParsedPath.Node: if the end of the path walked is a Node then this
-                will contain that Node object
-            ParsedPath.Page: if the end of the path walked is a Page or a Node
-                with a default_page setting then this will contain that Page
-            ParsedPath.item_type: one of:
-                ParsedPath.UNKNOWN: if the walking the path did not result in
-                    a Page or Node
-                ParsedPath.Node: if the walking the path resulted in a Node
-                ParsedPath.Page: if the walking the path resulted in a Page
-                    or a Node with a default_page setting
+        :param path: path to walk to find a container Node 
+
+        :returns: ParsedPath object.
         """
         node = self.doc_root
         parsed = ParsedPath()
@@ -265,19 +270,19 @@ class Site(models.Model):
             # didn't find a Node in the path, return what we've built
             return parsed
 
-        # if you get here then we found a Node, check for Pages and default
+        # if you get here then we found a Node, check for pages and default
         # pages 
         if len(parsed.slugs_after_item) > 0:
             # there are still slugs left after we found the last Node, see if
-            # there is a Page for it
-            page = Page.find_page(parsed.node, parsed.slugs_after_item[0])
-            if page != None:
-                parsed.page = page
-                parsed.language = page.language
-                parsed.item_type = ParsedPath.PAGE
+            # there is a page for it
+            pt = PageTranslation.find(parsed.node, parsed.slugs_after_item)
+            if pt != None:
+                parsed.pagetranslation = pt
+                parsed.language = pt.language
+                parsed.item_type = ParsedPath.PAGETRANSLATION
 
         # either there were no slugs after we found the Node, or there
-        # were and there was no Page for it; so we're only a Node, check
+        # were and there was no page for it; so we're only a Node, check
         # for default page for this Node
         if parsed.item_type == ParsedPath.NODE:
             # find the language of the Node so we can check for a default page
@@ -285,27 +290,27 @@ class Site(models.Model):
             parsed.language = parsed.node.language_of_slug(last)
 
             # get the default page
-            page = parsed.node.get_default_page(parsed.language)
-            if page != None:
+            pt = parsed.node.get_default_pagetranslation(parsed.language)
+            if pt != None:
                 # Node has a default_page
-                parsed.item_type = ParsedPath.PAGE
-                parsed.page = page
+                parsed.item_type = ParsedPath.PAGETRANSLATION
+                parsed.pagetranslation = pt
 
         return parsed
 
-    def find_page(self, uri):
-        """Returns a Page object corresponding to the given URI.  The URI can
-        either be a path to a Page or to a Node with a default page.  If it is
-        neither then None is returned
+    def find_pagetranslation(self, uri):
+        """Returns a PageTranslation object corresponding to the given URI.
+        The URI can either be a path to a PageTranslation or to a Node with a
+        default page.  If it is neither then None is returned.
 
-        @param uri: URI corresponding to a path to a Page or Node with a
-            default page
+        :param uri: URI corresponding to a path to a PageTranslation or Node
+            with a default page
 
-        @returns Page: returns Page object for given URI or None if no match
+        :returns: PageTranslation object or None
         """
         parsed = self.parse_path('/' + uri)
-        if parsed.item_type == ParsedPath.PAGE:
-            return parsed.page
+        if parsed.item_type == ParsedPath.PAGETRANSLATION:
+            return parsed.pagetranslation
 
         # If you get here, then either: 1) URI was invalid, 2) URI was for a
         # Node without a default_page

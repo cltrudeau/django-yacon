@@ -1,0 +1,22 @@
+{% extends "nexus/nexus_base.html" %}
+
+{% block body %}
+<h1>Test Links</h1>
+
+<p>
+For test purposes, this list includes links such as the AJAX calls that are
+normally not directly linked to.  from view
+</p>
+
+<h2>AJAX</h2>
+<ul>
+    <li> <a href="/yacon/nexus/ajax_node_info/1//">Page Node for #1</a></li>
+    <li> <a href="/yacon/nexus/ajax_page_info/1//">Page Info for #1</a></li>
+</ul>
+
+<h2>Non-AJAX</h2>
+<ul>
+    <li> <a href="/yacon/nexus/page_info/1//">Page Info for #1</a></li>
+</ul>
+
+{% endblock body %}

@@ -38,6 +38,11 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^$', direct_to_template, {'template':'nexus/index.html'}),
     )
 
+if settings.YACON_TESTS_ENABLED:
+    urlpatterns += patterns('',
+        (r'^tests/$', direct_to_template, {'template':'tests/index.html'}),
+    )
+
 if settings.YACON_EXAMPLES_ENABLED:
 #    urlpatterns += patterns('',
 #        (r'^content_listing/$', 'yacon.views.user.content_listing'),

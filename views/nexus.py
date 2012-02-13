@@ -57,7 +57,12 @@ def _tree_to_html_list(node, output, indent):
 
                 # make a indicator for each additional translation
                 for key in page_hash.keys():
-                    output.append('(%s)' % key.identifier.upper())
+                    output.append('(<a class="obj_info" ' +\
+                        'href="/yacon/nexus/ajax_page_info/%d/">%s</a>)' %
+                        (page_hash[key].
+                    
+                    
+                    % key.identifier.upper())
 
                 output.append('</li>')
             output.append('%s</ul>' % spacer)
@@ -88,8 +93,8 @@ def _construct_page_info(request, page_id):
     data = {}
     data['title'] = 'Page Info'
     data['page'] = page
-    data['block_translations'] = BlockTranslations.objects.filter(page=page)
-    data['uris'] = page.get_uris()
+    data['blocks'] = page.blocks()
+    data['uri'] = page.get_uri()
 
     if page.is_alias():
         data['alias'] = page._alias.id
