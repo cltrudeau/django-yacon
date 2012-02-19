@@ -1,8 +1,8 @@
-<h3> Page Info for: {{page.title}} </h3>
+<h3> PageTranslation Info for: {{pagetranslation.title}} </h3>
 
 {% if alias %}
 <p>
-    <strong>This page is an alias.  <a href="/yacon/nexus/page_info/{{alias}}/">
+    <strong>This page is an alias.  <a href="/yacon/nexus/pagetranslation_info/{{alias}}/">
         Actual page</a>
     </strong>
 </p>
@@ -11,23 +11,23 @@
 <table class="content_list">
     <tr>
         <th>Title</th>
-        <td>{{page.title}} (<a href="{{uri}}">view</a>)</td>
+        <td>{{pagetranslation.title}} (<a href="{{uri}}">view</a>)</td>
     </tr>
     <tr>
         <th>Slug</th>
-        <td>{{page.slug}}</td>
+        <td>{{pagetranslation.slug}}</td>
     </tr>
     <tr>
         <th>Node ID</th>
-        <td>{{page.node.id}}</td>
+        <td>{{pagetranslation.page.node.id}}</td>
     </tr>
     <tr>
         <th>Page Type</th>
-        <td>{{page.page_type.name}}</td>
+        <td>{{pagetranslation.page.page_type.name}}</td>
     </tr>
     <tr>
         <th>Template</th>
-        <td>{{page.page_type.template}}</td>
+        <td>{{pagetranslation.page.page_type.template}}</td>
     </tr>
 </table>
 

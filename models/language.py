@@ -27,6 +27,9 @@ class Language(models.Model):
     class Meta:
         app_label = 'yacon'
 
+    def __unicode__(self):
+        return '%s (%s)' % (self.name, self.identifier.upper())
+
     # --------------------------------------------
     # Factories/Constructors
     @classmethod

@@ -22,7 +22,7 @@ class ManagementCommands(unittest.TestCase):
         management.call_command('yacon_create_test_data')
 
     def test_check_commands(self):
-        # check that the 'foo' site was created
+        # check that the 'blah' site was created
         site = Site.objects.get(name='blah')
         self.assertTrue(site)
 
@@ -115,7 +115,7 @@ class SiteTestCase(unittest.TestCase):
         self.assertEquals(pp.slugs_in_path, [])
         self.assertEquals(pp.slugs_after_item, ['foo'])
         self.assertEquals(pp.node, None)
-        self.assertEquals(pp.page, None)
+        self.assertEquals(pp.pagetranslation, None)
         self.assertEquals(pp.language, None)
         self.assertEquals(pp.item_type, ParsedPath.UNKNOWN)
 
@@ -156,41 +156,43 @@ class PageTestCase(unittest.TestCase):
         # data to test page interactions, start by getting some of the nodes
         # and pages themselves
         self.site = Site.objects.get(name='Localhost Site')
-        pp = self.site.parse_path('/articles/health/')
-        self.health = pp.node
-
-        pp = self.site.parse_path('/articles/health/steak')
-        self.steak = pp.page.page_data
-
-        pp = self.site.parse_path('/articles/health/smoking')
-        self.smoking = pp.page.page_data
 
         # get our languages from the site
         self.english = self.site.get_languages('en')[0]
         self.french = self.site.get_languages('fr')[0]
+
+        pp = self.site.parse_path('/articles/health/')
+        self.health = pp.node
+
+        pp = self.site.parse_path('/articles/health/steak')
+        self.steak = pp.pagetranslation
+        self.lesteak = pp.pagetranslation.get_translation(self.french)
+
+        pp = self.site.parse_path('/articles/health/smoking')
+        self.smoking = pp.pagetranslation
 
     def test_tree(self):
         # ---------------------------------
         # Test in english
 
         # test invalid URI
-        page = self.site.find_page('/foo/bar')
+        page = self.site.find_pagetranslation('/foo/bar')
         self.assertEquals(page, None)
 
         # test a valid URI without a page slug but with default page
-        page = self.site.find_page('/articles/health/')
-        self.assertEquals(page.page_data, self.steak)
-        self.assertEquals(page.language, self.english)
+        pt = self.site.find_pagetranslation('/articles/health/')
+        self.assertEquals(pt, self.steak)
+        self.assertEquals(pt.language, self.english)
 
         # test a valid URI without a page slug and without default page
-        page = self.site.find_page('/articles/fitness/')
-        self.assertEquals(page, None)
+        pt = self.site.find_pagetranslation('/articles/fitness/')
+        self.assertEquals(pt, None)
 
         # ---------------------------------
         # Test Multi-lingual
-        page = self.site.find_page('/lesarticles/sante/lesteak')
-        self.assertEquals(page.page_data, self.steak)
-        self.assertEquals(page.language, self.french)
+        pt = self.site.find_pagetranslation('/lesarticles/sante/lesteak')
+        self.assertEquals(pt, self.lesteak)
+        self.assertEquals(pt.language, self.french)
 
 
 # ============================================================================

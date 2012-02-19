@@ -55,14 +55,14 @@ class ParsedPath(object):
         self.path = ''
         self.language = None
         self.node = None
-        self.page = None
+        self.pagetranslation = None
         self.item_type = ParsedPath.UNKNOWN
 
     def __str__(self):
         return 'ParsedPath(path=%s, slugs_in_path=%s, slugs_after_item=%s, '\
-            'item_type=%s, node=%s, page=%s)' % (self.path, self.slugs_in_path, 
-            self.slugs_after_item, self.ITEM_TYPES[self.item_type], self.node, 
-            self.page)
+            'item_type=%s, node=%s, pagetranslation=%s)' % (self.path, 
+            self.slugs_in_path, self.slugs_after_item,
+            self.ITEM_TYPES[self.item_type], self.node, self.pagetranslation)
 
 # ============================================================================
 # Site Management

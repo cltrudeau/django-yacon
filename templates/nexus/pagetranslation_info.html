@@ -1,11 +1,11 @@
 {% extends "nexus/nexus_base.html" %}
 
 {% block body %}
-<h1> Page Info for: {{page.title}} </h1>
+<h1> PageTranslation Info for: {{pagetranslation.title}} </h1>
 
 {% if alias %}
 <p>
-    <strong>This page is an alias.  <a href="/yacon/nexus/page_info/{{alias}}/">
+    <strong>This page is an alias.  <a href="/yacon/nexus/pagetranslation_info/{{alias}}/">
         Actual page</a>
     </strong>
 </p>
@@ -14,23 +14,23 @@
 <table>
     <tr>
         <th>Title</th>
-        <td>{{page.title}}</td>
+        <td>{{pagetranslation.title}}</td>
     </tr>
     <tr>
         <th>Slug</th>
-        <td>{{page.slug}}</td>
+        <td>{{pagetranslation.slug}}</td>
     </tr>
     <tr>
         <th>Node ID</th>
-        <td>{{page.node.id}}</td>
+        <td>{{pagetranslation.page.node.id}}</td>
     </tr>
     <tr>
         <th>Page Type</th>
-        <td>{{page.page_type.name}}</td>
+        <td>{{pagetranslation.page.page_type.name}}</td>
     </tr>
     <tr>
         <th>Template</th>
-        <td>{{page.page_type.template}}</td>
+        <td>{{pagetranslation.page.page_type.template}}</td>
     </tr>
 </table>
 

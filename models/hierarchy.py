@@ -126,7 +126,7 @@ class Node(MP_Node):
             return None
 
         # we have default Page, return a PageTranslation for it
-        return page.get_translation(language)
+        return self.default_page.get_translation(language)
 
     def get_name(self, language=None):
         """Returns the name for this Node in the given Language.  If no

@@ -13,7 +13,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.models.hierarchy import Node
 from yacon.models.site import Site
-from yacon.models.pages import Page
+from yacon.models.pages import Page, PageTranslation
 
 logger = logging.getLogger(__name__)
 
@@ -36,33 +36,23 @@ def _tree_to_html_list(node, output, indent):
         output.append('%s</ul>' % spacer)
     else: 
         # leaf node, check for pages
-        pages = Page.list_pages(node=node)
+        pages = Page.objects.filter(node=node)
         if len(pages) != 0:
             output.append('%s<ul class="content_list">' % spacer)
-            for page_hash in pages:
-                primary_lang = page_hash.get(default_lang)
-                if primary_lang != None:
-                    del page_hash[default_lang]
-                else:
-                    key = page_hash.keys()[0]
-                    primary_lang = page_hash[key]
-                    del page_hash[key]
+            for page in pages:
+                pt = page.get_default_translation()
 
                 # output the list item for the primary language
                 output.append(spacer + '   <li>' +\
                     '<img src="/static/icons/fatcow/page.png">&nbsp;' +\
                     '<a class="obj_info" ' + \
-                    'href="/yacon/nexus/ajax_page_info/%d/">%s</a>' % 
-                    (primary_lang.page_data.id, primary_lang.title))
+                    'href="/yacon/nexus/ajax_pagetranslation_info/%d/">%s</a>' \
+                    % (pt.id, pt.title))
 
-                # make a indicator for each additional translation
-                for key in page_hash.keys():
-                    output.append('(<a class="obj_info" ' +\
-                        'href="/yacon/nexus/ajax_page_info/%d/">%s</a>)' %
-                        (page_hash[key].
-                    
-                    
-                    % key.identifier.upper())
+                for tx in pt.other_translations():
+                    output.append('(<a class="obj_info" href="' +\
+                        '/yacon/nexus/ajax_pagetranslation_info/%d/">%s</a>)' \
+                        % (tx.id, tx.language.identifier.upper()))
 
                 output.append('</li>')
             output.append('%s</ul>' % spacer)
@@ -88,23 +78,23 @@ def content_listing(request):
         context_instance=RequestContext(request))
 
 
-def _construct_page_info(request, page_id):
-    page = get_object_or_404(Page, id=page_id)
+def _construct_pagetranslation_info(request, translation_id):
+    pt = get_object_or_404(PageTranslation, id=translation_id)
     data = {}
     data['title'] = 'Page Info'
-    data['page'] = page
-    data['blocks'] = page.blocks()
-    data['uri'] = page.get_uri()
+    data['pagetranslation'] = pt
+    data['blocks'] = pt.blocks.all()
+    data['uri'] = pt.get_uri()
 
-    if page.is_alias():
-        data['alias'] = page._alias.id
+    #if page.is_alias():
+    #    data['alias'] = page._alias.id
 
     return data
 
-def page_info(request, page_id):
-    data = _construct_page_info(request, page_id)
+def pagetranslation_info(request, page_id):
+    data = _construct_pagetranslation_info(request, page_id)
 
-    return render_to_response('nexus/page_info.html', data, 
+    return render_to_response('nexus/pagetranslation_info.html', data, 
         context_instance=RequestContext(request))
 
 # ============================================================================
@@ -136,8 +126,8 @@ def ajax_node_info(request, node_id):
     return render_to_response('nexus/ajax/node_info.html', data, 
         context_instance=RequestContext(request))
 
-def ajax_page_info(request, page_id):
-    data = _construct_page_info(request, page_id)
+def ajax_pagetranslation_info(request, page_id):
+    data = _construct_pagetranslation_info(request, page_id)
 
-    return render_to_response('nexus/ajax/page_info.html', data, 
+    return render_to_response('nexus/ajax/pagetranslation_info.html', data, 
         context_instance=RequestContext(request))

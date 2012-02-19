@@ -249,6 +249,17 @@ class PageTranslation(models.Model):
         pts = PageTranslation.objects.filter(page=self.page)
         return pts.exclude(id=self.id)
 
+    def get_translation(self, language):
+        """Returns the translated version of this PageTranslation in the given
+        language, or None if there is no such translation.
+
+        :param language: Language object specifying what translation to look
+            for
+
+        :returns: PageTranslation object in language or None
+        """
+        return self.page.get_translation(language)
+
     # -------------------------------------------
     # Block Handling Methods
 
