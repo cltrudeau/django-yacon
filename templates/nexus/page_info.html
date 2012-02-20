@@ -1,40 +1,43 @@
-<h3> PageTranslation Info for: {{pagetranslation.title}} </h3>
+{% extends "nexus/nexus_base.html" %}
+
+{% block body %}
+<h1> Page Info for: {{page.title}} </h1>
 
 {% if alias %}
 <p>
-    <strong>This page is an alias.  <a href="/yacon/nexus/pagetranslation_info/{{alias}}/">
+    <strong>This page is an alias.  <a href="/yacon/nexus/page_info/{{alias}}/">
         Actual page</a>
     </strong>
 </p>
 {% endif %}
 
-<table class="content_list">
+<table>
     <tr>
         <th>Title</th>
-        <td>{{pagetranslation.title}} (<a href="{{uri}}">view</a>)</td>
+        <td>{{page.title}}</td>
     </tr>
     <tr>
         <th>Slug</th>
-        <td>{{pagetranslation.slug}}</td>
+        <td>{{page.slug}}</td>
     </tr>
     <tr>
         <th>Node ID</th>
-        <td>{{pagetranslation.page.node.id}}</td>
+        <td>{{page.metapage.node.id}}</td>
     </tr>
     <tr>
         <th>Page Type</th>
-        <td>{{pagetranslation.page.page_type.name}}</td>
+        <td>{{page.metapage.page_type.name}}</td>
     </tr>
     <tr>
         <th>Template</th>
-        <td>{{pagetranslation.page.page_type.template}}</td>
+        <td>{{page.metapage.page_type.template}}</td>
     </tr>
 </table>
 
-<h3>Blocks</h3>
+<h2>Blocks</h2>
 
 {% for block in blocks %}
-    <table class="content_list">
+    <table>
         <tr>
             <th>ID</th>
             <td>{{block.id}}</td>
@@ -49,7 +52,7 @@
         </tr>
         <tr>
             <th>Content Handler</th>
-            <td>{{block.block_type.content_handler_name}}</td>
+            <td>{{block.block_type.content_handler}}</td>
         </tr>
         <tr>
             <th>Content Handler Parameters</th>
@@ -66,3 +69,5 @@
     </table>
     <br/>
 {% endfor %}
+
+{% endblock body %}

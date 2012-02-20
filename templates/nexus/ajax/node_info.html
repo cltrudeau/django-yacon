@@ -2,32 +2,42 @@
 
 <table class="content_list">
     <tr>
-        <th>Default Page</th>
-        {% if default_page %}
-            <td>{{default_page.title}} 
-                (<a href="{{default_page_uri}}">view</a>)</td>
-        {% else %}
-            <td><i>None</i></td>
-        {% endif %}
+        <th>Node ID</th>
+        <td>{{node.id}}</td>
     </tr>
     <tr>
-        <th>Number of Pages in Section</th>
-        <td>{{num_pages}}</td>
+        <th>Number of MetaPages in Section</th>
+        <td>{{num_metapages}}</td>
     </tr>
     <tr>
-        <th>Node Aliases</th>
+        <th>Number of Child Nodes</th>
+        <td>{{num_children}}</td>
+    </tr>
+    <tr>
+        <th>Node Paths</th>
 
-        {% if path_aliases %}
+        {% if path_tuples %}
         <td>
             <table class="content_list">
                 <tr>
+                    <th>Path</th>
                     <th>Language</th>
-                    <th>Alias</th>
+                    <th>Page</th>
                 </tr>
-            {% for alias in path_aliases %}
+            {% for tuple in path_tuples %}
                 <tr>
-                    <td>{{alias.0}}</td>
-                    <td>{{alias.1}}</td>
+                    <td>{{tuple.0}}</td>
+                    <td>{{tuple.1}}</td>
+                    {% if tuple.2 %}
+                    <td>
+                        {{tuple.2.title}}
+                        <a href="{{tuple.0}}">(view)</a>
+                        <a href="/yacon/nexus/page_info/{{tuple.2.id}}/">
+                            (info)</a>
+                    </td>
+                    {% else %}
+                    <td><i>None</i></td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </table>

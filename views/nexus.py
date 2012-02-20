@@ -13,7 +13,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.models.hierarchy import Node
 from yacon.models.site import Site
-from yacon.models.pages import Page, PageTranslation
+from yacon.models.pages import MetaPage, Page
 
 logger = logging.getLogger(__name__)
 
@@ -36,22 +36,22 @@ def _tree_to_html_list(node, output, indent):
         output.append('%s</ul>' % spacer)
     else: 
         # leaf node, check for pages
-        pages = Page.objects.filter(node=node)
-        if len(pages) != 0:
+        metapages = MetaPage.objects.filter(node=node)
+        if len(metapages) != 0:
             output.append('%s<ul class="content_list">' % spacer)
-            for page in pages:
-                pt = page.get_default_translation()
+            for metapage in metapages:
+                page = metapage.get_default_translation()
 
                 # output the list item for the primary language
                 output.append(spacer + '   <li>' +\
                     '<img src="/static/icons/fatcow/page.png">&nbsp;' +\
                     '<a class="obj_info" ' + \
-                    'href="/yacon/nexus/ajax_pagetranslation_info/%d/">%s</a>' \
-                    % (pt.id, pt.title))
+                    'href="/yacon/nexus/ajax_page_info/%d/">%s</a>' \
+                    % (page.id, page.title))
 
-                for tx in pt.other_translations():
+                for tx in page.other_translations():
                     output.append('(<a class="obj_info" href="' +\
-                        '/yacon/nexus/ajax_pagetranslation_info/%d/">%s</a>)' \
+                        '/yacon/nexus/ajax_page_info/%d/">%s</a>)' \
                         % (tx.id, tx.language.identifier.upper()))
 
                 output.append('</li>')
@@ -78,23 +78,23 @@ def content_listing(request):
         context_instance=RequestContext(request))
 
 
-def _construct_pagetranslation_info(request, translation_id):
-    pt = get_object_or_404(PageTranslation, id=translation_id)
+def _construct_page_info(request, page_id):
+    page = get_object_or_404(Page, id=page_id)
     data = {}
     data['title'] = 'Page Info'
-    data['pagetranslation'] = pt
-    data['blocks'] = pt.blocks.all()
-    data['uri'] = pt.get_uri()
+    data['page'] = page
+    data['blocks'] = page.blocks.all()
+    data['uri'] = page.get_uri()
 
     #if page.is_alias():
     #    data['alias'] = page._alias.id
 
     return data
 
-def pagetranslation_info(request, page_id):
-    data = _construct_pagetranslation_info(request, page_id)
+def page_info(request, page_id):
+    data = _construct_page_info(request, page_id)
 
-    return render_to_response('nexus/pagetranslation_info.html', data, 
+    return render_to_response('nexus/page_info.html', data, 
         context_instance=RequestContext(request))
 
 # ============================================================================
@@ -107,27 +107,28 @@ def ajax_node_info(request, node_id):
         return HttpResponse('')
 
     data = {}
-    data['path'] = node.node_to_path()
-    data['default_page'] = node.default_page
-    if node.default_page != None:
-        data['default_page_uri'] = node.default_page.get_uri()
+    data['node'] = node
+    data['num_metapages'] = len(MetaPage.objects.filter(node=node))
+    data['num_children'] = node.get_children_count()
 
-    data['num_pages'] = len(Page.objects.filter(node=node))
-    data['path_aliases'] = []
-
+    # find all of the aliases for this page
+    data['path_tuples'] = []
     langs = node.site.get_languages()
-    default = node.site.default_language
     for lang in langs:
-        if lang == default:
-            continue
+        print 'lang: ', lang
+        path = node.node_to_path(lang)
+        print 'path: ', path
+        page = None
+        if node.default_metapage != None:
+            page = node.default_metapage.get_translation(lang)
 
-        data['path_aliases'].append((lang, node.node_to_path(lang)))
+        data['path_tuples'].append((path, lang, page))
 
     return render_to_response('nexus/ajax/node_info.html', data, 
         context_instance=RequestContext(request))
 
-def ajax_pagetranslation_info(request, page_id):
-    data = _construct_pagetranslation_info(request, page_id)
+def ajax_page_info(request, page_id):
+    data = _construct_page_info(request, page_id)
 
-    return render_to_response('nexus/ajax/pagetranslation_info.html', data, 
+    return render_to_response('nexus/ajax/page_info.html', data, 
         context_instance=RequestContext(request))

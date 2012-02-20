@@ -7,7 +7,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse
 
 from yacon.models.site import Site
-from yacon.models.pages import Page, PageTranslation
+from yacon.models.pages import MetaPage, Page
 
 logger = logging.getLogger(__name__)
 
@@ -20,20 +20,20 @@ def display_page(request, uri):
     determine what site is being displayed and the uri passed in to find an
     page to render. """
     site = Site.get_site(request)
-    pt = site.find_pagetranslation(uri)
+    page = site.find_page(uri)
     
-    if pt == None:
+    if page == None:
         # no such page found for uri
         raise Http404('CMS did not contain a page for uri: %s' % uri)
 
-    logger.debug('displaying pagetranslation: %s' % pt)
+    logger.debug('displaying page: %s' % page)
     data = {}
-    data['pagetranslation'] = pt
-    data['translations'] = pt.other_translations()
+    data['page'] = page
+    data['translations'] = page.other_translations()
     data['request'] = request
     data['uri'] = uri
 
-    return render_to_response(pt.page.page_type.template, data, 
+    return render_to_response(page.metapage.page_type.template, data, 
         context_instance=RequestContext(request))
 
 

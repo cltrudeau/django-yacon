@@ -246,7 +246,7 @@ class Page(models.Model):
 
         :returns: list of Page objects
         """
-        pages = Page.objects.filter(metapage=self.page)
+        pages = Page.objects.filter(metapage=self.metapage)
         return pages.exclude(id=self.id)
 
     def get_translation(self, language):
