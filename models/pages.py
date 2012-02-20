@@ -202,18 +202,18 @@ class Translation(object):
         self.block_hash = block_hash
 
 
-class PageTranslation(models.Model):
+class Page(models.Model):
     language = models.ForeignKey(Language, related_name='+')
     slug = models.CharField(max_length=SLUG_LENGTH)
     title = models.CharField(max_length=25, blank=True, null=True)
 
-    page = models.ForeignKey('yacon.Page')
+    metapage = models.ForeignKey('yacon.MetaPage')
 
     # content for the page is stored in a series of blocks
     blocks = models.ManyToManyField(Block)
 
     def __init__(self, *args, **kwargs):
-        super(PageTranslation, self).__init__(*args, **kwargs)
+        super(Page, self).__init__(*args, **kwargs)
         self.after_slugs = None
 
     class Meta:
@@ -231,34 +231,34 @@ class PageTranslation(models.Model):
             remainder are stored in the returned object in case they're needed
             as parameters
         
-        :returns: PageTranslation object corresponding to slugs[0] or None
+        :returns: Page object corresponding to slugs[0] or None
         """
         try:
-            pt = PageTranslation.objects.get(slug=slugs[0], page__node=node)
-        except PageTranslation.DoesNotExist:
+            page = Page.objects.get(slug=slugs[0], metapage__node=node)
+        except Page.DoesNotExist:
             return None
 
-        return pt
+        return page
 
     def other_translations(self):
-        """Returns a list of PageTranslation objects that represent other
-        translations for this page.
+        """Returns a list of Page objects that represent other translations
+        for this page.
 
-        :returns: list of PageTranslation objects
+        :returns: list of Page objects
         """
-        pts = PageTranslation.objects.filter(page=self.page)
-        return pts.exclude(id=self.id)
+        pages = Page.objects.filter(metapage=self.page)
+        return pages.exclude(id=self.id)
 
     def get_translation(self, language):
-        """Returns the translated version of this PageTranslation in the given
-        language, or None if there is no such translation.
+        """Returns the translated version of this Page in the given language,
+        or None if there is no such translation.
 
         :param language: Language object specifying what translation to look
             for
 
-        :returns: PageTranslation object in language or None
+        :returns: Page object in language or None
         """
-        return self.page.get_translation(language)
+        return self.metapage.get_translation(language)
 
     # -------------------------------------------
     # Block Handling Methods
@@ -311,14 +311,14 @@ class PageTranslation(models.Model):
 
         :returns: URI that can get you to this translated page
         """
-        node_part = self.page.node.node_to_path(self.language)
+        node_part = self.metapage.node.node_to_path(self.language)
         return '%s%s' % (node_part, self.slug)
 
 
-class Page(models.Model):
-    """This class represents a multi-lingual page in the CMS.  The actual
-    content is stored in the PageTranslation objects that this Page points to.
-    Even in a single-language system, content is stored in a "translation".
+class MetaPage(models.Model):
+    """This class represents a collection of translated pages in the CMS along
+    with its placement in the doucment hierarchy.  All pages, even if they
+    only have one translation, have a MetaPage.
     """
     node = models.ForeignKey('yacon.Node')
     page_type = models.ForeignKey(PageType, blank=True, null=True)
@@ -331,7 +331,7 @@ class Page(models.Model):
 
     @classmethod
     def create_page(cls, node, page_type, title, slug, block_hash):
-        """Creates, saves and returns a Page object in the Site default
+        """Creates, saves and returns a MetaPage object in the Site default
         language.
 
         :param node: node in Site hierarchy where the page lives
@@ -348,73 +348,72 @@ class Page(models.Model):
 
     @classmethod
     def create_translated_page(cls, node, page_type, translations):
-        """Creates, saves and returns a Page object with multiple
+        """Creates, saves and returns a MetaPage object with multiple
         translations.
 
         :param node: node in Site hierarchy where the page lives
         :param page_type: PageType for this Page
         :param translations: a list of Translation objects
 
-        :returns: Page object
+        :returns: MetaPage object
         """
         # create the Page
-        page = Page(node=node, page_type=page_type)
-        page.save()
+        metapage = MetaPage(node=node, page_type=page_type)
+        metapage.save()
 
         for tx in translations:
-            pt = PageTranslation(page=page, title=tx.title, slug=tx.slug, 
+            page = Page(metapage=metapage, title=tx.title, slug=tx.slug, 
                 language=tx.language)
-            pt.save()
+            page.save()
 
             # add the content to the translation
             for key, value in tx.block_hash.items():
                 block = Block(block_type=key, content=value)
                 block.save()
-                pt.blocks.add(block)
+                page.blocks.add(block)
 
-        return page
+        return metapage
 
     # -------------------------------------------
     # Search Methods
 
     def get_translation(self, language):
-        """Returns a PageTranslation object for this Page in the given
-        language.
+        """Returns a Page object for this MetaPage in the given language.
 
         :param language: Language for the corresponding translation
 
-        :returns: PageTranslation object or None
+        :returns: Page object or None
         """
         try:
-            return PageTranslation.objects.get(page=self, language=language)
-        except PageTranslation.DoesNotExist:
+            return Page.objects.get(metapage=self, language=language)
+        except Page.DoesNotExist:
             return None
 
     def get_translations(self, ignore_default=False):
-        """Returns a list of PageTranslation objects representing the
-        translated content for this page.
+        """Returns a list of Page objects representing the translated content
+        for this MetaPage.
 
         :param ignore_default: if True the default language will not be
-            returned in the list; variable defaults to False
+            returned in the list; defaults to False
 
-        :returns: list of PageTranlsations
+        :returns: list of Pages
         """
         if not ignore_default:
-            return PageTranslation.objects.filter(page=self)
+            return Page.objects.filter(metapage=self)
 
         # ignore default language
-        return PageTranslation.objects.exclude(page=self, 
+        return Page.objects.exclude(metapage=self, 
             language=self.node.site.default_language)
 
     def get_default_translation(self):
-        """Returns the PageTranslation object for the site default language
+        """Returns the Page object for the site default language
 
-        :returns: PageTranslation object or None
+        :returns: Page object or None
         """
         try:
-            pt = PageTranslation.objects.get(page=self, 
+            page = Page.objects.get(metapage=self, 
                 language=self.node.site.default_language)
-        except PageTranslation.DoesNotExist:
+        except Page.DoesNotExist:
             return None
 
-        return pt
+        return page

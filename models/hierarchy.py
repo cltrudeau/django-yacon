@@ -6,7 +6,7 @@ import re, exceptions, logging
 from django.db import models
 from treebeard.mp_tree import MP_Node
 from yacon.models.language import Language
-from yacon.models.pages import Page
+from yacon.models.pages import MetaPage
 from yacon.definitions import SLUG_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -45,8 +45,8 @@ class Node(MP_Node):
     around formatting of slugs, etc.  
     """
     site = models.ForeignKey('yacon.Site')
-    default_page = models.ForeignKey('yacon.Page', blank=True, null=True, 
-        related_name='+')
+    default_metapage = models.ForeignKey('yacon.MetaPage', blank=True, 
+        null=True, related_name='+')
 
     class Meta:
         app_label = 'yacon'
@@ -111,22 +111,24 @@ class Node(MP_Node):
         """Returns the slug for this Node in the Site's default translation"""
         return self.get_slug()
 
-    def get_default_pagetranslation(self, language):
-        """If this Node has an associated default Page item return a
-        PageTranslation for it in the given Language.  
+    def get_default_page(self, language):
+        """If this Node has an associated default MetaPage item return a
+        translated Page for it in the given Language.  
 
-        :param language: Language object to use for getting the
-            PageTranslation
+        :param language: Language object to use for getting the Page, can be
+            None to get the default language
 
-        :returns: PageTranslation representing the default page for this
-            Node, or None if there isn't one, or isn't one in the given 
-            language
+        :returns: Page representing the default page for this Node, or None if
+            there isn't one, or isn't one in the given language
         """
-        if self.default_page == None:
+        if self.default_metapage == None:
             return None
 
-        # we have default Page, return a PageTranslation for it
-        return self.default_page.get_translation(language)
+        if language == None:
+            # no language passed in, use default language
+            return self.default_metapage.get_default_translation()
+
+        return self.default_metapage.get_translation(language)
 
     def get_name(self, language=None):
         """Returns the name for this Node in the given Language.  If no

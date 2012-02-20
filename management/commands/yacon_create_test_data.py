@@ -10,7 +10,7 @@ from django.core import management
 
 from yacon.models.language import Language
 from yacon.models.site import Site
-from yacon.models.pages import Page, Translation, PageTranslation
+from yacon.models.pages import MetaPage, Translation
 from yacon.utils import create_page_type, create_block_type
 
 class Command(BaseCommand):
@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         # -----------------
         # create some pages
-        p = Page.create_translated_page(health, pt_article, [
+        p = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,
                 'Steak is good', 'steak',
                 {
@@ -93,10 +93,10 @@ class Command(BaseCommand):
                 }),
             ]
         )
-        health.default_page = p
+        health.default_metapage = p
         health.save()
 
-        smoking = Page.create_translated_page(health, pt_article, [
+        smoking = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,
                 'Smoking is bad', 'smoking',
                 {
@@ -124,7 +124,7 @@ class Command(BaseCommand):
 
         # blog pages
         for x in range(1, 4):
-            Page.create_page(blog, pt_blog, 'Blog %s' % x, 'blog_%s' % x,
+            MetaPage.create_page(blog, pt_blog, 'Blog %s' % x, 'blog_%s' % x,
                 {
                     bt_user:'<p>Blog entry %s.</p>' % x,
                 }

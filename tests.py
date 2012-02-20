@@ -115,7 +115,7 @@ class SiteTestCase(unittest.TestCase):
         self.assertEquals(pp.slugs_in_path, [])
         self.assertEquals(pp.slugs_after_item, ['foo'])
         self.assertEquals(pp.node, None)
-        self.assertEquals(pp.pagetranslation, None)
+        self.assertEquals(pp.page, None)
         self.assertEquals(pp.language, None)
         self.assertEquals(pp.item_type, ParsedPath.UNKNOWN)
 
@@ -165,34 +165,34 @@ class PageTestCase(unittest.TestCase):
         self.health = pp.node
 
         pp = self.site.parse_path('/articles/health/steak')
-        self.steak = pp.pagetranslation
-        self.lesteak = pp.pagetranslation.get_translation(self.french)
+        self.steak = pp.page
+        self.lesteak = pp.page.get_translation(self.french)
 
         pp = self.site.parse_path('/articles/health/smoking')
-        self.smoking = pp.pagetranslation
+        self.smoking = pp.page
 
     def test_tree(self):
         # ---------------------------------
         # Test in english
 
         # test invalid URI
-        page = self.site.find_pagetranslation('/foo/bar')
+        page = self.site.find_page('/foo/bar')
         self.assertEquals(page, None)
 
         # test a valid URI without a page slug but with default page
-        pt = self.site.find_pagetranslation('/articles/health/')
-        self.assertEquals(pt, self.steak)
-        self.assertEquals(pt.language, self.english)
+        page = self.site.find_page('/articles/health/')
+        self.assertEquals(page, self.steak)
+        self.assertEquals(page.language, self.english)
 
         # test a valid URI without a page slug and without default page
-        pt = self.site.find_pagetranslation('/articles/fitness/')
-        self.assertEquals(pt, None)
+        page = self.site.find_page('/articles/fitness/')
+        self.assertEquals(page, None)
 
         # ---------------------------------
         # Test Multi-lingual
-        pt = self.site.find_pagetranslation('/lesarticles/sante/lesteak')
-        self.assertEquals(pt, self.lesteak)
-        self.assertEquals(pt.language, self.french)
+        page = self.site.find_page('/lesarticles/sante/lesteak')
+        self.assertEquals(page, self.lesteak)
+        self.assertEquals(page.language, self.french)
 
 
 # ============================================================================
