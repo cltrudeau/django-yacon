@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         # -----------------
         # create some pages
-        p = MetaPage.create_translated_page(health, pt_article, [
+        mp = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,
                 'Steak is good', 'steak',
                 {
@@ -93,34 +93,32 @@ class Command(BaseCommand):
                 }),
             ]
         )
-        health.default_metapage = p
+        health.default_metapage = mp
         health.save()
+
+        # when creating the smoking pages use the blocks from steak polls
+        poll = mp.get_translation(english).blocks.filter(block_type=bt_poll)[0]
+        lepoll = mp.get_translation(french).blocks.filter(
+            block_type=bt_poll)[0]
 
         smoking = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,
                 'Smoking is bad', 'smoking',
                 {
                     bt_user:'<p>Smoking is bad unless you are a salmon.</p>',
+                    bt_poll:poll,
                 }),
             Translation(french,
                 'Fumer est mauvais', 'fumer',
                 {
                     bt_user:\
                     '<p>Fumer est mauvais, sauf si vous êtes un saumo.</p>',
+                    bt_poll:lepoll,
                 })
             ])
 
-        # add steak poll blocks to smoking pages
-        #english_polls = p.blocks(block_type=bt_poll)
-        #smoking.add_block(english_polls[0], english)
-
-        #french_page = p.get_page_translation(french)
-        #french_poll = french_page.blocks(block_type=bt_poll)[0]
-        #smoking.add_block(french_poll, french)
-
         # Smoking alias in Fitness
-        #page = smoking.create_alias_with_default_language(fitness, 
-        #    'smoking_fit')
+        smoking.create_alias(fitness)
 
         # blog pages
         for x in range(1, 4):

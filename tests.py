@@ -7,7 +7,7 @@ from django.contrib.auth.models import User, Group
 
 from yacon.models.language import Language
 from yacon.models.site import Site, ParsedPath
-from yacon.models.pages import Page
+from yacon.models.pages import MetaPage, Page, DoubleAliasException
 from yacon.models.hierarchy import Node, BadSlug
 from yacon.models.groupsq import GroupOfGroups, OwnedGroupOfGroups
 
@@ -163,13 +163,17 @@ class PageTestCase(unittest.TestCase):
 
         pp = self.site.parse_path('/articles/health/')
         self.health = pp.node
+        self.assertIsInstance(self.health, Node)
 
         pp = self.site.parse_path('/articles/health/steak')
         self.steak = pp.page
+        self.assertIsInstance(self.steak, Page)
         self.lesteak = pp.page.get_translation(self.french)
+        self.assertIsInstance(self.lesteak, Page)
 
         pp = self.site.parse_path('/articles/health/smoking')
         self.smoking = pp.page
+        self.assertIsInstance(self.smoking, Page)
 
     def test_tree(self):
         # ---------------------------------
@@ -182,6 +186,7 @@ class PageTestCase(unittest.TestCase):
         # test a valid URI without a page slug but with default page
         page = self.site.find_page('/articles/health/')
         self.assertEquals(page, self.steak)
+        self.assertEquals(page.metapage_alias, None)
         self.assertEquals(page.language, self.english)
 
         # test a valid URI without a page slug and without default page
@@ -192,7 +197,26 @@ class PageTestCase(unittest.TestCase):
         # Test Multi-lingual
         page = self.site.find_page('/lesarticles/sante/lesteak')
         self.assertEquals(page, self.lesteak)
+        self.assertEquals(page.metapage_alias, None)
         self.assertEquals(page.language, self.french)
+
+    def test_aliases(self):
+        # create an alias of an alias of the steak article
+        aliases = self.health.site.doc_root.create_child('Aliases', 'aliases')
+        mp_steak = self.steak.metapage
+        mp_steak2 = mp_steak.create_alias(aliases)
+
+        # resolve steak2 and make sure it comes back to steak
+        self.assertEquals(mp_steak, mp_steak2.resolve_alias())
+
+        # check whether it can be found
+        page = self.site.find_page('/aliases/steak')
+        self.assertEquals(page, self.steak)
+        self.assertEquals(page.metapage_alias, mp_steak2)
+
+        # ensure double alias disallowed
+        with self.assertRaises(DoubleAliasException):
+            mp_steak2.create_alias(aliases)
 
 
 # ============================================================================

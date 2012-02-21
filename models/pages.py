@@ -215,6 +215,7 @@ class Page(models.Model):
     def __init__(self, *args, **kwargs):
         super(Page, self).__init__(*args, **kwargs)
         self.after_slugs = None
+        self.metapage_alias = None
 
     class Meta:
         app_label = 'yacon'
@@ -234,11 +235,23 @@ class Page(models.Model):
         :returns: Page object corresponding to slugs[0] or None
         """
         try:
-            page = Page.objects.get(slug=slugs[0], metapage__node=node)
+            return Page.objects.get(slug=slugs[0], metapage__node=node)
         except Page.DoesNotExist:
-            return None
+            pass
 
-        return page
+        # exact match was not found, check for aliases in the node
+        metapages = MetaPage.objects.exclude(node=node, alias=None)
+        for metapage in metapages:
+            resolved = metapage.resolve_alias()
+            try:
+                page = Page.objects.get(slug=slugs[0], metapage=resolved)
+                page.metapage_alias = metapage
+                return page
+            except Page.DoesNotExist:
+                pass
+
+        # if you get here than no exact matches an no aliased matches
+        return None
 
     def other_translations(self):
         """Returns a list of Page objects that represent other translations
@@ -309,10 +322,23 @@ class Page(models.Model):
         for its translation, there is no guarantee that the URI the user
         visited is the one returned by this method.
 
+        If a MetaPage alias is registered with this object then the URI
+        returned corresponds to that object rather than the absolute MetaPage.
+        The MetaPage alias is set if the Page.find() method was used to find
+        this page and the URI included aliases MetaPages.
+
         :returns: URI that can get you to this translated page
         """
-        node_part = self.metapage.node.node_to_path(self.language)
+        if self.metapage_alias != None:
+            node_part = self.metapage_alias.node.node_to_path(self.language)
+        else:
+            node_part = self.metapage.node.node_to_path(self.language)
+
         return '%s%s' % (node_part, self.slug)
+
+
+class DoubleAliasException(Exception):
+    pass
 
 
 class MetaPage(models.Model):
@@ -321,13 +347,24 @@ class MetaPage(models.Model):
     only have one translation, have a MetaPage.
     """
     node = models.ForeignKey('yacon.Node')
-    page_type = models.ForeignKey(PageType, blank=True, null=True)
+    _page_type = models.ForeignKey(PageType, blank=True, null=True)
+    alias = models.ForeignKey('yacon.MetaPage', blank=True, null=True)
 
     class Meta:
         app_label = 'yacon'
 
     # -------------------------------------------
-    # Page Factories
+    # Getters -- need to use these so aliased values resolve properly
+
+    @property
+    def page_type(self):
+        if self.is_alias():
+            return self.resolve_alias()._page_type
+
+        return self._page_type
+
+    # -------------------------------------------
+    # MetaPage Factories
 
     @classmethod
     def create_page(cls, node, page_type, title, slug, block_hash):
@@ -358,7 +395,7 @@ class MetaPage(models.Model):
         :returns: MetaPage object
         """
         # create the Page
-        metapage = MetaPage(node=node, page_type=page_type)
+        metapage = MetaPage(node=node, _page_type=page_type)
         metapage.save()
 
         for tx in translations:
@@ -374,6 +411,54 @@ class MetaPage(models.Model):
 
         return metapage
 
+    def create_alias(self, node):
+        """An alias is a pointer to a MetaPage somewhere else in the Node
+        hierarchy.  This creates an alias of the current MetaPage at the given
+        point in the Node hierarchy.
+
+        .. warning::
+            Aliases should only be created using this method.  Aliasing an
+            alias is not allowed to avoid complications and circular
+            references.  If you create an alias by hand and get the reference
+            wrong bad things could happen.
+
+        :param node: node in Site hierarchy where the alias should be created
+
+        :returns: MetaPage object that is an alias of self
+        :raises: DoubleAliasException if you attempt to alias an alias
+        """
+        if self.is_alias():
+            raise DoubleAliasException()
+
+        metapage = MetaPage(node=node, alias=self)
+        metapage.save()
+        return metapage
+
+    # -------------------------------------------
+    # Alias Methods
+    def is_alias(self):
+        """Returns True if this MetaPage is an alias of another.
+
+        :returns: True if self is an alias
+        """
+        return self.alias != None
+
+    def resolve_alias(self):
+        """Returns the MetaPage that self's alias points to.  
+
+        .. warning::
+            Aliases should only be created with :func:`MetaPage.create_alias`.  
+            This method does not check for circular references or aliases of
+            aliases.  If the alias was not created properly this method could
+            loop forever.
+
+        :returns: MetaPage that this page is aliased to, or None
+        """
+        if not self.is_alias():
+            return None
+
+        return self.alias
+
     # -------------------------------------------
     # Search Methods
 
@@ -384,10 +469,18 @@ class MetaPage(models.Model):
 
         :returns: Page object or None
         """
+        mp = self
+        if self.is_alias():
+            mp = self.resolve_alias()
+
         try:
-            return Page.objects.get(metapage=self, language=language)
+            page = Page.objects.get(metapage=mp, language=language)
+            if mp != self:
+                page.metapage_alias = self
         except Page.DoesNotExist:
             return None
+
+        return page
 
     def get_translations(self, ignore_default=False):
         """Returns a list of Page objects representing the translated content
@@ -398,21 +491,37 @@ class MetaPage(models.Model):
 
         :returns: list of Pages
         """
+        mp = self
+        if self.is_alias():
+            mp = self.resolve_alias()
+
         if not ignore_default:
-            return Page.objects.filter(metapage=self)
+            return Page.objects.filter(metapage=mp)
 
         # ignore default language
-        return Page.objects.exclude(metapage=self, 
-            language=self.node.site.default_language)
+        pages = Page.objects.exclude(metapage=mp, 
+            language=mp.node.site.default_language)
+
+        if mp != self:
+            for page in pages:
+                page.metapage_alias = self
+
+        return pages
 
     def get_default_translation(self):
         """Returns the Page object for the site default language
 
         :returns: Page object or None
         """
+        mp = self
+        if self.is_alias():
+            mp = self.resolve_alias()
+
         try:
-            page = Page.objects.get(metapage=self, 
-                language=self.node.site.default_language)
+            page = Page.objects.get(metapage=mp, 
+                language=mp.node.site.default_language)
+            if mp != self:
+                page.metapage_alias = self
         except Page.DoesNotExist:
             return None
 

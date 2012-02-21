@@ -8,9 +8,11 @@
 
 import logging
 
+from django.http import Http404
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
+from yacon.utils import quote, unquote
 from yacon.models.hierarchy import Node
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Page
@@ -24,7 +26,7 @@ logger = logging.getLogger(__name__)
 def _tree_to_html_list(node, output, indent):
     spacer = 3 * (indent + 1) * ' '
     output.append( spacer + '   <li>' +\
-        '<img src="/static/icons/fatcow/node-tree.png">&nbsp;' +\
+        '<img src="/static/icons/fatcow/folder.png">&nbsp;' +\
         '<a class="obj_info" href="/yacon/nexus/ajax_node_info' +\
         '/%d/">%s (%s)<a/>' % (node.id, node.name, node.slug) + '</li>')
     
@@ -41,18 +43,22 @@ def _tree_to_html_list(node, output, indent):
             output.append('%s<ul class="content_list">' % spacer)
             for metapage in metapages:
                 page = metapage.get_default_translation()
+                image = "/static/icons/fatcow/page_white.png"
+                if metapage.is_alias():
+                    image = "/static/icons/fatcow/page_white_link.png"
 
                 # output the list item for the primary language
+                uri = quote(page.get_uri())
                 output.append(spacer + '   <li>' +\
-                    '<img src="/static/icons/fatcow/page.png">&nbsp;' +\
-                    '<a class="obj_info" ' + \
-                    'href="/yacon/nexus/ajax_page_info/%d/">%s</a>' \
-                    % (page.id, page.title))
+                    '<img src="%s">&nbsp;<a class="obj_info" ' % image +\
+                    'href="/yacon/nexus/ajax_page_info/?uri=%s">%s</a>' \
+                    % (uri, page.title))
 
                 for tx in page.other_translations():
+                    uri = quote(tx.get_uri())
                     output.append('(<a class="obj_info" href="' +\
-                        '/yacon/nexus/ajax_page_info/%d/">%s</a>)' \
-                        % (tx.id, tx.language.identifier.upper()))
+                        '/yacon/nexus/ajax_page_info/?uri=%s/">%s</a>)' \
+                        % (uri, tx.language.identifier.upper()))
 
                 output.append('</li>')
             output.append('%s</ul>' % spacer)
@@ -78,11 +84,23 @@ def content_listing(request):
         context_instance=RequestContext(request))
 
 
-def _construct_page_info(request, page_id):
-    page = get_object_or_404(Page, id=page_id)
+def _construct_page_info(request, uri):
+    link = unquote(uri)
+    site = Site.get_site(request)
+    page = site.find_page(link)
+    if page == None:
+        raise Http404
+
     data = {}
     data['title'] = 'Page Info'
     data['page'] = page
+
+    data['metapage'] = page.metapage
+    data['is_alias'] = False
+    if page.metapage_alias != None:
+        data['metapage'] = page.metapage_alias
+        data['is_alias'] = True
+
     data['blocks'] = page.blocks.all()
     data['uri'] = page.get_uri()
 
@@ -91,8 +109,8 @@ def _construct_page_info(request, page_id):
 
     return data
 
-def page_info(request, page_id):
-    data = _construct_page_info(request, page_id)
+def page_info(request):
+    data = _construct_page_info(request, request.GET['uri'])
 
     return render_to_response('nexus/page_info.html', data, 
         context_instance=RequestContext(request))
@@ -115,9 +133,7 @@ def ajax_node_info(request, node_id):
     data['path_tuples'] = []
     langs = node.site.get_languages()
     for lang in langs:
-        print 'lang: ', lang
         path = node.node_to_path(lang)
-        print 'path: ', path
         page = None
         if node.default_metapage != None:
             page = node.default_metapage.get_translation(lang)
@@ -127,8 +143,8 @@ def ajax_node_info(request, node_id):
     return render_to_response('nexus/ajax/node_info.html', data, 
         context_instance=RequestContext(request))
 
-def ajax_page_info(request, page_id):
-    data = _construct_page_info(request, page_id)
+def ajax_page_info(request):
+    data = _construct_page_info(request, request.GET['uri'])
 
     return render_to_response('nexus/ajax/page_info.html', data, 
         context_instance=RequestContext(request))
