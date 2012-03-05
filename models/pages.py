@@ -235,7 +235,9 @@ class Page(models.Model):
         :returns: Page object corresponding to slugs[0] or None
         """
         try:
-            return Page.objects.get(slug=slugs[0], metapage__node=node)
+            page = Page.objects.get(slug=slugs[0], metapage__node=node)
+            page.after_slugs = slugs[1:]
+            return page
         except Page.DoesNotExist:
             pass
 
@@ -246,6 +248,7 @@ class Page(models.Model):
             try:
                 page = Page.objects.get(slug=slugs[0], metapage=resolved)
                 page.metapage_alias = metapage
+                page.after_slugs = slugs[1:]
                 return page
             except Page.DoesNotExist:
                 pass

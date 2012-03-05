@@ -58,12 +58,6 @@ def _ajax_preconditions(request):
     return block
 
 
-def ajax_display(request):
-    block = _ajax_preconditions(request)
-
-    return HttpResponse(block.render())
-
-
 def ajax_submit(request):
     """Used for submitting user generated content to the system"""
 
