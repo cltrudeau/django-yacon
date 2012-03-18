@@ -1,4 +1,0 @@
-- convert editable.js over to be jquery based
-    - make sure each button press is directly associated with the editor
-    so that multiple editors in the page can be supported
-- add block id into tags for ajax submit call

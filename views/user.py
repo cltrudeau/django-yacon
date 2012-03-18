@@ -2,12 +2,14 @@
 # blame ctrudeau chr(64) arsensa.com
 
 import urllib, logging
+from functools import wraps
+
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse
 
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage, Page
+from yacon.models.pages import Block
 
 logger = logging.getLogger(__name__)
 
@@ -41,43 +43,44 @@ def display_page(request, uri):
 # Ajax Views
 # ============================================================================
 
-def _ajax_preconditions(request):
-    """Common code called by ajax_ view methods"""
-    if request.method != 'POST':
-        raise Http404('GET method not supported for ajax_submit')
+def ajax_preconditions(target):
+    """Preconditions on ajax method calls.  Checks that it is a POST and has
+    the appropriate fields.  Puts the block involved in the call into the
+    request object."""
 
-    if not request.REQUEST.has_key('block_id'):
-        raise Http404('ajax_submit requires "block_id" parameter')
+    @wraps(target)
+    def wrapper(*args, **kwargs):
+        request = args[0]
+        if request.method != 'POST':
+            raise Http404('GET method not supported for ajax_submit')
 
-    try:
-        # find the block corresponding to the id passed in
-        block = Block.objects.get(pk=request.POST['block_id'])
-    except:
-        raise Http404( 'no block with id "%s"' % request.POST['block'])
+        print request.POST
+        if not request.REQUEST.has_key('block_id'):
+            raise Http404('ajax_submit requires "block_id" parameter')
 
-    return block
+        if not request.REQUEST.has_key('content'):
+            raise Http404('ajax_submit requires "content" parameter')
+
+        try:
+            # find the block corresponding to the id passed in
+            block = Block.objects.get(pk=request.POST['block_id'])
+            request.block = block
+            return target(*args, **kwargs)
+        except:
+            raise Http404( 'no block with id "%s"' % request.POST['block'])
+
+    return wrapper
 
 
+#@login_required
+@ajax_preconditions
 def ajax_submit(request):
     """Used for submitting user generated content to the system"""
 
-    if request.method != 'POST':
-        raise Http404('GET method not supported for ajax_submit')
-
-    if not request.REQUEST.has_key('block_id'):
-        raise Http404('ajax_submit requires "block_id" parameter')
-
-    # ok, we've got the page, now get the block name
-    try:
-        block = Block.objects.get(pk=request.POST['block_id'])
-    except:
-        raise Http404( 'no block with id "%s"' % request.POST['block'])
-
     # set the new block content
-    block.content = urllib.unquote(request.POST['content'])
-    block.save()
+    request.block.content = urllib.unquote(request.POST['content'])
+    request.block.save()
 
-    response = render_to_response('block_response.html', data, 
-        context_instance=RequestContext(request))
+    response = HttpResponse('{"success":"true"}')
     response['Cache-Control'] = 'no-cache'
     return response

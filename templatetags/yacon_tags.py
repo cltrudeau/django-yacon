@@ -52,10 +52,10 @@ def _render_block_by_key(context, tag_name, key):
     # grab the first block sent in
     block = blocks[0]
     try:
+        context['block'] = block
         request = context['request']
         return (True, block.render(request))
     except Exception, e:
-        context['block'] = block
         context['exception'] = traceback.format_exc()
         return (False, templates['exception'].render(context))
 

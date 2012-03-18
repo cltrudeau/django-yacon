@@ -7,14 +7,10 @@ from django.views.generic.simple import direct_to_template
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Example:
-    # (r'^SeniorityLiving/', include('SeniorityLiving.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
     # Uncomment the next line to enable the admin:
     # (r'^admin/', include(admin.site.urls)),
+
+    (r'^ajax_submit/$', 'yacon.views.user.ajax_submit'),
 )
 
 if settings.YACON_STATIC_SERVE and (settings.YACON_NEXUS_ENABLED or 

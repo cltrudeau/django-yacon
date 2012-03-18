@@ -1,9 +1,9 @@
-<div class="yacon_editable">
-    <button class="yacon_editable_edit" onclick="startEditing()">Edit</button>
-    <button class="yacon_editable_done" onclick="stopEditing()">Done</button>
-    <button class="yacon_editable_cancel" onclick="cancelEditing()">
-        Cancel
-    </button>
+<div class="yacon_editable" id="{{block.id}}">
+    <div class="yacon_ajax_error"></div>
+    <div class="yacon_ajax_csrf">{{csrf_token}}</div>
+    <button class="yacon_editable_edit">Edit</button>
+    <button class="yacon_editable_done">Done</button>
+    <button class="yacon_editable_cancel">Cancel</button>
     <div class="yacon_editable_content">
         {{content}}
     </div>
