@@ -1,0 +1,56 @@
+/* nexus.css
+
+Stye sheet for Nexus admin area in the Yacon project
+*/
+
+/* Two-Column Views */
+.right, .left {
+    overflow: auto;
+    width: 35%;
+    height: 100%;
+    float: left;
+}
+.left {
+    width: 35%;
+}
+.right {
+    width: 65%;
+}
+
+a.selected {
+    background-color:#c9c9c9;
+}
+
+#node_container table {
+    border-collapse:collapse;
+}
+
+#node_container table table {
+    border:0;
+    border-collapse:separate;
+}
+
+#node_container table table td {
+    border:0;
+    padding:4px;
+}
+
+#node_container table table th {
+    border:0;
+    padding:4px;
+}
+
+#node_container td, th {
+    border:1px solid gray;
+    vertical-align:top;
+    text-align:left;
+    padding:4px;
+}
+
+.node_tree ul {
+    list-style: none;
+}
+
+.node_tree li {
+    list-style: none;
+}

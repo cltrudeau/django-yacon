@@ -1,0 +1,5 @@
+- create a dialog box handler that does generic ajax calls
+    - all calls to server return a JSON object
+    - object indicates success/failure, what part of the tree to refresh,
+      error messages etc.
+- switch to more dynamic tree?

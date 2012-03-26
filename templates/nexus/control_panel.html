@@ -1,0 +1,154 @@
+{% extends "nexus/nexus_base.html" %}
+
+{% block scripts %}
+    <script type="text/JavaScript">
+        var languages = {};
+        function node_link_management() {
+            // add select/unselect mechanism to items in tree
+            $("a.node_link").click(function(){
+                // unselect any links currently selected, hide any action bars 
+                $("a.node_link").removeClass("selected");
+                $('#folder_actions').hide();
+                $('#page_actions').hide();
+
+                // select this link 
+                $(this).addClass("selected");
+                $("div#node_container").load($(this).attr("href"));
+
+                // show the appropriate action bar
+                if( $(this).hasClass('folder') ) {
+                    $('#folder_actions').show();
+                }
+                else if( $(this).hasClass('page') ){
+                    // action is a page or alias
+                    $('#page_actions').show();
+                }
+                return false;
+            });
+        }
+
+        $(document).ready(function(){
+            // hide node and page action divs
+            $('#folder_actions').hide();
+            $('#page_actions').hide();
+
+            // perform action when user does something with site select
+            $('#site_select').change(function() {
+                var value = $(this).attr('value');
+                if( value == 'nop' ) {
+                    console.debug('id10t selected separator')
+                    return;
+                }
+                if( value == 'add' ) {
+                    console.debug('id10t selected add')
+                    return;
+                }
+
+                // if you get here then user selected a site
+                $.ajax({
+                    url: "/yacon/nexus/ajax_site_tree/" + value + "/",
+                    dataType: "html",
+                    success: function(data) {
+                        // site has changed replace node tree
+                        $('#node_tree').html(data);
+                        $('#node_conatiner').html('');
+
+                        // get languages for this site
+                        $.ajax({
+                            url: "/yacon/nexus/ajax_get_languages/" + value +
+                                "/",
+                            dataType:"json",
+                            success: function(data) {
+                                languages = data;
+                            }
+                        });
+
+                        // add click management to node items in tree
+                        node_link_management();
+                    }
+                });
+            });
+
+            // load list of sites
+            $.ajax({
+                url: "/yacon/nexus/ajax_get_sites/",
+                dataType: "json",
+                success: function(data) {
+                    // remove old sites, replace with what server sent
+                    $('#site_select').children().remove();
+                    for( var key in data ){
+                        if( data.hasOwnProperty(key) ){
+                            $('#site_select').append('<option value="' +
+                                key + '">' + data[key] + '</option>');
+                        }
+                    }
+
+                    // add site actions
+                    $('#site_select').append('<option value="nop">' + 
+                        '----------</option>');
+                    $('#site_select').append('<option value="add">Add Site' +
+                        '</option>');
+
+                    // trigger change based on selection
+                    $('#site_select').change();
+                }
+            });
+
+            // ---------------------------------------------------------
+            // Dialog Boxes
+
+            // Add Child Folder
+            $('#add_folder_dialog').dialog({
+                autoOpen: false,
+                modal: true,
+                buttons: {
+                    "Ok":function() {
+                        console.debug('do add child stuff here');
+                        $(this).dialog('close');
+                        return false;
+                    },
+                    "Cancel":function() {
+                        $(this).dialog('close');
+                        return false;
+                    }
+                },
+                title: 'Add Child Folder'
+            });
+        });
+    </script>
+{% endblock scripts %}
+
+{% block content %}
+<div class="left">
+    <form>
+        <label>Site:</label>&nbsp;
+        <select id="site_select">
+        </select>
+    </form>
+    <br/>
+    <div id="node_tree" class="node_tree">
+    </div>
+</div>
+<div class="right">
+    <div id="folder_actions">
+        <a href="#" onclick="$('#add_folder_dialog').dialog('open')" >
+            Add Child Folder</a>&nbsp;
+        <a href="#" >Add Child Page</a>&nbsp;
+        <a href="#" >Remove Folder</a>&nbsp;
+    </div>
+    <div id="page_actions">
+        <a href="#" >Remove Page</a>&nbsp;
+    </div>
+    <div id="node_container">
+    </div>
+</div>
+
+<!-- Dialog Boxes -->
+<div id="add_folder_dialog">
+    <form id="add_folder_form">
+        <label>Child Path</label>
+        <input type="text" name="path"/>
+    </form>
+</div>
+
+{% endblock content %}

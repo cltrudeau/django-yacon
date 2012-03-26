@@ -3,21 +3,23 @@
 <head>
     <title>Admin: {{title}}</title>
     <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
+    <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
+    <script type="text/JavaScript"
+        src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+    </script>
+    <script type="text/JavaScript" 
+    src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
+    </script>
+    <link type="text/css" rel="stylesheet" 
+        href="/static/css/smoothness/jquery-ui-1.8.18.custom.css" />	
 
-    {% block headers %}
-        {% comment %}
-            Additional headers can go here
-        {% endcomment %}
-    {% endblock headers %}
+    {% block css %}
+    {% endblock css %}
+    {% block scripts %}
+    {% endblock scripts %}
 </head>
 <body>
-    <table>
-        <tr>
-            <td><a href="/yacon/nexus/content_listing">Page Management</a></td>
-            <td><a href="">Configuration</a></td>
-        </tr>
-    </table>
-    {% block body %}
-    {% endblock body %}
+    {% block content %}
+    {% endblock content %}
 </body>
 </html>

@@ -27,10 +27,13 @@ if settings.YACON_STATIC_SERVE and (settings.YACON_NEXUS_ENABLED or
 
 if settings.YACON_NEXUS_ENABLED:
     urlpatterns += patterns('',
-        (r'^nexus/content_listing/$', 'yacon.views.nexus.content_listing'),
-        (r'^nexus/page_info/$', 'yacon.views.nexus.page_info'),
+        (r'^nexus/$', 'yacon.views.nexus.control_panel'),
+        (r'^nexus/control_panel/$', 'yacon.views.nexus.control_panel'),
         (r'^nexus/ajax_page_info/$', 'yacon.views.nexus.ajax_page_info'),
         (r'^nexus/ajax_node_info/(\d+)/$', 'yacon.views.nexus.ajax_node_info'),
+        (r'^nexus/ajax_site_info/(\d+)/$', 'yacon.views.nexus.ajax_site_info'),
+        (r'^nexus/ajax_get_sites/$', 'yacon.views.nexus.ajax_get_sites'),
+        (r'^nexus/ajax_site_tree/(\d+)/$', 'yacon.views.nexus.ajax_site_tree'),
         (r'^$', direct_to_template, {'template':'nexus/index.html'}),
     )
 

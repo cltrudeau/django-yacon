@@ -1,49 +1,51 @@
-<h2> Node Info for: {{path}} </h2>
+<div class="node" id="{{node.id}}">
+    <h2> Node Info for: {{path}} </h2>
 
-<table class="content_list">
-    <tr>
-        <th>Node ID</th>
-        <td>{{node.id}}</td>
-    </tr>
-    <tr>
-        <th>Number of MetaPages in Section</th>
-        <td>{{num_metapages}}</td>
-    </tr>
-    <tr>
-        <th>Number of Child Nodes</th>
-        <td>{{num_children}}</td>
-    </tr>
-    <tr>
-        <th>Node Paths</th>
+    <table class="content_list">
+        <tr>
+            <th>Node ID</th>
+            <td>{{node.id}}</td>
+        </tr>
+        <tr>
+            <th>Number of MetaPages in Section</th>
+            <td>{{num_metapages}}</td>
+        </tr>
+        <tr>
+            <th>Number of Child Folders</th>
+            <td>{{num_children}}</td>
+        </tr>
+        <tr>
+            <th>Node Paths</th>
 
-        {% if path_tuples %}
-        <td>
-            <table class="content_list">
-                <tr>
-                    <th>Path</th>
-                    <th>Language</th>
-                    <th>Page</th>
-                </tr>
-            {% for tuple in path_tuples %}
-                <tr>
-                    <td>{{tuple.0}}</td>
-                    <td>{{tuple.1}}</td>
-                    {% if tuple.2 %}
-                    <td>
-                        {{tuple.2.title}}
-                        <a href="{{tuple.0}}">(view)</a>
-                        <a href="/yacon/nexus/page_info/{{tuple.2.id}}/">
-                            (info)</a>
-                    </td>
-                    {% else %}
-                    <td><i>None</i></td>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-            </table>
-        </td>
-        {% else %}
-        <td><i>None</i></td>
-        {% endif %}
-    </tr>
-</table>
+            {% if path_tuples %}
+            <td>
+                <table class="content_list">
+                    <tr>
+                        <th>Path</th>
+                        <th>Language</th>
+                        <th>Default Page</th>
+                    </tr>
+                {% for tuple in path_tuples %}
+                    <tr>
+                        <td>{{tuple.0}}</td>
+                        <td>{{tuple.1}}</td>
+                        {% if tuple.2 %}
+                        <td>
+                            {{tuple.2.title}}
+                            <a href="{{tuple.0}}">(view)</a>
+                            <a href="/yacon/nexus/page_info/{{tuple.2.id}}/">
+                                (info)</a>
+                        </td>
+                        {% else %}
+                        <td><i>None</i></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </table>
+            </td>
+            {% else %}
+            <td><i>None</i></td>
+            {% endif %}
+        </tr>
+    </table>
+</div>
