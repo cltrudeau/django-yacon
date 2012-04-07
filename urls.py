@@ -26,15 +26,16 @@ if settings.YACON_STATIC_SERVE and (settings.YACON_NEXUS_ENABLED or
     )
 
 if settings.YACON_NEXUS_ENABLED:
-    urlpatterns += patterns('',
-        (r'^nexus/$', 'yacon.views.nexus.control_panel'),
-        (r'^nexus/control_panel/$', 'yacon.views.nexus.control_panel'),
-        (r'^nexus/ajax_page_info/$', 'yacon.views.nexus.ajax_page_info'),
-        (r'^nexus/ajax_node_info/(\d+)/$', 'yacon.views.nexus.ajax_node_info'),
-        (r'^nexus/ajax_site_info/(\d+)/$', 'yacon.views.nexus.ajax_site_info'),
-        (r'^nexus/ajax_get_sites/$', 'yacon.views.nexus.ajax_get_sites'),
-        (r'^nexus/ajax_site_tree/(\d+)/$', 'yacon.views.nexus.ajax_site_tree'),
-        (r'^$', direct_to_template, {'template':'nexus/index.html'}),
+    urlpatterns += patterns('yacon.views.nexus',
+        (r'^$', 'control_panel'),
+        (r'^nexus/$', 'control_panel'),
+        (r'^nexus/control_panel/$', 'control_panel'),
+        (r'^nexus/ajax_page_info/$', 'ajax_page_info'),
+        (r'^nexus/ajax_metapage_info/(\d+)/$', 'ajax_metapage_info'),
+        (r'^nexus/ajax_node_info/(\d+)/$', 'ajax_node_info'),
+        (r'^nexus/ajax_site_info/(\d+)/$', 'ajax_site_info'),
+        (r'^nexus/ajax_get_sites/$', 'ajax_get_sites'),
+        (r'^nexus/ajax_site_tree/(\d+)/$', 'ajax_site_tree'),
     )
 
 if settings.YACON_TESTS_ENABLED:

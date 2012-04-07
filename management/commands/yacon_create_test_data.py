@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# vim: set fileencoding=utf-8 :
 #
 # yacon_create_test_data.py
 # blame ctrudeau chr(64) arsensa.com
@@ -11,6 +11,7 @@ from django.core import management
 from yacon.models.language import Language
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Translation
+from yacon.models.hierarchy import NodeTranslation
 from yacon.utils import create_page_type, create_block_type
 
 class Command(BaseCommand):
@@ -43,9 +44,13 @@ class Command(BaseCommand):
             french:("De Fitness", 'defitness')})
         money = articles.create_child('Money', 'money', {\
             french:("L'Argent", 'argent')})
-
         blog = site.doc_root.create_child('Blogs', 'blogs', {\
             french:("Le Blog", 'leblog')})
+
+        # so we can test what happens if a node is missing a default language,
+        # find the english money node translation and remove it
+        tx = NodeTranslation.objects.get(node=money, language=english)
+        tx.delete()
 
         # create templates for our content
         pt_article = create_page_type('Article Type', 'examples/article.html' )
@@ -64,8 +69,8 @@ class Command(BaseCommand):
             Translation(english,
                 'Steak is good', 'steak',
                 {
-                    bt_user:\
-                        '<p>Steak should be as good for you as it tastes.</p>',
+                    bt_user:('<p>Steak should be as good for you as it '
+                        'tastes.</p>'),
                     bt_poll:"""
 <h3>Poll: Favourite Steak?</h3>
 <ul>
@@ -79,9 +84,8 @@ class Command(BaseCommand):
                 'Le steak est bon',
                 'lesteak',
                 {
-                    bt_user:\
-                        '<p>Steak devrait être aussi bon pour vous comme ' \
-                        + 'il les goûts.</p>',
+                    bt_user:('<p>Steak devrait être aussi bon pour vous comme '
+                        'it les goûts.</p>'),
                     bt_poll:"""
 <h3>Poll: Steak Favourite?</h3>
 <ul>
@@ -95,6 +99,26 @@ class Command(BaseCommand):
         )
         health.default_metapage = mp
         health.save()
+
+        # create a page without the default translation
+        MetaPage.create_translated_page(health, pt_article, [
+            Translation(french,
+                'Trans-graisses vous tuer',
+                'transgraisses',
+                {
+                    bt_user: ("<p>Trans-gras ve ta tuer, mais ce n'est pas de "
+                        'nos jours?</p>'),
+                    bt_poll:"""
+<h3>Poll: Steak Favourite?</h3>
+<ul>
+<li>Steak T-Bone</li>
+<li>Filet Mignon</li>
+<li>Chateaubriand</li>
+</ul>
+""",
+                }),
+            ]
+        )
 
         # when creating the smoking pages use the blocks from steak polls
         poll = mp.get_translation(english).blocks.filter(block_type=bt_poll)[0]
@@ -111,8 +135,8 @@ class Command(BaseCommand):
             Translation(french,
                 'Fumer est mauvais', 'fumer',
                 {
-                    bt_user:\
-                    '<p>Fumer est mauvais, sauf si vous êtes un saumo.</p>',
+                    bt_user:('<p>Fumer est mauvais, sauf si vous êtes un '
+                        'saumo.</p>'),
                     bt_poll:lepoll,
                 })
             ])

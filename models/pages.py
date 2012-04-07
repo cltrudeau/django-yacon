@@ -314,7 +314,8 @@ class Page(models.Model):
     # ---------------------------
     # Utility Methods
 
-    def get_uri(self):
+    @property
+    def uri(self):
         """Returns a valid URI that leads to this translated page.  Note that
         this may not be the URI that was used to find this content.  The URI
         is reconstructed using the language of this translation to get the
@@ -338,6 +339,12 @@ class Page(models.Model):
             node_part = self.metapage.node.node_to_path(self.language)
 
         return '%s%s' % (node_part, self.slug)
+
+    @property
+    def all_blocks(self):
+        """Shortcut property method for "blocks.all()" so it can be called
+        inside of a template."""
+        return self.blocks.all()
 
 
 class DoubleAliasException(Exception):
@@ -502,8 +509,8 @@ class MetaPage(models.Model):
             return Page.objects.filter(metapage=mp)
 
         # ignore default language
-        pages = Page.objects.exclude(metapage=mp, 
-            language=mp.node.site.default_language)
+        pages = Page.objects.filter(metapage=mp)
+        pages = pages.exclude(language=mp.node.site.default_language)
 
         if mp != self:
             for page in pages:

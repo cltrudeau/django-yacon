@@ -143,8 +143,11 @@ class Node(MP_Node):
         if language == None:
             language = self.site.default_language
 
-        tx = NodeTranslation.objects.get(node=self, language=language)
-        return tx.name
+        try:
+            tx = NodeTranslation.objects.get(node=self, language=language)
+            return tx.name
+        except NodeTranslation.DoesNotExist:
+            return None
 
     def get_slug(self, language=None):
         """Returns the slug for this Node in the given Language.  If no
@@ -159,8 +162,11 @@ class Node(MP_Node):
         if language == None:
             language = self.site.default_language
 
-        tx = NodeTranslation.objects.get(node=self, language=language)
-        return tx.slug
+        try:
+            tx = NodeTranslation.objects.get(node=self, language=language)
+            return tx.slug
+        except NodeTranslation.DoesNotExist:
+            return None
 
     def has_slug(self, find_slug):
         """Returns true if one of the NodeTranslation for this Node contains
@@ -227,7 +233,14 @@ class Node(MP_Node):
         # won't include us, so remove the first and add this node at the end
         nodes.pop(0)
         nodes.append(self)
-        return '/%s/' % '/'.join([n.get_slug(language) for n in nodes]) 
+        path = '/'
+        for node in nodes:
+            slug = node.get_slug(language)
+            if slug == None:
+                return None
+
+            path += slug + '/'
+        return path
 
     def has_children(self):
         return self.get_children_count() > 0

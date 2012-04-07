@@ -36,10 +36,15 @@ def control_panel(request):
 
 def _tree_to_html_list(node, output, indent):
     spacer = 3 * (indent + 1) * ' '
-    output.append( spacer + '   <li>' +\
-        '<img src="/static/icons/fatcow/folder.png">&nbsp;' +\
-        '<a class="node_link folder" href="/yacon/nexus/ajax_node_info' +\
-        '/%d/">%s (%s)<a/>' % (node.id, node.name, node.slug) + '</li>')
+    name = '%s (%s)' % (node.name, node.slug)
+    if node.name == None:
+        name = '<i>empty translation (%s)</i>' %\
+            node.site.default_language.identifier
+
+    output.append(('%s<li>' % spacer + 
+        '<img src="/static/icons/fatcow/folder.png">&nbsp;'
+        '<a class="node_link folder" href="/yacon/nexus/ajax_node_info'
+        '/%d/">%s<a/>' % (node.id, name) + '</li>'))
     
     default_lang = node.site.default_language
     if node.has_children():
@@ -53,25 +58,20 @@ def _tree_to_html_list(node, output, indent):
         if len(metapages) != 0:
             output.append('%s<ul class="content_list">' % spacer)
             for metapage in metapages:
-                page = metapage.get_default_translation()
                 image = "/static/icons/fatcow/page_white.png"
                 if metapage.is_alias():
                     image = "/static/icons/fatcow/page_white_link.png"
+                page = metapage.get_default_translation()
+                if page == None:
+                    title = '<i>empty translation (%s)</i>' % \
+                        node.site.default_language.identifier
+                else:
+                    title = page.title
+                output.append(('%s   <li><img src="%s">' % (spacer, image) +
+                    '&nbsp;<a class="node_link metapage" ' 
+                    'href="/yacon/nexus/ajax_metapage_info/%s/">' \
+                    % metapage.id + '%s</a></li>' % title))
 
-                # output the list item for the primary language
-                uri = quote(page.get_uri())
-                output.append(spacer + '   <li>' +\
-                    '<img src="%s">&nbsp;<a class="node_link page" ' % image +\
-                    'href="/yacon/nexus/ajax_page_info/?uri=%s">%s</a>' \
-                    % (uri, page.title))
-
-                for tx in page.other_translations():
-                    uri = quote(tx.get_uri())
-                    output.append('(<a class="node_link alias" href="' +\
-                        '/yacon/nexus/ajax_page_info/?uri=%s/">%s</a>)' \
-                        % (uri, tx.language.identifier.upper()))
-
-                output.append('</li>')
             output.append('%s</ul>' % spacer)
 
 # ============================================================================
@@ -83,13 +83,19 @@ def ajax_node_info(request, node_id):
     if node == None:
         return HttpResponse('')
 
-    data = {}
-    data['node'] = node
-    data['num_metapages'] = len(MetaPage.objects.filter(node=node))
-    data['num_children'] = node.get_children_count()
+    default_path = node.node_to_path(node.site.default_language)
+    if default_path == None:
+        default_path = '<i>empty translation (%s)</i>' % \
+            node.site.default_language.identifier
+    data = {
+        'node':node,
+        'num_metapages':len(MetaPage.objects.filter(node=node)),
+        'num_children':node.get_children_count(),
+        'path_tuples':[],
+        'default_path':default_path,
+    }
 
     # find all of the aliases for this page
-    data['path_tuples'] = []
     langs = node.site.get_languages()
     for lang in langs:
         path = node.node_to_path(lang)
@@ -103,27 +109,20 @@ def ajax_node_info(request, node_id):
         context_instance=RequestContext(request))
 
 
-def ajax_page_info(request):
-    link = unquote(request.GET['uri'])
-    site = Site.get_site(request)
-    page = site.find_page(link)
-    if page == None:
-        raise Http404
+def ajax_metapage_info(request, metapage_id):
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
 
-    data = {}
-    data['title'] = 'Page Info'
-    data['page'] = page
+    default_page = metapage.get_default_translation()
+    translated_pages = metapage.get_translations(ignore_default=True)
 
-    data['metapage'] = page.metapage
-    data['is_alias'] = False
-    if page.metapage_alias != None:
-        data['metapage'] = page.metapage_alias
-        data['is_alias'] = True
+    data = {
+        'title':'MetaPage Info',
+        'metapage':metapage,
+        'default_page':default_page,
+        'translated_pages':translated_pages,
+    }
 
-    data['blocks'] = page.blocks.all()
-    data['uri'] = page.get_uri()
-
-    return render_to_response('nexus/ajax/page_info.html', data, 
+    return render_to_response('nexus/ajax/metapage_info.html', data, 
         context_instance=RequestContext(request))
 
 

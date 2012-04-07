@@ -1,0 +1,159 @@
+<div class="node" id="{{page.id}}">
+    <h2> MetaPage{% if default_page %}: {{default_page.title}}{% endif %} 
+    (id={{metapage.id}})
+    </h2>
+
+    <table>
+        <tr>
+            <th>Default Language ({{default_page.language.identifier}})</th>
+            {% if default_page %}
+            <td>
+                <table>
+                    <tr>
+                        <th>Title</th>
+                        <td>
+                            {{default_page.title}}
+                            <a href="{{default_page.uri}}">(view)</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Slug</th>
+                        <td>{{default_page.slug}}</td>
+                    </tr>
+                    {% if default_page.all_blocks %}
+                    <tr>
+                        <th>Blocks</th>
+                        <td>
+                            {% for block in default_page.all_blocks %}
+                                <table>
+                                    <tr>
+                                        <th>ID / Key</th>
+                                        <td>
+                                            {{block.id}} / 
+                                            {{block.block_type.key}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Specifier Name</th>
+                                        <td>{{block.block_type.name}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Content Handler</th>
+                                        <td>
+                                            {{block.block_type.content_handler}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Content Handler Parameters</th>
+                                        <td>
+                                    {{block.block_type.content_handler_parms}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Block Parameters</th>
+                                        <td>{{block.parameters}}</td>
+                                    </tr>
+                                </table>
+                                {% if not forloop.last %}
+                                <hr/>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </td>
+            {% else %}
+            <td> <i>None</i> </td>
+            {% endif %}
+        </tr>
+        {% for page in translated_pages %}
+            <tr>
+                <th>({{page.language.identifier}})</th>
+                <td>
+                    <table>
+                        <tr>
+                            <th>Title</th>
+                            <td>
+                                {{page.title}}
+                                <a href="{{page.uri}}">(view)</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Slug</th>
+                            <td>{{page.slug}}</td>
+                        </tr>
+                        {% if default_page.all_blocks %}
+                        <tr>
+                            <th>Blocks</th>
+                            <td>
+                                {% for block in default_page.all_blocks %}
+                                    <table>
+                                        <tr>
+                                            <th>ID / Key</th>
+                                            <td>
+                                                {{block.id}} /
+                                                {{block.block_type.key}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Specifier Name</th>
+                                            <td>
+                                                {{block.block_type.name}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Content Handler</th>
+                                            <td>
+                                            {{block.block_type.content_handler}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Content Handler Parameters
+                                            </th>
+                                            <td>
+                                    {{block.block_type.content_handler_parms}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Block Parameters</th>
+                                            <td>{{block.parameters}}</td>
+                                        </tr>
+                                    </table>
+                                    {% if not forloop.last %}
+                                    <hr/>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </td>
+            </tr>
+        {% empty %}
+        {% endfor %}
+        <tr>
+            <th>MetaPage Alias ID</th>
+            {% if metapage.alias %}
+            <td>
+                {{metapage.alias.id}}
+            </td>
+            {% else %}
+            <td><i>Not an alias</i></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Node ID</th>
+            <td>{{metapage.node.id}}</td>
+        </tr>
+        <tr>
+            <th>Page Type</th>
+            <td>{{metapage.page_type.name}}</td>
+        </tr>
+        <tr>
+            <th>Template</th>
+            <td>{{metapage.page_type.template}}</td>
+        </tr>
+    </table>
+</div>

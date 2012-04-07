@@ -3,34 +3,46 @@
 {% block scripts %}
     <script type="text/JavaScript">
         var languages = {};
+
+        function node_link_click(link) {
+            // unselect any links currently selected, hide any action bars 
+            $("a.node_link").removeClass("selected");
+            $('#folder_actions').hide();
+            $('#metapage_actions').hide();
+
+            // select this link 
+            link.addClass("selected");
+
+            // load contents of node, then associate any links within with
+            // this handling function
+            $("div#node_container").load(link.attr("href"), function(){
+                $(this).find('a.node_link').click(function(){
+                    return node_link_click($(this));
+                });
+            });
+
+            // show the appropriate action bar
+            if( link.hasClass('folder') ) {
+                $('#folder_actions').show();
+            }
+            else if( link.hasClass('metapage') ){
+                // action is a metapage
+                $('#metapage_actions').show();
+            }
+            return false;
+        }
+
         function node_link_management() {
             // add select/unselect mechanism to items in tree
             $("a.node_link").click(function(){
-                // unselect any links currently selected, hide any action bars 
-                $("a.node_link").removeClass("selected");
-                $('#folder_actions').hide();
-                $('#page_actions').hide();
-
-                // select this link 
-                $(this).addClass("selected");
-                $("div#node_container").load($(this).attr("href"));
-
-                // show the appropriate action bar
-                if( $(this).hasClass('folder') ) {
-                    $('#folder_actions').show();
-                }
-                else if( $(this).hasClass('page') ){
-                    // action is a page or alias
-                    $('#page_actions').show();
-                }
-                return false;
+                return node_link_click($(this));
             });
         }
 
         $(document).ready(function(){
-            // hide node and page action divs
+            // hide node and metapage action divs
             $('#folder_actions').hide();
-            $('#page_actions').hide();
+            $('#metapage_actions').hide();
 
             // perform action when user does something with site select
             $('#site_select').change(function() {
@@ -136,7 +148,7 @@
         <a href="#" >Add Child Page</a>&nbsp;
         <a href="#" >Remove Folder</a>&nbsp;
     </div>
-    <div id="page_actions">
+    <div id="metapage_actions">
         <a href="#" >Remove Page</a>&nbsp;
     </div>
     <div id="node_container">
