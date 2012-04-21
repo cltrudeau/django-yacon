@@ -31,6 +31,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/$', 'control_panel'),
         (r'^nexus/control_panel/$', 'control_panel'),
 
+        # control panel display items
         (r'^nexus/page_info/$', 'page_info'),
         (r'^nexus/metapage_info/(\d+)/$', 'metapage_info'),
         (r'^nexus/node_info/(\d+)/$', 'node_info'),
@@ -38,7 +39,8 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/get_sites/$', 'get_sites'),
         (r'^nexus/full_tree/(\d+)/$', 'full_tree'),
 
-        (r'^nexus/ajax_site_tree/(\d+)/$', 'ajax_site_tree'),
+        # control panel dialog items
+        (r'^nexus/remove_folder_warn/(\d+)/$', 'remove_folder_warn'),
     )
 
 if settings.YACON_TESTS_ENABLED:

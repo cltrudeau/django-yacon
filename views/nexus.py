@@ -38,9 +38,9 @@ def _build_subtree(node):
     """Returns a hash representation in dynatree format of the node passed in
     and its children."""
     name = '%s (%s)' % (node.name, node.slug)
+    default_lang = node.site.default_language.identifier.upper()
     if node.name == None:
-        name = '<i>empty translation (%s)</i>' %\
-            node.site.default_language.identifier
+        name = '<i>empty translation (%s)</i>' % default_lang
 
     node_hash = {
         'title': name,
@@ -49,7 +49,6 @@ def _build_subtree(node):
         'expand': True,
     }
 
-    default_lang = node.site.default_language
     if node.has_children():
         children = []
         for child in node.get_children():
@@ -68,8 +67,7 @@ def _build_subtree(node):
                     icon = "fatcow/page_white_link.png"
                 page = metapage.get_default_translation()
                 if page == None:
-                    title = '<i>empty translation (%s)</i>' % \
-                        node.site.default_language.identifier
+                    title = '<i>empty translation (%s)</i>' % default_lang
                 else:
                     title = page.title
 
@@ -84,6 +82,42 @@ def _build_subtree(node):
 
     return node_hash
 
+
+def _build_subtree_as_list(node, depth=1):
+    """Returns a string representation as <li> and <ul> tags of the node 
+    passed in and its children."""
+    space = depth * '    '
+    default_lang = node.site.default_language.identifier.upper()
+    output = []
+
+    if node.name == None:
+        output.append('%s<li><i>empty translation (%s)</i></li>' % (space,
+            default_lang))
+    else:
+        output.append('%s<li>%s [%s]</li>' % (space, node.name, node.slug))
+
+    if node.has_children():
+        output.append('%s<ul>' % space)
+        for child in node.get_children():
+            output.append( _build_subtree_as_list(child, depth+1))
+
+        output.append('%s</ul>' % space)
+    else: 
+        # leaf node, check for pages
+        metapages = MetaPage.objects.filter(node=node)
+        if len(metapages) != 0:
+            output.append('%s<ul>' % space)
+            for metapage in metapages:
+                if metapage.is_alias():
+                    continue
+
+                for page in metapage.get_translations():
+                    output.append('    %s<li>Page: %s (<i>%s</i>)</li>' % \
+                        (space, page.title, page.language.identifier.upper()))
+
+            output.append('%s</ul>' % space)
+
+    return '\n'.join(output)
 
 # ============================================================================
 # Ajax Methods
@@ -166,3 +200,16 @@ def full_tree(request, site_id):
     tree = [subtree, ]
 
     return HttpResponse(json.dumps(tree), content_type='application/json')
+
+
+def remove_folder_warn(request, node_id):
+    node = get_object_or_404(Node, id=node_id)
+    data = {
+        'html':\
+"""<ul>
+%s
+</ul>""" % _build_subtree_as_list(node),
+    }
+
+    return render_to_response('nexus/ajax/remove_folder_warning.html', data,
+        context_instance=RequestContext(request))
