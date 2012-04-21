@@ -6,15 +6,15 @@ Stye sheet for Nexus admin area in the Yacon project
 /* Two-Column Views */
 .right, .left {
     overflow: auto;
-    width: 35%;
+    width: 25%;
     height: 100%;
     float: left;
 }
 .left {
-    width: 35%;
+    width: 25%;
 }
 .right {
-    width: 65%;
+    width: 75%;
 }
 
 a.selected {

@@ -34,51 +34,62 @@ def control_panel(request):
 # Helpers
 # ============================================================================
 
-def _tree_to_html_list(node, output, indent):
-    spacer = 3 * (indent + 1) * ' '
+def _build_subtree(node):
+    """Returns a hash representation in dynatree format of the node passed in
+    and its children."""
     name = '%s (%s)' % (node.name, node.slug)
     if node.name == None:
         name = '<i>empty translation (%s)</i>' %\
             node.site.default_language.identifier
 
-    output.append(('%s<li>' % spacer + 
-        '<img src="/static/icons/fatcow/folder.png">&nbsp;'
-        '<a class="node_link folder" href="/yacon/nexus/ajax_node_info'
-        '/%d/">%s<a/>' % (node.id, name) + '</li>'))
-    
+    node_hash = {
+        'title': name,
+        'key': 'node:%d' % node.id,
+        'icon': 'fatcow/folder.png',
+        'expand': True,
+    }
+
     default_lang = node.site.default_language
     if node.has_children():
-        output.append('%s<ul>' % spacer)
+        children = []
         for child in node.get_children():
-            _tree_to_html_list(child, output, indent+1)
-        output.append('%s</ul>' % spacer)
+            subtree = _build_subtree(child)
+            children.append(subtree)
+
+        node_hash['children'] = children
     else: 
         # leaf node, check for pages
         metapages = MetaPage.objects.filter(node=node)
         if len(metapages) != 0:
-            output.append('%s<ul class="content_list">' % spacer)
+            children = []
             for metapage in metapages:
-                image = "/static/icons/fatcow/page_white.png"
+                icon = "fatcow/page_white.png"
                 if metapage.is_alias():
-                    image = "/static/icons/fatcow/page_white_link.png"
+                    icon = "fatcow/page_white_link.png"
                 page = metapage.get_default_translation()
                 if page == None:
                     title = '<i>empty translation (%s)</i>' % \
                         node.site.default_language.identifier
                 else:
                     title = page.title
-                output.append(('%s   <li><img src="%s">' % (spacer, image) +
-                    '&nbsp;<a class="node_link metapage" ' 
-                    'href="/yacon/nexus/ajax_metapage_info/%s/">' \
-                    % metapage.id + '%s</a></li>' % title))
 
-            output.append('%s</ul>' % spacer)
+                page_hash = {
+                    'title': title,
+                    'key': 'metapage:%d' % metapage.id,
+                    'icon': icon,
+                }
+                children.append(page_hash)
+
+            node_hash['children'] = children
+
+    return node_hash
+
 
 # ============================================================================
 # Ajax Methods
 # ============================================================================
 
-def ajax_node_info(request, node_id):
+def node_info(request, node_id):
     node = Node.objects.get(id=node_id)
     if node == None:
         return HttpResponse('')
@@ -109,7 +120,7 @@ def ajax_node_info(request, node_id):
         context_instance=RequestContext(request))
 
 
-def ajax_metapage_info(request, metapage_id):
+def metapage_info(request, metapage_id):
     metapage = get_object_or_404(MetaPage, id=metapage_id)
 
     default_page = metapage.get_default_translation()
@@ -126,7 +137,7 @@ def ajax_metapage_info(request, metapage_id):
         context_instance=RequestContext(request))
 
 
-def ajax_get_sites(request):
+def get_sites(request):
     sites = Site.objects.all()
     data = {}
     for site in sites:
@@ -135,7 +146,7 @@ def ajax_get_sites(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-def ajax_site_info(request, site_id):
+def site_info(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     url = SiteURL.objects.get(site=site)
 
@@ -148,16 +159,10 @@ def ajax_site_info(request, site_id):
         context_instance=RequestContext(request))
 
 
-def ajax_site_tree(request, site_id):
+def full_tree(request, site_id):
     site = get_object_or_404(Site, id=site_id)
+    subtree = _build_subtree(site.doc_root)
+    subtree['activate'] = True
+    tree = [subtree, ]
 
-    output = [('<a class="node_link site" href="'
-            '/yacon/nexus/ajax_site_info/%s/">Info for: %s</a>' % (site.id, 
-            site.name)),
-        '<br/>',
-        '<ul class="node_tree">', 
-    ]
-    _tree_to_html_list(site.doc_root, output, 0)
-    output.append('</ul>')
-
-    return HttpResponse('\n'.join(output))
+    return HttpResponse(json.dumps(tree), content_type='application/json')

@@ -30,11 +30,14 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^$', 'control_panel'),
         (r'^nexus/$', 'control_panel'),
         (r'^nexus/control_panel/$', 'control_panel'),
-        (r'^nexus/ajax_page_info/$', 'ajax_page_info'),
-        (r'^nexus/ajax_metapage_info/(\d+)/$', 'ajax_metapage_info'),
-        (r'^nexus/ajax_node_info/(\d+)/$', 'ajax_node_info'),
-        (r'^nexus/ajax_site_info/(\d+)/$', 'ajax_site_info'),
-        (r'^nexus/ajax_get_sites/$', 'ajax_get_sites'),
+
+        (r'^nexus/page_info/$', 'page_info'),
+        (r'^nexus/metapage_info/(\d+)/$', 'metapage_info'),
+        (r'^nexus/node_info/(\d+)/$', 'node_info'),
+        (r'^nexus/site_info/(\d+)/$', 'site_info'),
+        (r'^nexus/get_sites/$', 'get_sites'),
+        (r'^nexus/full_tree/(\d+)/$', 'full_tree'),
+
         (r'^nexus/ajax_site_tree/(\d+)/$', 'ajax_site_tree'),
     )
 

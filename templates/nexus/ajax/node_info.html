@@ -39,8 +39,9 @@
                             {% if tuple.2 %}
                                 {{tuple.2.title}}
                                 <a href="{{tuple.0}}">(view)</a>
-                                <a class="node_link"
-                                    href="/yacon/nexus/ajax_metapage_info/{{tuple.2.metapage.id}}/">
+                                <a 
+                onclick="choose_item('metapage:' + {{tuple.2.metapage.id}})"
+                                    href="javascript:void(0);">
                                     (info)</a>
                             {% else %}
                                 <i>None</i>

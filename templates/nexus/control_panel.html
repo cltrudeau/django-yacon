@@ -2,41 +2,15 @@
 
 {% block scripts %}
     <script type="text/JavaScript">
-        var languages = {};
+        function choose_item(key) {
+            var tree = $('#tree').dynatree("getTree");
+            var node = tree.getNodeByKey(key);
 
-        function node_link_click(link) {
-            // unselect any links currently selected, hide any action bars 
-            $("a.node_link").removeClass("selected");
-            $('#folder_actions').hide();
-            $('#metapage_actions').hide();
-
-            // select this link 
-            link.addClass("selected");
-
-            // load contents of node, then associate any links within with
-            // this handling function
-            $("div#node_container").load(link.attr("href"), function(){
-                $(this).find('a.node_link').click(function(){
-                    return node_link_click($(this));
-                });
-            });
-
-            // show the appropriate action bar
-            if( link.hasClass('folder') ) {
-                $('#folder_actions').show();
+            if( node != null ) {
+                node.activate();
             }
-            else if( link.hasClass('metapage') ){
-                // action is a metapage
-                $('#metapage_actions').show();
-            }
+
             return false;
-        }
-
-        function node_link_management() {
-            // add select/unselect mechanism to items in tree
-            $("a.node_link").click(function(){
-                return node_link_click($(this));
-            });
         }
 
         $(document).ready(function(){
@@ -56,34 +30,51 @@
                     return;
                 }
 
-                // if you get here then user selected a site
-                $.ajax({
-                    url: "/yacon/nexus/ajax_site_tree/" + value + "/",
-                    dataType: "html",
-                    success: function(data) {
-                        // site has changed replace node tree
-                        $('#node_tree').html(data);
-                        $('#node_conatiner').html('');
+                // if you get here then user selected a site, load the tree
+                $("#tree").dynatree({
+                    onActivate: function(node) {
+                        // hide the context toolbars
+                        $('#folder_actions').hide();
+                        $('#metapage_actions').hide();
 
-                        // get languages for this site
-                        $.ajax({
-                            url: "/yacon/nexus/ajax_get_languages/" + value +
-                                "/",
-                            dataType:"json",
-                            success: function(data) {
-                                languages = data;
-                            }
-                        });
+                        // load contents of node
+                        var pieces = node.data.key.split(":");
+                        var node_type = pieces[0];
+                        var node_id = pieces[1];
 
-                        // add click management to node items in tree
-                        node_link_management();
+                        var link = '/yacon/nexus/metapage_info/';
+                        if( node_type == 'node' )
+                            link = '/yacon/nexus/node_info/';
+
+                        link += "" + node_id + "/";
+
+                        $("div#node_container").load(link);
+
+                        // show the appropriate action bar
+                        if( node_type == 'node') {
+                            $('#folder_actions').show();
+                        }
+                        if( node_type == 'metapage') {
+                            // action is a metapage
+                            $('#metapage_actions').show();
+                        }
+                    },
+                    onPostInit: function(isReloading, isError) {
+                        // activate event doesn't trigger on a reload, our
+                        // dynamic content is loaded via activate, so force
+                        // the activation after initialization
+                        this.reactivate();
+                    },
+                    persist: true,
+                    initAjax: {
+                        url: "/yacon/nexus/full_tree/" + value + "/"
                     }
                 });
             });
 
             // load list of sites
             $.ajax({
-                url: "/yacon/nexus/ajax_get_sites/",
+                url: "/yacon/nexus/get_sites/",
                 dataType: "json",
                 success: function(data) {
                     // remove old sites, replace with what server sent
@@ -126,6 +117,7 @@
                 },
                 title: 'Add Child Folder'
             });
+
         });
     </script>
 {% endblock scripts %}
@@ -138,7 +130,7 @@
         </select>
     </form>
     <br/>
-    <div id="node_tree" class="node_tree">
+    <div id="tree">
     </div>
 </div>
 <div class="right">
