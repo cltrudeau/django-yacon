@@ -20,7 +20,8 @@ function active_node_id() {
 
 function refresh_tree() {
     var tree = $('#tree').dynatree("getTree");
-    tree.refresh();
+    tree.reload();
+    return tree
 }
 
 function choose_item(key) {
@@ -38,14 +39,21 @@ function choose_item(key) {
 // Dialog Creation Function
 
 function create_dialog(selector, title, url_generator, success, complete) {
-    var url = url_generator();
+    var height = Math.floor(0.80 * $(window).height());
+    var width = Math.floor(0.80 * $(window).width());
+
     $(selector).dialog({
         autoOpen: false,
         modal: true,
+        maxHeight: height,
+        height: height,
+        maxWidth: width,
+        width: width,
         buttons: {
             "Ok":function() {
                 var node_id = active_node_id();
                 if( node_id != null ) {
+                    var url = url_generator();
                     $.ajax({
                         url: url,
                         success: success,
@@ -130,10 +138,19 @@ $(document).ready(function(){
                 }
             },
             onPostInit: function(isReloading, isError) {
-                // activate event doesn't trigger on a reload, our dynamic
-                // content is loaded via activate, so force the activation
-                // after initialization
-                this.reactivate();
+                // check if there is an active node
+                node = this.getActiveNode();
+                if( node == null ) {
+                    // no active node, set it to our root; tree has invisible
+                    // root whose second child is our root
+                    this.getRoot().getChildren()[1].activate()
+                }
+                else {
+                    // tree has active node, activate event event doesn't
+                    // trigger on a reload, our dynamic content is loaded via
+                    // activate, so force the activation after initialization
+                    this.reactivate();
+                }
             },
             persist: true,
             initAjax: {
@@ -179,7 +196,7 @@ $(document).ready(function(){
             refresh_tree();
         },
         function() { // on completion of ajax call
-            $(this).dialog('close');
+            $('#remove_folder_dialog').dialog('close');
         }
     );
 }); // end document ready

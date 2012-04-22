@@ -86,3 +86,7 @@ class Language(models.Model):
         lang.save()
 
         return lang
+
+    @property
+    def code(self):
+        return self.identifier.upper()

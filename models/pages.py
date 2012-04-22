@@ -341,6 +341,10 @@ class Page(models.Model):
         return '%s%s' % (node_part, self.slug)
 
     @property
+    def lang_code(self):
+        return self.language.identifier.upper()
+
+    @property
     def all_blocks(self):
         """Shortcut property method for "blocks.all()" so it can be called
         inside of a template."""

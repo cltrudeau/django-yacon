@@ -1,7 +1,2 @@
-- convert tree to have some sort of identifier on the links so that 
-    items in the node container can effect the tree
-- create a dialog box handler that does generic ajax calls
-    - all calls to server return a JSON object
-    - object indicates success/failure, what part of the tree to refresh,
-      error messages etc.
-- switch to more dynamic tree?
+- resize dialog box
+- check if remove folder actually removes folders

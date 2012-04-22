@@ -41,6 +41,7 @@ if settings.YACON_NEXUS_ENABLED:
 
         # control panel dialog items
         (r'^nexus/remove_folder_warn/(\d+)/$', 'remove_folder_warn'),
+        (r'^nexus/remove_folder/(\d+)/$', 'remove_folder'),
     )
 
 if settings.YACON_TESTS_ENABLED:

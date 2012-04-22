@@ -38,7 +38,7 @@ def _build_subtree(node):
     """Returns a hash representation in dynatree format of the node passed in
     and its children."""
     name = '%s (%s)' % (node.name, node.slug)
-    default_lang = node.site.default_language.identifier.upper()
+    default_lang = node.site.default_language.code
     if node.name == None:
         name = '<i>empty translation (%s)</i>' % default_lang
 
@@ -87,14 +87,15 @@ def _build_subtree_as_list(node, depth=1):
     """Returns a string representation as <li> and <ul> tags of the node 
     passed in and its children."""
     space = depth * '    '
-    default_lang = node.site.default_language.identifier.upper()
+    default_lang = node.site.default_language.code
     output = []
 
     if node.name == None:
         output.append('%s<li><i>empty translation (%s)</i></li>' % (space,
             default_lang))
     else:
-        output.append('%s<li>%s [%s]</li>' % (space, node.name, node.slug))
+        output.append('%s<li>%s at %s</li>' % (space, node.name, 
+            node.node_to_path()))
 
     if node.has_children():
         output.append('%s<ul>' % space)
@@ -108,12 +109,9 @@ def _build_subtree_as_list(node, depth=1):
         if len(metapages) != 0:
             output.append('%s<ul>' % space)
             for metapage in metapages:
-                if metapage.is_alias():
-                    continue
-
                 for page in metapage.get_translations():
-                    output.append('    %s<li>Page: %s (<i>%s</i>)</li>' % \
-                        (space, page.title, page.language.identifier.upper()))
+                    output.append('    %s<li>"%s" (<i>%s</i>)</li>' % \
+                        (space, page.title, page.language.code))
 
             output.append('%s</ul>' % space)
 
@@ -131,7 +129,7 @@ def node_info(request, node_id):
     default_path = node.node_to_path(node.site.default_language)
     if default_path == None:
         default_path = '<i>empty translation (%s)</i>' % \
-            node.site.default_language.identifier
+            node.site.default_language.code
     data = {
         'node':node,
         'num_metapages':len(MetaPage.objects.filter(node=node)),
@@ -203,13 +201,43 @@ def full_tree(request, site_id):
 
 
 def remove_folder_warn(request, node_id):
+    """Ajax call that returns a listing of the nodes and pages that would be
+    effected if node with id "node_id" is deleted."""
     node = get_object_or_404(Node, id=node_id)
+
+    # find all of the MetaPages that would be removed
+    nodes = list(node.get_descendants())
+    nodes.append(node)
+    metapages = MetaPage.objects.filter(node__in=nodes)
+
+    # find anything that aliases one of the targeted metapages
+    aliases = MetaPage.objects.filter(alias__in=metapages)
+    alias_list = []
+    if len(aliases) != 0:
+        alias_list.append('<ul>')
+        for metapage in aliases:
+            for page in metapage.get_translations():
+                alias_list.append('   <li>"%s" at %s (%s)</li>' % (page.title,
+                    page.uri, page.language.code))
+
+        alias_list.append('</ul>')
+
     data = {
-        'html':\
+        'nodes':\
 """<ul>
 %s
 </ul>""" % _build_subtree_as_list(node),
+        'aliases':'\n'.join(alias_list),
     }
 
     return render_to_response('nexus/ajax/remove_folder_warning.html', data,
         context_instance=RequestContext(request))
+
+
+def remove_folder(request, node_id):
+    """Deletes node with id "node_id" and all of its children.  Unlinks any
+    aliases to removed items."""
+    node = get_object_or_404(Node, id=node_id)
+    node.delete()
+
+    return HttpResponse()

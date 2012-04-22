@@ -1,5 +1,13 @@
 <p>
-    Ok to delete the following?
-</p>
+    Please confirm you would like to delete the following nodes and pages:
 
-{{html|safe}}
+{{nodes|safe}}
+
+</p>
+{% if aliases %}
+<p>
+    The following aliased pages will also be removed:
+
+{{aliases|safe}}
+</p>
+{% endif %}
