@@ -1,2 +1,4 @@
-- resize dialog box
-- check if remove folder actually removes folders
+- add ability to edit node path slug
+- add ability to add a translated path to node
+- add ability to add a default page to node path
+- add/remove translated page

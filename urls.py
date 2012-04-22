@@ -38,10 +38,12 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/site_info/(\d+)/$', 'site_info'),
         (r'^nexus/get_sites/$', 'get_sites'),
         (r'^nexus/full_tree/(\d+)/$', 'full_tree'),
+        (r'^nexus/full_tree_default_site/$', 'full_tree_default_site'),
 
         # control panel dialog items
         (r'^nexus/remove_folder_warn/(\d+)/$', 'remove_folder_warn'),
         (r'^nexus/remove_folder/(\d+)/$', 'remove_folder'),
+        (r'^nexus/add_folder/(\d+)/(.*)/(.*)/$', 'add_folder'),
     )
 
 if settings.YACON_TESTS_ENABLED:

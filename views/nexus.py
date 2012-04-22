@@ -200,6 +200,15 @@ def full_tree(request, site_id):
     return HttpResponse(json.dumps(tree), content_type='application/json')
 
 
+def full_tree_default_site(request):
+    # pick the first site and return it
+    sites = Site.objects.all()
+    if len(sites) == 0:
+        return HttpResponse(json.dumps([]), content_type='application/json')
+
+    return full_tree(request, sites[0].id)
+
+
 def remove_folder_warn(request, node_id):
     """Ajax call that returns a listing of the nodes and pages that would be
     effected if node with id "node_id" is deleted."""
@@ -241,3 +250,11 @@ def remove_folder(request, node_id):
     node.delete()
 
     return HttpResponse()
+
+
+def add_folder(request, node_id, title, slug):
+    """Adds a new node underneath the given one."""
+    node = get_object_or_404(Node, id=node_id)
+    child = node.create_child(title, slug)
+
+    return HttpResponse('node:%s' % child.id, content_type='application/json')

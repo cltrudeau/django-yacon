@@ -13,12 +13,15 @@
         </select>
     </form>
     <br/>
+    <a href="javascript:void(0);" onclick="site_info()">Site Info</a>&nbsp;
+    <br/>
+    <br/>
     <div id="tree">
     </div>
 </div>
 <div class="right">
     <div id="folder_actions">
-        <a href="#" onclick="$('#add_folder_dialog').dialog('open')" >
+        <a href="javascript:void(0);" onclick="add_folder()">
             Add Child Folder</a>&nbsp;
         <a href="#" >Add Child Page</a>&nbsp;
         <a onclick="remove_folder_warn()" href="javascript:void(0);">
@@ -33,6 +36,21 @@
 
 <!-- Dialog Boxes -->
 <div id="remove_folder_dialog">
+</div>
+
+<div id="add_folder_dialog">
+    <p>
+        Enter title and slug for the new sub-folder using the site's default
+        language:
+    </p>
+    <form id="add_folder_form">
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" />
+        <br />
+        <label for="slug">Slug</label>
+        <input type="text" name="slug" id="slug" />
+        <br />
+    </form>
 </div>
 
 {% endblock content %}

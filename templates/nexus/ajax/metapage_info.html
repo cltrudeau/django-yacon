@@ -3,157 +3,122 @@
     (id={{metapage.id}})
     </h2>
 
-    <table>
-        <tr>
-            <th>Default Language ({{default_page.language.identifier}})</th>
-            {% if default_page %}
-            <td>
-                <table>
-                    <tr>
-                        <th>Title</th>
-                        <td>
-                            {{default_page.title}}
-                            <a href="{{default_page.uri}}">(view)</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Slug</th>
-                        <td>{{default_page.slug}}</td>
-                    </tr>
-                    {% if default_page.all_blocks %}
-                    <tr>
-                        <th>Blocks</th>
-                        <td>
-                            {% for block in default_page.all_blocks %}
-                                <table>
-                                    <tr>
-                                        <th>ID / Key</th>
-                                        <td>
-                                            {{block.id}} / 
-                                            {{block.block_type.key}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Specifier Name</th>
-                                        <td>{{block.block_type.name}}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Content Handler</th>
-                                        <td>
-                                            {{block.block_type.content_handler}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Content Handler Parameters</th>
-                                        <td>
-                                    {{block.block_type.content_handler_parms}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Block Parameters</th>
-                                        <td>{{block.parameters}}</td>
-                                    </tr>
-                                </table>
-                                {% if not forloop.last %}
-                                <hr/>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                </table>
-            </td>
+    <ul>
+        <li>
+            MetaPage Alias ID:
+            {% if metapage.alias %}
+                {{metapage.alias.id}} 
+                <a onclick="choose_item('metapage:' + {{metapage.alias.id}})"
+                    href="javascript:void(0);">(info)</a>
             {% else %}
-            <td> <i>None</i> </td>
+                <i>Not an alias</i>
             {% endif %}
-        </tr>
+        </li>
+        <li>
+            Node ID: {{metapage.node.id}}
+        </li>
+        <li>
+            Page Type: {{metapage.page_type.name}}
+        </li>
+        <li>
+            Template: {{metapage.page_type.template}}
+        </li>
+    </ul>
+
+    <h3>Contents</h3>
+
+    <ul>
+        {% if default_page %}
+            <li> 
+                "{{default_page.title}}" ({{default_page.language.code}})
+                <a href="{{default_page.uri}}">(view)</a>
+            </li>
+            <ul>
+                <li>
+                    Slug: {{default_page.slug}}
+                </li>
+                {% if default_page.all_blocks %}
+                <li>
+                    Blocks:
+                </li>
+                <ul>
+                    {% for block in default_page.all_blocks %}
+                        <li>
+                            ID / Key: 
+                            {{block.id}} / {{block.block_type.key}}
+                        </li>
+                        <ul>
+                            <li>
+                                Specifier Name:
+                                {{block.block_type.name}}
+                            </li>
+                            <li>
+                                Content Handler:
+                                {{block.block_type.content_handler}}
+                            </li>
+                            <li>
+                                Content Handler Parameters:
+                                {{block.block_type.content_handler_parms}}
+                            </li>
+                            <li>
+                                Block Parameters:
+                                {{block.parameters}}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </ul>
+        {% else %}
+            <li> 
+                <i>No Default Translation 
+                    ({{metapage.node.site.default_language.code}})</i>
+            </li>
+        {% endif %}
         {% for page in translated_pages %}
-            <tr>
-                <th>({{page.language.identifier}})</th>
-                <td>
-                    <table>
-                        <tr>
-                            <th>Title</th>
-                            <td>
-                                {{page.title}}
-                                <a href="{{page.uri}}">(view)</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Slug</th>
-                            <td>{{page.slug}}</td>
-                        </tr>
-                        {% if default_page.all_blocks %}
-                        <tr>
-                            <th>Blocks</th>
-                            <td>
-                                {% for block in default_page.all_blocks %}
-                                    <table>
-                                        <tr>
-                                            <th>ID / Key</th>
-                                            <td>
-                                                {{block.id}} /
-                                                {{block.block_type.key}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Specifier Name</th>
-                                            <td>
-                                                {{block.block_type.name}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Content Handler</th>
-                                            <td>
-                                            {{block.block_type.content_handler}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>
-                                                Content Handler Parameters
-                                            </th>
-                                            <td>
-                                    {{block.block_type.content_handler_parms}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Block Parameters</th>
-                                            <td>{{block.parameters}}</td>
-                                        </tr>
-                                    </table>
-                                    {% if not forloop.last %}
-                                    <hr/>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                        </tr>
-                        {% endif %}
-                    </table>
-                </td>
-            </tr>
+            <li>
+                "{{page.title}}" ({{page.language.code}})
+                <a href="{{page.uri}}">(view)</a>
+            </li>
+            <ul>
+                <li>
+                    Slug
+                    <td>{{page.slug}}</td>
+                </li>
+                {% if page.all_blocks %}
+                <li>
+                    Blocks:
+                </li>
+                <ul>
+                    {% for block in page.all_blocks %}
+                        <li>
+                            ID / Key: 
+                            {{block.id}} / {{block.block_type.key}}
+                        </li>
+                        <ul>
+                            <li>
+                                Specifier Name:
+                                {{block.block_type.name}}
+                            </li>
+                            <li>
+                                Content Handler:
+                                {{block.block_type.content_handler}}
+                            </li>
+                            <li>
+                                Content Handler Parameters:
+                                {{block.block_type.content_handler_parms}}
+                            </li>
+                            <li>
+                                Block Parameters:
+                                {{block.parameters}}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+            </ul>
         {% empty %}
         {% endfor %}
-        <tr>
-            <th>MetaPage Alias ID</th>
-            {% if metapage.alias %}
-            <td>
-                {{metapage.alias.id}}
-            </td>
-            {% else %}
-            <td><i>Not an alias</i></td>
-            {% endif %}
-        </tr>
-        <tr>
-            <th>Node ID</th>
-            <td>{{metapage.node.id}}</td>
-        </tr>
-        <tr>
-            <th>Page Type</th>
-            <td>{{metapage.page_type.name}}</td>
-        </tr>
-        <tr>
-            <th>Template</th>
-            <td>{{metapage.page_type.template}}</td>
-        </tr>
-    </table>
+    </ul>
 </div>

@@ -1,59 +1,42 @@
 <div class="node" id="{{node.id}}">
     <h2> Node Info for: {{default_path|safe}} </h2>
 
-    <table class="content_list">
-        <tr>
-            <th>Node ID</th>
-            <td>{{node.id}}</td>
-        </tr>
-        <tr>
-            <th># of Child MetaPages</th>
-            <td>{{num_metapages}}</td>
-        </tr>
-        <tr>
-            <th># of Child Folders</th>
-            <td>{{num_children}}</td>
-        </tr>
-        <tr>
-            <th>Node Paths</th>
-
-            {% if path_tuples %}
-            <td>
-                <table class="content_list">
-                    <tr>
-                        <th>Path</th>
-                        <th>Language</th>
-                        <th>Default Page</th>
-                    </tr>
-                {% for tuple in path_tuples %}
-                    <tr>
-                        <td>
-                            {% if tuple.0 %}
-                                {{tuple.0}}
-                            {% else %}
-                                <i>None</i>
-                            {% endif %}
-                        </td>
-                        <td>{{tuple.1}}</td>
-                        <td>
-                            {% if tuple.2 %}
-                                {{tuple.2.title}}
-                                <a href="{{tuple.0}}">(view)</a>
-                                <a 
-                onclick="choose_item('metapage:' + {{tuple.2.metapage.id}})"
-                                    href="javascript:void(0);">
-                                    (info)</a>
-                            {% else %}
-                                <i>None</i>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </table>
-            </td>
-            {% else %}
-            <td><i>None</i></td>
-            {% endif %}
-        </tr>
-    </table>
+    <ul>
+        <li>
+            Node ID: {{node.id}}
+        </li>
+        <li>
+            # of Child MetaPages: {{num_metapages}}
+        </li>
+        <li>
+            # of Child Folders: {{num_children}}
+        </li>
+        <li>
+            Node Paths and Default Pages:
+        </li>
+        <ul>
+            {% for tuple in path_tuples %}
+                <li>
+                    {% if tuple.0 %}
+                        {{tuple.0}} &mdash; (<i>{{tuple.1.code}}</i>)
+                    {% else %}
+                        <i>No path for {{tuple.1.code}}</i>
+                    {% endif %}
+                </li>
+                {% if tuple.2 %}
+                <ul>
+                    <li>
+                            "{{tuple.2.title}}"
+                            <a href="{{tuple.0}}">(view)</a>
+                            <a href="javascript:void(0);"
+                onclick="choose_item('metapage:' + {{tuple.2.metapage.id}})">
+                                (info)</a>
+                    </li>
+                </ul>
+                {% endif %}
+            {% empty %}
+                <li> <i>None</i> </li>
+            {% endfor %}
+        </ul>
+    </ul>
 </div>

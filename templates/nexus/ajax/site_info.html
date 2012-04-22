@@ -1,27 +1,31 @@
 <div class="node" id="{{site.id}}">
     <h2> Site Info for: {{site.name}} </h2>
 
-    <table>
-        <tr>
-            <th>URL</th>
-            <td>{{url}}</td>
-        </tr>
-        <tr>
-            <th>Default Language</th>
-            <td>
-                {{site.default_language.name}}
-                ({{site.default_language.identifier}})
-            </td>
-        </tr>
+    <ul>
+        <li>
+            URL: {{url}}
+        </li>
+        <li>
+            Default Language: {{site.default_language.name}}
+                ({{site.default_language.code}})
+        </li>
+        {% for lang in alternate_languages %}
+            {% if forloop.first %}
+            <li>
+                Alternate Languages:
+            </li>
+            <ul>
+            {% endif %}
+                <li>
+                    {{lang.name}} ({{lang.code}})
+                </li>
+            {% if forloop.last %}
+            <ul>
+            {% endif %}
+        {% empty %}
+        {% endfor %}
+
         {% if alternate_languages %}
-        <tr>
-            <th>Alternate Languages</th>
-            <td>
-            {% for lang in alternate_languages %}
-                {{lang.name}} ({{lang.identifier}})
-            {% endfor %}
-            </td>
-        </tr>
         {% endif %}
-    </table>
+    </ul>
 </div>

@@ -1,5 +1,63 @@
 // =======================================================
+// Helper Functions
+
+function hide_all_toolbars() {
+    $('#folder_actions').hide();
+    $('#metapage_actions').hide();
+}
+
+// =======================================================
 // Tree Helper Functions
+
+function create_tree() {
+    // if you get here then user selected a site, load the tree
+    $("#tree").dynatree({
+        onActivate: function(node) {
+            hide_all_toolbars();
+
+            // load contents of node
+            var pieces = node.data.key.split(":");
+            var node_type = pieces[0];
+            var node_id = pieces[1];
+
+            var link = '/yacon/nexus/metapage_info/';
+            if( node_type == 'node' )
+                link = '/yacon/nexus/node_info/';
+
+            link += "" + node_id + "/";
+
+            $("div#node_container").load(link);
+
+            // show the appropriate action bar
+            if( node_type == 'node') {
+                $('#folder_actions').show();
+            }
+            if( node_type == 'metapage') {
+                // action is a metapage
+                $('#metapage_actions').show();
+            }
+        },
+        onPostInit: function(isReloading, isError) {
+            // check if there is an active node
+            node = this.getActiveNode();
+            if( node == null ) {
+                // no active node, set it to our root; tree has invisible
+                // root whose second child is our root
+                this.getRoot().getChildren()[1].activate()
+            }
+            else {
+                // tree has active node, activate event event doesn't
+                // trigger on a reload, our dynamic content is loaded via
+                // activate, so force the activation after initialization
+                this.reactivate();
+            }
+        },
+        persist: true,
+        initAjax: {
+            url: init_ajax_url()
+        }
+    });
+}
 
 function active_node() {
     var tree = $('#tree').dynatree("getTree");
@@ -33,6 +91,21 @@ function choose_item(key) {
     }
 
     return false;
+}
+
+function init_ajax_url() {
+    // can't just hardcode the url as it is dependent on the value of the
+    // select box; can't just use a variable inside of the select.change()
+    // method as the method doesn't get called in certain reload situations
+    // (e.g. undo-close tab in FF)
+    value = $('#site_select').attr('value');
+    if( value == null || value == "nop" || value == "add" ) {
+        // select is set to strange item, return default site
+        return '/yacon/nexus/full_tree_default_site/';
+    }
+
+    // select is set to a site, return that url
+    return '/yacon/nexus/full_tree/' + value + "/";
 }
 
 // =======================================================
@@ -88,6 +161,32 @@ function remove_folder_warn() {
     return false;
 }
 
+function add_folder() {
+    var node_id = active_node_id();
+    if( node_id != null ) {
+        $('#add_folder_dialog').dialog("open");
+    }
+    return false;
+}
+
+function site_info() {
+    value = $('#site_select').attr('value');
+    if( value == null || value == "nop" || value == "add" ) {
+        // select is set to strange item, do nothing
+        return false;
+    }
+
+    // hide toolbars and activate nothing in the tree
+    var tree = $('#tree').dynatree("getTree");
+    tree.activateKey(null);
+    hide_all_toolbars();
+
+    // load site info via ajax
+    $("div#node_container").load("/yacon/nexus/site_info/" + value + "/");
+
+    return false;
+}
+
 // =======================================================
 // Document Ready
 
@@ -108,55 +207,16 @@ $(document).ready(function(){
             return;
         }
 
-        // if you get here then user selected a site, load the tree
-        $("#tree").dynatree({
-            onActivate: function(node) {
-                // hide the context toolbars
-                $('#folder_actions').hide();
-                $('#metapage_actions').hide();
-
-                // load contents of node
-                var pieces = node.data.key.split(":");
-                var node_type = pieces[0];
-                var node_id = pieces[1];
-
-                var link = '/yacon/nexus/metapage_info/';
-                if( node_type == 'node' )
-                    link = '/yacon/nexus/node_info/';
-
-                link += "" + node_id + "/";
-
-                $("div#node_container").load(link);
-
-                // show the appropriate action bar
-                if( node_type == 'node') {
-                    $('#folder_actions').show();
-                }
-                if( node_type == 'metapage') {
-                    // action is a metapage
-                    $('#metapage_actions').show();
-                }
-            },
-            onPostInit: function(isReloading, isError) {
-                // check if there is an active node
-                node = this.getActiveNode();
-                if( node == null ) {
-                    // no active node, set it to our root; tree has invisible
-                    // root whose second child is our root
-                    this.getRoot().getChildren()[1].activate()
-                }
-                else {
-                    // tree has active node, activate event event doesn't
-                    // trigger on a reload, our dynamic content is loaded via
-                    // activate, so force the activation after initialization
-                    this.reactivate();
-                }
-            },
-            persist: true,
-            initAjax: {
-                url: "/yacon/nexus/full_tree/" + value + "/"
-            }
-        });
+        // check if a tree exists already
+        var tree = $('#tree').dynatree("getTree");
+        if( tree.hasOwnProperty('$widget') ) {
+            var url = init_ajax_url();
+            $('#tree').dynatree("option", "initAjax", {"url": url})
+            refresh_tree()
+        }
+        else {
+            create_tree()
+        }
     });
 
     // load list of sites
@@ -194,6 +254,22 @@ $(document).ready(function(){
         },
         function() { // on success of ajax call
             refresh_tree();
+        },
+        function() { // on completion of ajax call
+            $('#remove_folder_dialog').dialog('close');
+        }
+    );
+    create_dialog('#add_folder_dialog', 'Add Folder',
+        function() { // url generator
+            var node_id = active_node_id();
+            var title = $('#add_folder_form input#title').val();
+            var slug = $('#add_folder_form input#slug').val();
+            return "/yacon/nexus/add_folder/" + node_id + "/" + title + "/"
+                + slug + "/";
+        },
+        function(data) { // on success of ajax call
+            refresh_tree();
+            choose_item(data);
         },
         function() { // on completion of ajax call
             $('#remove_folder_dialog').dialog('close');

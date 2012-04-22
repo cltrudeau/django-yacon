@@ -151,3 +151,7 @@ class Command(BaseCommand):
                     bt_user:'<p>Blog entry %s.</p>' % x,
                 }
             )
+
+        # create a second site
+        Site.create_site('Second Site', 'dummyhost', 
+            languages=[site.default_language])
