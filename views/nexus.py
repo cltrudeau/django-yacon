@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.utils import quote, unquote
-from yacon.models.hierarchy import Node
+from yacon.models.hierarchy import Node, BadSlug
 from yacon.models.site import Site, SiteURL
 from yacon.models.pages import MetaPage, Page
 
@@ -56,28 +56,31 @@ def _build_subtree(node):
             children.append(subtree)
 
         node_hash['children'] = children
-    else: 
-        # leaf node, check for pages
-        metapages = MetaPage.objects.filter(node=node)
-        if len(metapages) != 0:
-            children = []
-            for metapage in metapages:
-                icon = "fatcow/page_white.png"
-                if metapage.is_alias():
-                    icon = "fatcow/page_white_link.png"
-                page = metapage.get_default_translation()
-                if page == None:
-                    title = '<i>empty translation (%s)</i>' % default_lang
-                else:
-                    title = page.title
 
-                page_hash = {
-                    'title': title,
-                    'key': 'metapage:%d' % metapage.id,
-                    'icon': icon,
-                }
-                children.append(page_hash)
+    # leaf node, check for pages
+    metapages = MetaPage.objects.filter(node=node)
+    if len(metapages) != 0:
+        children = []
+        for metapage in metapages:
+            icon = "fatcow/page_white.png"
+            if metapage.is_alias():
+                icon = "fatcow/page_white_link.png"
+            page = metapage.get_default_translation()
+            if page == None:
+                title = '<i>empty translation (%s)</i>' % default_lang
+            else:
+                title = page.title
 
+            page_hash = {
+                'title': title,
+                'key': 'metapage:%d' % metapage.id,
+                'icon': icon,
+            }
+            children.append(page_hash)
+
+        if 'children' in node_hash:
+            node_hash['children'].extend(children)
+        else:
             node_hash['children'] = children
 
     return node_hash
@@ -103,17 +106,17 @@ def _build_subtree_as_list(node, depth=1):
             output.append( _build_subtree_as_list(child, depth+1))
 
         output.append('%s</ul>' % space)
-    else: 
-        # leaf node, check for pages
-        metapages = MetaPage.objects.filter(node=node)
-        if len(metapages) != 0:
-            output.append('%s<ul>' % space)
-            for metapage in metapages:
-                for page in metapage.get_translations():
-                    output.append('    %s<li>"%s" (<i>%s</i>)</li>' % \
-                        (space, page.title, page.language.code))
 
-            output.append('%s</ul>' % space)
+    # leaf node, check for pages
+    metapages = MetaPage.objects.filter(node=node)
+    if len(metapages) != 0:
+        output.append('%s<ul>' % space)
+        for metapage in metapages:
+            for page in metapage.get_translations():
+                output.append('    %s<li>"%s" (<i>%s</i>)</li>' % \
+                    (space, page.title, page.language.code))
+
+        output.append('%s</ul>' % space)
 
     return '\n'.join(output)
 
@@ -255,6 +258,11 @@ def remove_folder(request, node_id):
 def add_folder(request, node_id, title, slug):
     """Adds a new node underneath the given one."""
     node = get_object_or_404(Node, id=node_id)
-    child = node.create_child(title, slug)
-
-    return HttpResponse('node:%s' % child.id, content_type='application/json')
+    data = {}
+    try:
+        child = node.create_child(title, slug)
+        data['key'] = 'node:%s' % child.id,
+    except BadSlug, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')

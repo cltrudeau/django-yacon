@@ -3,15 +3,14 @@
 <head>
     <title>Admin: {{title}}</title>
     <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
-    <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
     <script type="text/JavaScript"
         src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
     </script>
     <script type="text/JavaScript" 
-    src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js">
+        src="/static/js/jquery-ui-1.8.19.custom.min.js">
     </script>
     <link type="text/css" rel="stylesheet" 
-        href="/static/css/smoothness/jquery-ui-1.8.18.custom.css" />	
+        href="/static/css/smoothness/jquery-ui-1.8.19.custom.css" />	
 
     <!-- dynatree -->
     <link type="text/css" rel="stylesheet" 
@@ -20,6 +19,14 @@
     </script>
     <script type="text/JavaScript" src="/static/js/jquery.dynatree.min.js">
     </script>
+
+    <!-- select box -->
+    <script type="text/JavaScript" 
+        src="/static/js/jquery-ui-selectbox-widget.js">
+    </script>
+
+    <!-- yacon style and scripts -->
+    <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
 
     {% block css %}
     {% endblock css %}

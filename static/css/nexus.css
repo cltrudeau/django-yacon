@@ -3,54 +3,53 @@
 Stye sheet for Nexus admin area in the Yacon project
 */
 
+body {
+    font-family: “Times New Roman”, Times, serif;
+    font-size: 12pt;
+}
+
 /* Two-Column Views */
 .right, .left {
     overflow: auto;
-    width: 25%;
     height: 100%;
     float: left;
 }
 .left {
-    width: 25%;
+    min-width: 24%;
+    padding-right: 1%;
 }
 .right {
-    width: 75%;
+    min-width: 50%;
 }
 
-a.selected {
-    background-color:#c9c9c9;
+#node_container {
+    padding-left: 6px;
 }
 
-#node_container table {
-    border-collapse:collapse;
+#toolbar {
+    padding: 4px;
+    min-height: 28px;
+    font-size: 8pt;
 }
 
-#node_container table table {
-    border:0;
-    border-collapse:separate;
+#site_toolbar {
+    float: right;
 }
 
-#node_container table table td {
-    border:0;
-    padding:4px;
+#site_select_wrapper {
+    font-size: 9pt;
+    float: left;
 }
 
-#node_container table table th {
-    border:0;
-    padding:4px;
+.dialog_form_table th {
+    padding: 10px 10px 5px 5px;
+    vertical-align: middle;
 }
 
-#node_container td, th {
-    border:1px solid gray;
-    vertical-align:top;
-    text-align:left;
-    padding:4px;
-}
+/* jQuery UI Overrides */
 
-.node_tree ul {
-    list-style: none;
+/*
+.ui-button.ui-widget .ui-button-text {
+    font-size: x-small !important;
 }
-
-.node_tree li {
-    list-style: none;
-}
+*/

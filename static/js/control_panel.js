@@ -2,8 +2,8 @@
 // Helper Functions
 
 function hide_all_toolbars() {
-    $('#folder_actions').hide();
-    $('#metapage_actions').hide();
+    $('#folder_toolbar').hide();
+    $('#metapage_toolbar').hide();
 }
 
 // =======================================================
@@ -13,6 +13,7 @@ function create_tree() {
     // if you get here then user selected a site, load the tree
     $("#tree").dynatree({
         onActivate: function(node) {
+            console.debug('activated node: ' + node);
             hide_all_toolbars();
 
             // load contents of node
@@ -30,14 +31,22 @@ function create_tree() {
 
             // show the appropriate action bar
             if( node_type == 'node') {
-                $('#folder_actions').show();
+                $('#folder_toolbar').show();
             }
             if( node_type == 'metapage') {
                 // action is a metapage
-                $('#metapage_actions').show();
+                $('#metapage_toolbar').show();
             }
         },
         onPostInit: function(isReloading, isError) {
+            // check if the "select_me" variable is set, if so choose that
+            // node
+            console.debug('on Post');
+            if( select_me != null ) {
+                console.debug('onPost, about to choose');
+                choose_item(select_me);
+                select_me = null;
+            }
             // check if there is an active node
             node = this.getActiveNode();
             if( node == null ) {
@@ -76,11 +85,14 @@ function active_node_id() {
     return pieces[1];
 }
 
-function refresh_tree() {
+function refresh_tree(key) {
     var tree = $('#tree').dynatree("getTree");
     tree.reload();
     return tree
 }
+
+// global var for synch selection after reload
+var select_me = null;
 
 function choose_item(key) {
     var tree = $('#tree').dynatree("getTree");
@@ -89,8 +101,6 @@ function choose_item(key) {
     if( node != null ) {
         node.activate();
     }
-
-    return false;
 }
 
 function init_ajax_url() {
@@ -148,54 +158,12 @@ function create_dialog(selector, title, url_generator, success, complete) {
 }
 
 // =======================================================
-// Dialog Action Functions
-
-function remove_folder_warn() {
-    var node_id = active_node_id();
-    if( node_id != null ) {
-        // get the warning about the nodes to remove
-        var dialog = $('#remove_folder_dialog');
-        dialog.load("/yacon/nexus/remove_folder_warn/" + node_id + "/");
-        dialog.dialog("open");
-    }
-    return false;
-}
-
-function add_folder() {
-    var node_id = active_node_id();
-    if( node_id != null ) {
-        $('#add_folder_dialog').dialog("open");
-    }
-    return false;
-}
-
-function site_info() {
-    value = $('#site_select').attr('value');
-    if( value == null || value == "nop" || value == "add" ) {
-        // select is set to strange item, do nothing
-        return false;
-    }
-
-    // hide toolbars and activate nothing in the tree
-    var tree = $('#tree').dynatree("getTree");
-    tree.activateKey(null);
-    hide_all_toolbars();
-
-    // load site info via ajax
-    $("div#node_container").load("/yacon/nexus/site_info/" + value + "/");
-
-    return false;
-}
-
-// =======================================================
 // Document Ready
 
 $(document).ready(function(){
-    // hide node and metapage action divs
-    $('#folder_actions').hide();
-    $('#metapage_actions').hide();
+    hide_all_toolbars();
 
-    // perform action when user does something with site select
+    // setup change action when a new site is picked
     $('#site_select').change(function() {
         var value = $(this).attr('value');
         if( value == 'nop' ) {
@@ -239,9 +207,52 @@ $(document).ready(function(){
             $('#site_select').append('<option value="add">Add Site' +
                 '</option>');
 
-            // trigger change based on selection
+            // turn widget into jquery style drop down, then force a change
+            // event
+            $('#site_select').selectbox();
             $('#site_select').change();
         }
+    });
+
+    // ---------------------------------------------------------
+    // Toolbar Buttons
+
+    // *** Folder Toolbar
+    $('#add_folder').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_folder_dialog').dialog("open");
+        }
+    });
+
+    $('#add_page').button().click(function() {
+    });
+
+    $('#remove_folder_warn').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            // get the warning about the nodes to remove
+            var dialog = $('#remove_folder_dialog');
+            dialog.load("/yacon/nexus/remove_folder_warn/" + node_id + "/");
+            dialog.dialog("open");
+        }
+    });
+
+    // *** Site Toolbar
+    $('#site_info').button().click(function() {
+        value = $('#site_select').attr('value');
+        if( value == null || value == "nop" || value == "add" ) {
+            // select is set to strange item, do nothing
+            return false;
+        }
+
+        // hide toolbars and activate nothing in the tree
+        var tree = $('#tree').dynatree("getTree");
+        tree.activateKey(null);
+        hide_all_toolbars();
+
+        // load site info via ajax
+        $("div#node_container").load("/yacon/nexus/site_info/" + value + "/");
     });
 
     // ---------------------------------------------------------
@@ -252,7 +263,7 @@ $(document).ready(function(){
             var node_id = active_node_id();
             return "/yacon/nexus/remove_folder/" + node_id + "/";
         },
-        function() { // on success of ajax call
+        function(data) { // on success of ajax call
             refresh_tree();
         },
         function() { // on completion of ajax call
@@ -268,11 +279,17 @@ $(document).ready(function(){
                 + slug + "/";
         },
         function(data) { // on success of ajax call
-            refresh_tree();
-            choose_item(data);
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something was wrong with our slug, show the user
+                alert(data['error']);
+            }
         },
         function() { // on completion of ajax call
-            $('#remove_folder_dialog').dialog('close');
+            $('#add_folder_dialog').dialog('close');
         }
     );
 }); // end document ready

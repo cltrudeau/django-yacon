@@ -1,10 +1,12 @@
 /*******************************************************************************
  * Tree container
+ #
+ # Modified for yacon
  */
 ul.dynatree-container
 {
-	font-family: tahoma, arial, helvetica;
-	font-size: 10pt; /* font size should not be too big */
+	font-family: “Times New Roman”, Times, serif;
+	font-size: 12pt; /* font size should not be too big */
 	white-space: nowrap;
 	padding: 3px;
 	margin: 0; /* issue 201 */
@@ -287,7 +289,7 @@ ul.dynatree-container a:hover
 
 span.dynatree-node a
 {
-	font-size: 10pt; /* required for IE, quirks mode */
+	font-size: 12pt; /* required for IE, quirks mode */
 	display: inline-block; /* Better alignment, when title contains <br> */
 /*	vertical-align: top;*/
 	padding-left: 3px;

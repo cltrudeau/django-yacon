@@ -6,7 +6,7 @@ import re, exceptions, logging
 from django.db import models
 from treebeard.mp_tree import MP_Node
 from yacon.models.language import Language
-from yacon.models.pages import MetaPage
+from yacon.models.pages import Page
 from yacon.definitions import SLUG_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -71,10 +71,12 @@ class Node(MP_Node):
 
         :returns: newly created child Node
 
-        :raises: BadSlug, if the slug contains any non-alpha-numeric character
-            or exceeds 25 characters in length
+        :raises: BadSlug, if the slug contains any non-alpha-numeric
+            character, exceeds 25 characters in length, or exists at this
+            level already
         """
         translations[self.site.default_language] = (name, slug)
+        children = self.get_children()
 
         # check for bad slugs
         for key, value in translations.items():
@@ -86,6 +88,17 @@ class Node(MP_Node):
 
             if not match_word.search(slug):
                 raise BadSlug('Slug must be of form [0-9a-zA-Z_]*')
+
+            # find all children of this node and search their slugs
+            slugmatches = NodeTranslation.objects.filter(node__in=children,
+                slug=slug)
+            if len(slugmatches) != 0:
+                raise BadSlug('A child node already has the given slug')
+
+            # now search for pages in this node with the same slug
+            page = Page.find(self, [slug, ])
+            if page != None:
+                raise BadSlug('A page in this node already has the given slug.')
 
         # no bad slugs, create the child node
         child = self.add_child(site=self.site)
