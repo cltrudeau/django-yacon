@@ -13,7 +13,6 @@ function create_tree() {
     // if you get here then user selected a site, load the tree
     $("#tree").dynatree({
         onActivate: function(node) {
-            console.debug('activated node: ' + node);
             hide_all_toolbars();
 
             // load contents of node
@@ -41,9 +40,7 @@ function create_tree() {
         onPostInit: function(isReloading, isError) {
             // check if the "select_me" variable is set, if so choose that
             // node
-            console.debug('on Post');
             if( select_me != null ) {
-                console.debug('onPost, about to choose');
                 choose_item(select_me);
                 select_me = null;
             }
@@ -85,7 +82,7 @@ function active_node_id() {
     return pieces[1];
 }
 
-function refresh_tree(key) {
+function refresh_tree() {
     var tree = $('#tree').dynatree("getTree");
     tree.reload();
     return tree
@@ -167,7 +164,6 @@ $(document).ready(function(){
     $('#site_select').change(function() {
         var value = $(this).attr('value');
         if( value == 'nop' ) {
-            console.debug('id10t selected separator')
             return;
         }
         if( value == 'add' ) {
@@ -226,6 +222,10 @@ $(document).ready(function(){
     });
 
     $('#add_page').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_page_dialog').dialog("open");
+        }
     });
 
     $('#remove_folder_warn').button().click(function() {
@@ -273,8 +273,8 @@ $(document).ready(function(){
     create_dialog('#add_folder_dialog', 'Add Folder',
         function() { // url generator
             var node_id = active_node_id();
-            var title = $('#add_folder_form input#title').val();
-            var slug = $('#add_folder_form input#slug').val();
+            var title = $('#add_folder_form input#add_folder_title').val();
+            var slug = $('#add_folder_form input#add_folder_slug').val();
             return "/yacon/nexus/add_folder/" + node_id + "/" + title + "/"
                 + slug + "/";
         },
@@ -292,4 +292,50 @@ $(document).ready(function(){
             $('#add_folder_dialog').dialog('close');
         }
     );
+    create_dialog('#add_page_dialog', 'Add Page',
+        function() { // url generator
+            var node_id = active_node_id();
+            var title = $('#add_page_form input#add_page_title').val();
+            var slug = $('#add_page_form input#add_page_slug').val();
+            return "/yacon/nexus/add_page/" + node_id + "/" + title + "/"
+                + slug + "/";
+        },
+        function(data) { // on success of ajax call
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something was wrong with our slug, show the user
+                alert(data['error']);
+            }
+        },
+        function() { // on completion of ajax call
+            $('#add_page_dialog').dialog('close');
+        }
+    );
+
+    // ---------------------------------------------------------
+    // Prepopulate Slug Fields
+    $('#add_folder_slug').bind('change.yacon', function() {
+        $(this).data('changed', true);
+    });
+
+    $('#add_folder_title').bind('keyup.yacon', function() {
+        var e = $('#add_folder_slug');
+        if( !e.data('changed') ) {
+            e.val(URLify($('#add_folder_title').val(), 50));
+        }
+    });
+
+    $('#add_page_slug').bind('change.yacon', function() {
+        $(this).data('changed', true);
+    });
+
+    $('#add_page_title').bind('keyup.yacon', function() {
+        var e = $('#add_page_slug');
+        if( !e.data('changed') ) {
+            e.val(URLify($('#add_page_title').val(), 50));
+        }
+    });
 }); // end document ready

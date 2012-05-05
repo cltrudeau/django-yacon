@@ -1,0 +1,18 @@
+/*!
+ * jQuery tab nav
+ *
+ * Copyright 2012
+ * MIT license, compatible with jquery license:
+ * http://jquery.org/license
+ */
+
+/* styling from "jquery ui tab" widget, only real change is parent padding */
+.ct-tabs { position: relative; padding: 0em; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+.ct-tabs .ct-tabs-nav { margin: 0; padding: .2em .2em 0; }
+.ct-tabs .ct-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 0 !important; padding: 0; white-space: nowrap; }
+.ct-tabs .ct-tabs-nav li a { float: left; padding: .5em 1em; text-decoration: none; }
+.ct-tabs .ct-tabs-nav li.ct-tabs-selected { margin-bottom: 0; padding-bottom: 1px; }
+.ct-tabs .ct-tabs-nav li.ct-tabs-selected a, .ct-tabs .ct-tabs-nav li.ct-state-disabled a, .ct-tabs .ct-tabs-nav li.ct-state-processing a { cursor: text; }
+.ct-tabs .ct-tabs-nav li a, .ct-tabs.ct-tabs-collapsible .ct-tabs-nav li.ct-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+.ct-tabs .ct-tabs-panel { display: block; border-width: 0; padding: 1em 1.4em; background: none; }
+.ct-tabs .ct-tabs-hide { display: none !important; }

@@ -8,6 +8,7 @@
 
 import logging, json
 
+from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
@@ -24,10 +25,19 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 def control_panel(request):
-    data = {}
-    data['title'] = 'Control Panel'
+    data = {
+        'title':'Control Panel',
+        'ADMIN_MEDIA_PREFIX':settings.ADMIN_MEDIA_PREFIX,
+    }
 
     return render_to_response('nexus/control_panel.html', data, 
+        context_instance=RequestContext(request))
+
+def config(request):
+    data = {}
+    data['title'] = 'Config'
+
+    return render_to_response('nexus/config.html', data, 
         context_instance=RequestContext(request))
 
 # ============================================================================
@@ -212,6 +222,16 @@ def full_tree_default_site(request):
     return full_tree(request, sites[0].id)
 
 
+def get_page_types(request):
+    data = {}
+    for page_type in PageType.objects.all():
+        data[page_type.id] = page_type.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+# ----------------------------------------------------------------------------
+# Dialog Box Methods
+
 def remove_folder_warn(request, node_id):
     """Ajax call that returns a listing of the nodes and pages that would be
     effected if node with id "node_id" is deleted."""
@@ -262,6 +282,20 @@ def add_folder(request, node_id, title, slug):
     try:
         child = node.create_child(title, slug)
         data['key'] = 'node:%s' % child.id,
+    except BadSlug, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def add_page(request, node_id, page_type_id, title, slug):
+    """Adds a new page underneath the given node."""
+    node = get_object_or_404(Node, id=node_id)
+    page_type = get_object_or_404(PageType, id=page_type_id)
+
+    data = {}
+    try:
+        MetaPage.create_page(node, page_type, title, slug, {})
     except BadSlug, e:
         data['error'] = e.message
         

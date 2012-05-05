@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
-from django.views.generic.simple import direct_to_template
+from django.views.generic.simple import redirect_to, direct_to_template
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -27,12 +27,12 @@ if settings.YACON_STATIC_SERVE and (settings.YACON_NEXUS_ENABLED or
 
 if settings.YACON_NEXUS_ENABLED:
     urlpatterns += patterns('yacon.views.nexus',
-        (r'^$', 'control_panel'),
-        (r'^nexus/$', 'control_panel'),
+        (r'^$', redirect_to, {'url':'/yacon/nexus/control_panel/'}),
+        (r'^nexus/$', redirect_to, {'url':'/yacon/nexus/control_panel/'}),
         (r'^nexus/control_panel/$', 'control_panel'),
+        (r'^nexus/config/$', 'config'),
 
         # control panel display items
-        (r'^nexus/page_info/$', 'page_info'),
         (r'^nexus/metapage_info/(\d+)/$', 'metapage_info'),
         (r'^nexus/node_info/(\d+)/$', 'node_info'),
         (r'^nexus/site_info/(\d+)/$', 'site_info'),

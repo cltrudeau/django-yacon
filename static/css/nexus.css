@@ -46,6 +46,10 @@ body {
     vertical-align: middle;
 }
 
+.halfspace {
+    height: 10px;
+}
+
 /* jQuery UI Overrides */
 
 /*

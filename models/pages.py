@@ -382,8 +382,8 @@ class MetaPage(models.Model):
 
     @classmethod
     def create_page(cls, node, page_type, title, slug, block_hash):
-        """Creates, saves and returns a MetaPage object in the Site default
-        language.
+        """Creates, saves and returns a MetaPage object with a corresponding 
+        Page object in the Site default language.
 
         :param node: node in Site hierarchy where the page lives
         :param page_type: PageType for this Page
@@ -391,7 +391,7 @@ class MetaPage(models.Model):
         :param slug: slug for the page
         :param block_hash: hash of content mapping block_type to content
 
-        :returns: Page object
+        :returns: MetaPage object
         """
         translation = Translation(language=node.site.default_language,
             title=title, slug=slug, block_hash=block_hash)
@@ -400,19 +400,22 @@ class MetaPage(models.Model):
     @classmethod
     def create_translated_page(cls, node, page_type, translations):
         """Creates, saves and returns a MetaPage object with multiple
-        translations.
+        Page object translations.
 
         :param node: node in Site hierarchy where the page lives
         :param page_type: PageType for this Page
         :param translations: a list of Translation objects
 
         :returns: MetaPage object
+
+        :raises: BadSlug, if any of the slugs are not valid
         """
         # create the Page
         metapage = MetaPage(node=node, _page_type=page_type)
         metapage.save()
 
         for tx in translations:
+            node.validate_slug(tx.slug)
             page = Page(metapage=metapage, title=tx.title, slug=tx.slug, 
                 language=tx.language)
             page.save()

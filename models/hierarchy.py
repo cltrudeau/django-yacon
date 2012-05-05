@@ -55,6 +55,27 @@ class Node(MP_Node):
         return 'Node: %s (%s)' % (self.name, self.slug)
 
     # -----------------------------------------------------------------------
+    # Utility Methods
+    def validate_slug(self, slug):
+        """Raises a BadSlug exception if "slug" is not valid."""
+        if len(slug) > SLUG_LENGTH:
+            raise BadSlug('Maximum slug length is %d characters' % SLUG_LENGTH)
+
+        if not match_word.search(slug):
+            raise BadSlug('Slug must be of form [0-9a-zA-Z_]*')
+
+        # find all children of this node and search their slugs
+        slugmatches = NodeTranslation.objects.filter(node__in=children,
+            slug=slug)
+        if len(slugmatches) != 0:
+            raise BadSlug('A child node already has the given slug')
+
+        # now search for pages in this node with the same slug
+        page = Page.find(self, [slug, ])
+        if page != None:
+            raise BadSlug('A page in this node already has the given slug.')
+
+    # -----------------------------------------------------------------------
     # Factory/Fetch Methods
     def create_child(self, name, slug, translations={}):
         """Creates a Node object as a child of this Node.  Name and slug for
@@ -81,24 +102,7 @@ class Node(MP_Node):
         # check for bad slugs
         for key, value in translations.items():
             (name, slug) = value
-
-            if len(slug) > SLUG_LENGTH:
-                raise BadSlug('Maximum slug length is %d characters' %
-                    SLUG_LENGTH)
-
-            if not match_word.search(slug):
-                raise BadSlug('Slug must be of form [0-9a-zA-Z_]*')
-
-            # find all children of this node and search their slugs
-            slugmatches = NodeTranslation.objects.filter(node__in=children,
-                slug=slug)
-            if len(slugmatches) != 0:
-                raise BadSlug('A child node already has the given slug')
-
-            # now search for pages in this node with the same slug
-            page = Page.find(self, [slug, ])
-            if page != None:
-                raise BadSlug('A page in this node already has the given slug.')
+            self.validate_slug(slug)
 
         # no bad slugs, create the child node
         child = self.add_child(site=self.site)

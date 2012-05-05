@@ -12,28 +12,27 @@
     <link type="text/css" rel="stylesheet" 
         href="/static/css/smoothness/jquery-ui-1.8.19.custom.css" />	
 
-    <!-- dynatree -->
-    <link type="text/css" rel="stylesheet" 
-        href="/static/js/skin/ui.dynatree.css" />	
-    <script type="text/JavaScript" src="/static/js/jquery.cookie.js">
-    </script>
-    <script type="text/JavaScript" src="/static/js/jquery.dynatree.min.js">
-    </script>
+    {% include "nexus/includes/widgets.html" %}
 
-    <!-- select box -->
-    <script type="text/JavaScript" 
-        src="/static/js/jquery-ui-selectbox-widget.min.js">
+    <!-- nav bar -->
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            $('#navbar').tabnav();
+        });
     </script>
-
-    <!-- yacon style and scripts -->
-    <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
 
     {% block css %}
     {% endblock css %}
     {% block scripts %}
     {% endblock scripts %}
+
+    <!-- yacon style and scripts -->
+    <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
 </head>
 <body>
+    {% block navbar %}
+        {% include "nexus/includes/nav.html" %}
+    {% endblock navbar %}
     {% block content %}
     {% endblock content %}
 </body>
