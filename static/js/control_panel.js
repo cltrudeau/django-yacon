@@ -4,6 +4,7 @@
 function hide_all_toolbars() {
     $('#folder_toolbar').hide();
     $('#metapage_toolbar').hide();
+    $('#add_translation').hide()
 }
 
 // =======================================================
@@ -35,6 +36,21 @@ function create_tree() {
             if( node_type == 'metapage') {
                 // action is a metapage
                 $('#metapage_toolbar').show();
+                $.ajax({
+                    url: '/yacon/nexus/get_remaining_languages/' + node_id +'/',
+                    success: function(data) {
+                        num_keys = 0;
+                        for( var key in data ){
+                            if( data.hasOwnProperty(key) ){
+                                num_keys++;
+                            }
+                        }
+                        if( num_keys != 0 )
+                        {
+                            $('#add_translation').show()
+                        }
+                    },
+                });
             }
         },
         onPostInit: function(isReloading, isError) {
@@ -245,6 +261,7 @@ $(document).ready(function(){
         }
     });
 
+    // *** MetaPage Toolbar
     $('#remove_page_warn').button().click(function() {
         var node_id = active_node_id();
         if( node_id != null ) {
@@ -254,6 +271,14 @@ $(document).ready(function(){
             dialog.dialog("open");
         }
     });
+
+    $('#add_translation').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_translation_dialog').dialog("open");
+        }
+    });
+    $('#add_translation').hide()
 
     // *** Site Toolbar
     $('#site_info').button().click(function() {

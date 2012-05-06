@@ -233,6 +233,25 @@ def get_page_types(request):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+def get_remaining_languages(request, metapage_id):
+    """Returns a JSON object hash of languages for which there are no
+    translations in this MetaPage."""
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
+    data = {}
+    langs = [metapage.node.site.default_language, ]
+    for lang in metapage.node.site.alternate_language.all():
+        langs.append(lang)
+
+    for page in metapage.get_translations():
+        if page.language in langs:
+            langs.remove(page.language)
+
+    for lang in langs:
+        data[lang.identifier] = lang.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
 # ----------------------------------------------------------------------------
 # Dialog Box Methods
 
