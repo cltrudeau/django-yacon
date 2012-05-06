@@ -37,6 +37,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/node_info/(\d+)/$', 'node_info'),
         (r'^nexus/site_info/(\d+)/$', 'site_info'),
         (r'^nexus/get_sites/$', 'get_sites'),
+        (r'^nexus/get_page_types/$', 'get_page_types'),
         (r'^nexus/full_tree/(\d+)/$', 'full_tree'),
         (r'^nexus/full_tree_default_site/$', 'full_tree_default_site'),
 
@@ -44,6 +45,9 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/remove_folder_warn/(\d+)/$', 'remove_folder_warn'),
         (r'^nexus/remove_folder/(\d+)/$', 'remove_folder'),
         (r'^nexus/add_folder/(\d+)/(.*)/(.*)/$', 'add_folder'),
+        (r'^nexus/add_page/(\d+)/(\d+)/(.*)/(.*)/$', 'add_page'),
+        (r'^nexus/remove_page_warn/(\d+)/$', 'remove_page_warn'),
+        (r'^nexus/remove_page/(\d+)/$', 'remove_page'),
     )
 
 if settings.YACON_TESTS_ENABLED:

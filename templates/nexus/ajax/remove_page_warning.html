@@ -1,0 +1,17 @@
+<p>
+    Please confirm you would like to remove MetaPage id={{metapage.id}}
+</p>
+{% if pages %}
+<p>
+    The following translations will also be removed:
+
+{{pages|safe}}
+</p>
+{% endif %}
+{% if aliases %}
+<p>
+    The following aliased pages will also be removed:
+
+{{aliases|safe}}
+</p>
+{% endif %}

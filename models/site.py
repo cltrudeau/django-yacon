@@ -6,7 +6,7 @@ import re, exceptions, logging
 from django.db import models
 from django.shortcuts import get_object_or_404
 
-from yacon.models.language import Language
+from yacon.models.common import Language, TimeTrackedModel
 from yacon.models.pages import Page
 from yacon.models.hierarchy import Node, NodeTranslation
 
@@ -68,7 +68,7 @@ class ParsedPath(object):
 # Site Management
 # ============================================================================
 
-class Site(models.Model):
+class Site(TimeTrackedModel):
     """A Site object is the highest level container in the CMS.  It groups
     together pages, menus and associated configuration.
     """
@@ -322,7 +322,7 @@ class Site(models.Model):
         return None
             
 
-class SiteURL(models.Model):
+class SiteURL(TimeTrackedModel):
     """Defines the URLs that are associated with a Site"""
 
     site = models.ForeignKey(Site)
@@ -332,7 +332,7 @@ class SiteURL(models.Model):
         app_label = 'yacon'
 
 
-class SiteConfig(models.Model):
+class SiteConfig(TimeTrackedModel):
     """A name/value pair object for configuring a site"""
 
     site = models.ForeignKey(Site)

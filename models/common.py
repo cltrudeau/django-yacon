@@ -1,4 +1,4 @@
-# yacon.models.language.py
+# yacon.models.common.py
 # blame ctrudeau chr(64) arsensa.com
 
 import logging
@@ -8,10 +8,19 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 # ============================================================================
-# Language Class
-# ============================================================================
 
-class Language(models.Model):
+class TimeTrackedModel(models.Model):
+    """Abstract model for create & update fields.  """
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+        app_label = 'yacon'
+
+
+class Language(TimeTrackedModel):
     """This model defines languages that are acceptable in the Yacon CMS.  A
     language is made up of a language identifier which itself can be a
     language code with an optional addition of a country code for variations.

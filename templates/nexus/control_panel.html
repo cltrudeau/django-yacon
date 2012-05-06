@@ -41,7 +41,7 @@
             <button id="remove_folder_warn">Remove Folder</button>
         </div>
         <div id="metapage_toolbar">
-            <button id="remove_page">Remove Page</button>
+            <button id="remove_page_warn">Remove Page</button>
         </div>
     </div>
     <div id="node_container">
@@ -52,6 +52,9 @@
 <div id="remove_folder_dialog">
 </div>
 
+<div id="remove_page_dialog">
+</div>
+
 <div id="add_folder_dialog">
     <p>
         Enter title and slug for the new sub-folder using the site's default
@@ -60,13 +63,13 @@
     <form id="add_folder_form">
         <table class="dialog_form_table">
             <tr>
-                <th> <label for="title">Title</label> </th>
+                <th> <label for="add_folder_title">Title</label> </th>
                 <td> 
                     <input type="text" name="title" id="add_folder_title" /> 
                 </td>
             </tr>
             <tr>
-                <th> <label for="slug">Slug</label> </th>
+                <th> <label for="add_folder_slug">Slug</label> </th>
                 <td> 
                     <input type="text" name="slug" id="add_folder_slug" /> 
                 </td>
@@ -83,13 +86,20 @@
     <form id="add_page_form">
         <table class="dialog_form_table">
             <tr>
-                <th> <label for="title">Title</label> </th>
+                <th> <label for="add_page_pagetype">Page Type</label> </th>
+                <td>
+                    <select id="add_page_pagetype">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_page_title">Title</label> </th>
                 <td> 
                     <input type="text" name="title" id="add_page_title" /> 
                 </td>
             </tr>
             <tr>
-                <th> <label for="slug">Slug</label> </th>
+                <th> <label for="add_page_slug">Slug</label> </th>
                 <td> 
                     <input type="text" name="slug" id="add_page_slug"/> 
                 </td>

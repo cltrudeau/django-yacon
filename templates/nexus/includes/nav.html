@@ -1,8 +1,10 @@
         <div id="navbar">
             <ul>
-                <li> <a href='/yacon/nexus/control_panel/'>Pages</a> </li>
-                <li> <a href='/yacon/nexus/config/'>Config</a> </li>
-                <li> <a href='/admin/'>Admin</a> </li>
+                <li> <a href="/yacon/nexus/control_panel/">Pages</a> </li>
+                <li> <a href="/yacon/nexus/config/">Config</a> </li>
+                {% if admin_enabled %}
+                <li> <a href="/admin/">Admin</a> </li>
+                {% endif %}
             </ul>
         </div>
         <div class="halfspace"></div>

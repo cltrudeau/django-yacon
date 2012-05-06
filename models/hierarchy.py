@@ -5,13 +5,13 @@ import re, exceptions, logging
 
 from django.db import models
 from treebeard.mp_tree import MP_Node
-from yacon.models.language import Language
+from yacon.models.common import Language, TimeTrackedModel
 from yacon.models.pages import Page
 from yacon.definitions import SLUG_LENGTH
 
 logger = logging.getLogger(__name__)
 
-match_word = re.compile('^\w*$')
+MATCH_WORD = re.compile('^[-\w]*$')
 
 # ============================================================================
 # Exceptions
@@ -24,7 +24,7 @@ class BadSlug(exceptions.Exception):
 # Hierarchy Management
 # ============================================================================
 
-class Node(MP_Node):
+class Node(MP_Node, TimeTrackedModel):
     """A Site object represents a collection of page hiearchies and menus that
     are represented as a series of trees.  The Node object is a single node in
     one of those trees.
@@ -61,12 +61,12 @@ class Node(MP_Node):
         if len(slug) > SLUG_LENGTH:
             raise BadSlug('Maximum slug length is %d characters' % SLUG_LENGTH)
 
-        if not match_word.search(slug):
-            raise BadSlug('Slug must be of form [0-9a-zA-Z_]*')
+        if not MATCH_WORD.search(slug):
+            raise BadSlug('Slug must be of form [0-9a-zA-Z_-]*')
 
         # find all children of this node and search their slugs
-        slugmatches = NodeTranslation.objects.filter(node__in=children,
-            slug=slug)
+        slugmatches = NodeTranslation.objects.filter(slug=slug,
+            node__in=self.get_children())
         if len(slugmatches) != 0:
             raise BadSlug('A child node already has the given slug')
 
@@ -263,7 +263,7 @@ class Node(MP_Node):
         return self.get_children_count() > 0
 
 
-class NodeTranslation(models.Model):
+class NodeTranslation(TimeTrackedModel):
     """Stores translations of Node names and slugs according to Language
     object.  
     """

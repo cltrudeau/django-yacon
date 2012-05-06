@@ -118,7 +118,8 @@ function init_ajax_url() {
 // =======================================================
 // Dialog Creation Function
 
-function create_dialog(selector, title, url_generator, success, complete) {
+function create_dialog(selector, title, ok_label, url_generator, success, 
+        complete) {
     var height = Math.floor(0.80 * $(window).height());
     var width = Math.floor(0.80 * $(window).width());
 
@@ -129,27 +130,33 @@ function create_dialog(selector, title, url_generator, success, complete) {
         height: height,
         maxWidth: width,
         width: width,
-        buttons: {
-            "Ok":function() {
-                var node_id = active_node_id();
-                if( node_id != null ) {
-                    var url = url_generator();
-                    $.ajax({
-                        url: url,
-                        success: success,
-                        complete: complete,
-                    });
-                }
-                else {
-                    $(this).dialog('close');
-                }
-                return false;
+        buttons: [
+            {
+                text:ok_label,
+                click: function() {
+                    var node_id = active_node_id();
+                    if( node_id != null ) {
+                        var url = url_generator();
+                        $.ajax({
+                            url: url,
+                            success: success,
+                            complete: complete,
+                        });
+                    }
+                    else {
+                        $(this).dialog('close');
+                    }
+                    return false;
+                },
             },
-            "Cancel":function() {
-                $(this).dialog('close');
-                return false;
-            }
-        },
+            {
+                text:"Cancel",
+                click:function() {
+                    $(this).dialog('close');
+                    return false;
+                }
+            },
+        ],
         title: title,
     });
 }
@@ -238,6 +245,16 @@ $(document).ready(function(){
         }
     });
 
+    $('#remove_page_warn').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            // get the warning about the metapage to remove
+            var dialog = $('#remove_page_dialog');
+            dialog.load("/yacon/nexus/remove_page_warn/" + node_id + "/");
+            dialog.dialog("open");
+        }
+    });
+
     // *** Site Toolbar
     $('#site_info').button().click(function() {
         value = $('#site_select').attr('value');
@@ -258,7 +275,7 @@ $(document).ready(function(){
     // ---------------------------------------------------------
     // Dialog Boxes
 
-    create_dialog('#remove_folder_dialog', 'Remove Folder',
+    create_dialog('#remove_folder_dialog', 'Remove Folder', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
             return "/yacon/nexus/remove_folder/" + node_id + "/";
@@ -270,7 +287,7 @@ $(document).ready(function(){
             $('#remove_folder_dialog').dialog('close');
         }
     );
-    create_dialog('#add_folder_dialog', 'Add Folder',
+    create_dialog('#add_folder_dialog', 'Add Folder', 'Add',
         function() { // url generator
             var node_id = active_node_id();
             var title = $('#add_folder_form input#add_folder_title').val();
@@ -292,13 +309,14 @@ $(document).ready(function(){
             $('#add_folder_dialog').dialog('close');
         }
     );
-    create_dialog('#add_page_dialog', 'Add Page',
+    create_dialog('#add_page_dialog', 'Add Page', 'Add',
         function() { // url generator
             var node_id = active_node_id();
+            var pagetype = $('#add_page_form #add_page_pagetype').val();
             var title = $('#add_page_form input#add_page_title').val();
             var slug = $('#add_page_form input#add_page_slug').val();
-            return "/yacon/nexus/add_page/" + node_id + "/" + title + "/"
-                + slug + "/";
+            return "/yacon/nexus/add_page/" + node_id + "/" + pagetype + "/" 
+                + title + "/" + slug + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -312,6 +330,38 @@ $(document).ready(function(){
         },
         function() { // on completion of ajax call
             $('#add_page_dialog').dialog('close');
+        }
+    );
+    $('#add_page_dialog').bind('dialogopen.yacon', function(event, ui) {
+        // ajax load the page type listing when we pop the dialog
+        $.ajax({
+            url: "/yacon/nexus/get_page_types/",
+            dataType: "json",
+            success: function(data) {
+                // remove old sites, replace with what server sent
+                $('#add_page_pagetype').children().remove();
+                for( var key in data ){
+                    if( data.hasOwnProperty(key) ){
+                        $('#add_page_pagetype').append('<option value="' 
+                            + key + '">' + data[key] + '</option>');
+                    }
+                }
+
+                // turn widget into jquery style drop down
+                //$('#add_page_pagetypes').selectbox();
+            }
+        });
+    });
+    create_dialog('#remove_page_dialog', 'Remove MetaPage', 'Remove',
+        function() { // url generator
+            var node_id = active_node_id();
+            return "/yacon/nexus/remove_page/" + node_id + "/";
+        },
+        function(data) { // on success of ajax call
+            refresh_tree();
+        },
+        function() { // on completion of ajax call
+            $('#remove_page_dialog').dialog('close');
         }
     );
 

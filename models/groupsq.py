@@ -7,9 +7,11 @@
 from django.contrib.auth.models import User, Group
 from django.db import models
 
+from yacon.models.common import TimeTrackedModel
+
 # ============================================================================
 
-class GroupOfGroups_Base(models.Model):
+class GroupOfGroups_Base(TimeTrackedModel):
     """Base class for a group of groups that contains users, groups or groups 
     of groups."""
 

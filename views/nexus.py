@@ -6,7 +6,7 @@
 # conflicts with Django's admin features
 #
 
-import logging, json
+import logging, json, urllib
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
@@ -16,7 +16,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from yacon.utils import quote, unquote
 from yacon.models.hierarchy import Node, BadSlug
 from yacon.models.site import Site, SiteURL
-from yacon.models.pages import MetaPage, Page
+from yacon.models.pages import MetaPage, Page, PageType
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,6 @@ logger = logging.getLogger(__name__)
 def control_panel(request):
     data = {
         'title':'Control Panel',
-        'ADMIN_MEDIA_PREFIX':settings.ADMIN_MEDIA_PREFIX,
     }
 
     return render_to_response('nexus/control_panel.html', data, 
@@ -129,6 +128,11 @@ def _build_subtree_as_list(node, depth=1):
         output.append('%s</ul>' % space)
 
     return '\n'.join(output)
+
+
+def page_as_li(page):
+    return '   <li>"%s" at %s (%s)</li>' % (page.title, page.uri, 
+        page.language.code)
 
 # ============================================================================
 # Ajax Methods
@@ -249,8 +253,7 @@ def remove_folder_warn(request, node_id):
         alias_list.append('<ul>')
         for metapage in aliases:
             for page in metapage.get_translations():
-                alias_list.append('   <li>"%s" at %s (%s)</li>' % (page.title,
-                    page.uri, page.language.code))
+                alias_list.append(page_as_li(page))
 
         alias_list.append('</ul>')
 
@@ -278,6 +281,7 @@ def remove_folder(request, node_id):
 def add_folder(request, node_id, title, slug):
     """Adds a new node underneath the given one."""
     node = get_object_or_404(Node, id=node_id)
+    slug = urllib.unquote(slug)
     data = {}
     try:
         child = node.create_child(title, slug)
@@ -292,6 +296,8 @@ def add_page(request, node_id, page_type_id, title, slug):
     """Adds a new page underneath the given node."""
     node = get_object_or_404(Node, id=node_id)
     page_type = get_object_or_404(PageType, id=page_type_id)
+    slug = urllib.unquote(slug)
+    print 'slug: ', slug
 
     data = {}
     try:
@@ -300,3 +306,45 @@ def add_page(request, node_id, page_type_id, title, slug):
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def remove_page_warn(request, metapage_id):
+    """Ajax call that returns a listing of the translated pages that would be
+    effected if metapage with id "metapage_id" is deleted."""
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
+
+    # find all of the Pages that would be removed
+    pages = Page.objects.filter(metapage=metapage)
+    page_list = ['<ul>']
+    for page in pages:
+        page_list.append(page_as_li(page))
+    page_list.append('</ul>')
+
+    # find anything that aliases the targeted metapage
+    aliases = MetaPage.objects.filter(alias=metapage)
+    alias_list = []
+    if len(aliases) != 0:
+        alias_list.append('<ul>')
+        for metapage in aliases:
+            for page in metapage.get_translations():
+                alias_list.append(page_as_li(page))
+
+        alias_list.append('</ul>')
+
+    data = {
+        'metapage':metapage,
+        'pages':'\n'.join(page_list),
+        'aliases':'\n'.join(alias_list),
+    }
+
+    return render_to_response('nexus/ajax/remove_page_warning.html', data,
+        context_instance=RequestContext(request))
+
+
+def remove_page(request, metapage_id):
+    """Deletes metapage with id "metapage_id" and all of its pages.  Unlinks any
+    aliases to removed items."""
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
+    metapage.delete()
+
+    return HttpResponse()

@@ -7,7 +7,7 @@ from django.utils import simplejson as json
 from django.core.exceptions import FieldError
 
 from yacon.definitions import SLUG_LENGTH
-from yacon.models.language import Language
+from yacon.models.common import Language, TimeTrackedModel
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Page Management Classes
 # ============================================================================
 
-class PageType(models.Model):
+class PageType(TimeTrackedModel):
     """Defines how a page is constructed, tied to a template for rendering."""
 
     name = models.CharField(max_length=25, unique=True)
@@ -33,7 +33,7 @@ class BadContentHandler(exceptions.Exception):
     pass
 
 
-class BlockType(models.Model):
+class BlockType(TimeTrackedModel):
     """Contains the name of a ContentHandler object which is used for managing
     content on a page.  A PageType references to multiple BlockType objects"""
     name = models.CharField(max_length=25, unique=True)
@@ -202,7 +202,7 @@ class Translation(object):
         self.block_hash = block_hash
 
 
-class Page(models.Model):
+class Page(TimeTrackedModel):
     language = models.ForeignKey(Language, related_name='+')
     slug = models.CharField(max_length=SLUG_LENGTH)
     title = models.CharField(max_length=25, blank=True, null=True)
@@ -219,6 +219,9 @@ class Page(models.Model):
 
     class Meta:
         app_label = 'yacon'
+
+    def __unicode__(self):
+        return 'Page(id=%s, path=%s)' % (self.id, self.uri)
 
     # ---------------------------
     # Search
@@ -355,7 +358,7 @@ class DoubleAliasException(Exception):
     pass
 
 
-class MetaPage(models.Model):
+class MetaPage(TimeTrackedModel):
     """This class represents a collection of translated pages in the CMS along
     with its placement in the doucment hierarchy.  All pages, even if they
     only have one translation, have a MetaPage.
@@ -366,6 +369,22 @@ class MetaPage(models.Model):
 
     class Meta:
         app_label = 'yacon'
+        verbose_name = 'MetaPage'
+
+    def __unicode__(self):
+        result = 'MetaPage(id=%s, ' % self.id
+        page = self.get_default_translation()
+        if page == None:
+            result += 'path=%s, EMPTY TRANSLATION' % (
+                self.node.node_to_path())
+        else: 
+            result += 'path=%s' % page.uri
+
+        if self.is_alias():
+            result += ', ALIAS'
+
+        result += ')'
+        return result
 
     # -------------------------------------------
     # Getters -- need to use these so aliased values resolve properly
@@ -512,12 +531,10 @@ class MetaPage(models.Model):
         if self.is_alias():
             mp = self.resolve_alias()
 
-        if not ignore_default:
-            return Page.objects.filter(metapage=mp)
-
-        # ignore default language
         pages = Page.objects.filter(metapage=mp)
-        pages = pages.exclude(language=mp.node.site.default_language)
+        if ignore_default:
+            # remove the default language from the list
+            pages = pages.exclude(language=mp.node.site.default_language)
 
         if mp != self:
             for page in pages:

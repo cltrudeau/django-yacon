@@ -15,6 +15,12 @@
             {% endif %}
         </li>
         <li>
+            Created: {{metapage.created}}
+        </li>
+        <li>
+            Last Updated: {{metapage.updated}}
+        </li>
+        <li>
             Node ID: {{metapage.node.id}}
         </li>
         <li>
@@ -36,6 +42,12 @@
             <ul>
                 <li>
                     Slug: {{default_page.slug}}
+                </li>
+                <li>
+                    Created: {{default_page.created}}
+                </li>
+                <li>
+                    Last Updated: {{default_page.updated}}
                 </li>
                 {% if default_page.all_blocks %}
                 <li>
@@ -84,6 +96,12 @@
                 <li>
                     Slug
                     <td>{{page.slug}}</td>
+                </li>
+                <li>
+                    Created: {{page.created}}
+                </li>
+                <li>
+                    Last Updated: {{page.updated}}
                 </li>
                 {% if page.all_blocks %}
                 <li>
