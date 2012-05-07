@@ -189,7 +189,7 @@ class Site(TimeTrackedModel):
         :param language_code -- restricts languages returned to just those who
             have a matching language_code
 
-        :returns: list of strings which are the language codes for this
+        :returns: list of Language objects for the valid languages for this
             site.  List may be empty if there are no matching codes
         """
         langs = []

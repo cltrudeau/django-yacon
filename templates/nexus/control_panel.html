@@ -109,4 +109,34 @@
     </form>
 </div>
 
+<div id="add_translation_dialog">
+    <p>
+        Enter title and slug for the new translation:
+    </p>
+    <form id="add_translation_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_translation_lang">Language</label> </th>
+                <td>
+                    <select id="add_translation_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_translation_title">Title</label> </th>
+                <td> 
+                    <input type="text" name="title" 
+                        id="add_translation_title" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_translation_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="add_translation_slug"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
 {% endblock content %}

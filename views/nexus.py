@@ -16,7 +16,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from yacon.utils import quote, unquote
 from yacon.models.hierarchy import Node, BadSlug
 from yacon.models.site import Site, SiteURL
-from yacon.models.pages import MetaPage, Page, PageType
+from yacon.models.pages import MetaPage, Page, PageType, Translation
 
 logger = logging.getLogger(__name__)
 
@@ -316,7 +316,6 @@ def add_page(request, node_id, page_type_id, title, slug):
     node = get_object_or_404(Node, id=node_id)
     page_type = get_object_or_404(PageType, id=page_type_id)
     slug = urllib.unquote(slug)
-    print 'slug: ', slug
 
     data = {}
     try:
@@ -367,3 +366,24 @@ def remove_page(request, metapage_id):
     metapage.delete()
 
     return HttpResponse()
+
+
+def add_translation(request, metapage_id, lang, title, slug):
+    """Adds a translation to the given MetaPage."""
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
+    slug = urllib.unquote(slug)
+
+    data = {}
+    try:
+        langs = metapage.node.site.get_languages(lang)
+        if len(langs) == 0:
+            raise ValueError('Bad language selected')
+
+        Page.objects.create(metapage=metapage, title=title, slug=slug,
+            language=langs[0])
+    except BadSlug, e:
+        data['error'] = e.message
+    except ValueError, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')

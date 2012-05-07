@@ -49,6 +49,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/remove_page_warn/(\d+)/$', 'remove_page_warn'),
         (r'^nexus/remove_page/(\d+)/$', 'remove_page'),
         (r'^nexus/get_remaining_languages/(\d+)/$', 'get_remaining_languages'),
+        (r'^nexus/add_translation/(\d+)/(.*)/(.*)/(.*)/$', 'add_translation'),
     )
 
 if settings.YACON_TESTS_ENABLED:

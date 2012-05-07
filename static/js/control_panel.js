@@ -7,6 +7,26 @@ function hide_all_toolbars() {
     $('#add_translation').hide()
 }
 
+function repopulate_select(selector, data) {
+    $(selector).children().remove();
+    for( var key in data ){
+        if( data.hasOwnProperty(key) ){
+            $(selector).append('<option value="' + key + '">' + data[key] 
+                + '</option>');
+        }
+    }
+}
+
+function count_keys(data) {
+    num_keys = 0;
+    for( var key in data ){
+        if( data.hasOwnProperty(key) ){
+            num_keys++;
+        }
+    }
+    return num_keys;
+}
+
 // =======================================================
 // Tree Helper Functions
 
@@ -39,14 +59,7 @@ function create_tree() {
                 $.ajax({
                     url: '/yacon/nexus/get_remaining_languages/' + node_id +'/',
                     success: function(data) {
-                        num_keys = 0;
-                        for( var key in data ){
-                            if( data.hasOwnProperty(key) ){
-                                num_keys++;
-                            }
-                        }
-                        if( num_keys != 0 )
-                        {
+                        if( count_keys(data) != 0 ) {
                             $('#add_translation').show()
                         }
                     },
@@ -212,13 +225,7 @@ $(document).ready(function(){
         dataType: "json",
         success: function(data) {
             // remove old sites, replace with what server sent
-            $('#site_select').children().remove();
-            for( var key in data ){
-                if( data.hasOwnProperty(key) ){
-                    $('#site_select').append('<option value="' + key + '">' 
-                        + data[key] + '</option>');
-                }
-            }
+            repopulate_select('#site_select', data);
 
             // add site actions
             $('#site_select').append('<option value="nop">' + 
@@ -300,6 +307,7 @@ $(document).ready(function(){
     // ---------------------------------------------------------
     // Dialog Boxes
 
+    // *** Folder Toolbar Dialogs
     create_dialog('#remove_folder_dialog', 'Remove Folder', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
@@ -364,19 +372,12 @@ $(document).ready(function(){
             dataType: "json",
             success: function(data) {
                 // remove old sites, replace with what server sent
-                $('#add_page_pagetype').children().remove();
-                for( var key in data ){
-                    if( data.hasOwnProperty(key) ){
-                        $('#add_page_pagetype').append('<option value="' 
-                            + key + '">' + data[key] + '</option>');
-                    }
-                }
-
-                // turn widget into jquery style drop down
-                //$('#add_page_pagetypes').selectbox();
+                repopulate_select('#add_page_pagetype', data);
             }
         });
     });
+
+    // *** MetaPage Toolbar Dialogs
     create_dialog('#remove_page_dialog', 'Remove MetaPage', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
@@ -390,12 +391,61 @@ $(document).ready(function(){
         }
     );
 
+    create_dialog('#add_translation_dialog', 'Add Translation', 'Add',
+        function() { // url generator
+            console.debug('inside url gen');
+            var node_id = active_node_id();
+            var lang = $('#add_translation_form #add_translation_lang').val();
+            var title = 
+                $('#add_translation_form input#add_translation_title').val();
+            var slug = 
+                $('#add_translation_form input#add_translation_slug').val();
+            return "/yacon/nexus/add_translation/" + node_id + "/" + lang 
+                + "/" + title + "/" + slug + "/";
+        },
+        function(data) { // on success of ajax call
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something was wrong with our slug, show the user
+                alert(data['error']);
+            }
+        },
+        function() { // on completion of ajax call
+            $('#add_translation_dialog').dialog('close');
+        }
+    );
+    $('#add_translation_dialog').bind('dialogopen.yacon', function(event, ui) {
+        // ajax load the language listing when we pop the dialog
+        var node_id = active_node_id();
+        $.ajax({
+            url: "/yacon/nexus/get_remaining_languages/" + node_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old sites, replace with what server sent
+                repopulate_select('#add_translation_lang', data);
+            }
+        });
+        // ajax load the page type listing when we pop the dialog
+        $.ajax({
+            url: "/yacon/nexus/get_page_types/",
+            dataType: "json",
+            success: function(data) {
+                // remove old sites, replace with what server sent
+                repopulate_select('#add_translation_pagetype', data);
+            }
+        });
+    });
+
     // ---------------------------------------------------------
     // Prepopulate Slug Fields
+
+    // *** Add Folder 
     $('#add_folder_slug').bind('change.yacon', function() {
         $(this).data('changed', true);
     });
-
     $('#add_folder_title').bind('keyup.yacon', function() {
         var e = $('#add_folder_slug');
         if( !e.data('changed') ) {
@@ -403,14 +453,25 @@ $(document).ready(function(){
         }
     });
 
+    // *** Add Page 
     $('#add_page_slug').bind('change.yacon', function() {
         $(this).data('changed', true);
     });
-
     $('#add_page_title').bind('keyup.yacon', function() {
         var e = $('#add_page_slug');
         if( !e.data('changed') ) {
             e.val(URLify($('#add_page_title').val(), 50));
+        }
+    });
+
+    // *** Add Translation 
+    $('#add_translation_slug').bind('change.yacon', function() {
+        $(this).data('changed', true);
+    });
+    $('#add_translation_title').bind('keyup.yacon', function() {
+        var e = $('#add_translation_slug');
+        if( !e.data('changed') ) {
+            e.val(URLify($('#add_translation_title').val(), 50));
         }
     });
 }); // end document ready
