@@ -521,3 +521,22 @@ def edit_path(request, translation_id, name, slug):
     translation.name = name
     translation.save()
     return HttpResponse()
+
+
+def make_default_metapage(request, metapage_id):
+    """Sets the given metapage to be the default page for its parent node."""
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
+
+    metapage.node.default_metapage = metapage
+    metapage.node.save()
+
+    return HttpResponse()
+
+
+def remove_page_translation(request, page_id):
+    """Deletes page with id "page_id" and all of its pages.  Unlinks any
+    aliases to removed items."""
+    page = get_object_or_404(Page, id=page_id)
+    page.delete()
+
+    return HttpResponse()

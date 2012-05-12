@@ -58,6 +58,8 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/remove_path/(\d+)/$', 'remove_path'),
         (r'^nexus/edit_path_warn/(\d+)/$', 'edit_path_warn'),
         (r'^nexus/edit_path/(\d+)/(.*)/(.*)/$', 'edit_path'),
+        (r'^nexus/make_default_metapage/(\d+)/$', 'make_default_metapage'),
+        (r'^nexus/remove_page_translation/(\d+)/$', 'remove_page_translation'),
     )
 
 if settings.YACON_TESTS_ENABLED:

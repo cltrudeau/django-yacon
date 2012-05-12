@@ -38,7 +38,10 @@
             <li> 
                 "{{default_page.title}}" ({{default_page.language.code}})
                 {% if default_page.uri %}
-                    <a href="{{default_page.uri}}">(view)</a>
+                    <a href="{{default_page.uri}}">(view)</a>&nbsp;
+                    <a href="javascript:void(0);"
+onclick="remove_page_translation({{default_page.id}}, '{{default_page.title}}')">
+                        (delete)</a>
                 {% else %}
                     (<i>unreachable</i>)
                 {% endif %}
@@ -95,6 +98,9 @@
             <li>
                 "{{page.title}}" ({{page.language.code}})
                 <a href="{{page.uri}}">(view)</a>
+                <a href="javascript:void(0);"
+            onclick="remove_page_translation({{page.id}}, '{{page.title}}')">
+                    (delete)</a>
             </li>
             <ul>
                 <li>

@@ -6,8 +6,23 @@
     <script type="text/JavaScript" src="/static/js/djangoadmin/urlify.js">
     </script>
 
-    <script type="text/JavaScript" src="/static/js/control_panel.js">
+    <script type="text/JavaScript" src="/static/js/control_panel/helpers.js">
     </script>
+    <script type="text/JavaScript" src="/static/js/control_panel/tree.js">
+    </script>
+    <script type="text/JavaScript" 
+        src="/static/js/control_panel/site_control.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/control_panel/toolbars.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/control_panel/dialogs.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/control_panel/autopop.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/control_panel/ready.js">
+    </script>
+
+
     <script type="text/JavaScript">
         $(document).ready(function(){
             $('#navbar').tabnav('select', 0);
@@ -44,6 +59,7 @@
         <div id="metapage_toolbar">
             <button id="remove_page_warn">Remove Page</button>
             <button id="add_translation">Add Translation</button>
+            <button id="make_default_page">Default For Node</button>
         </div>
     </div>
     <div id="node_container">
