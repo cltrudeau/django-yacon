@@ -12,7 +12,7 @@ from yacon.models.hierarchy import Node, NodeTranslation
 
 logger = logging.getLogger(__name__)
 
-match_slash = re.compile('/')
+MATCH_SLASH = re.compile('/')
 
 # ============================================================================
 # Utility Classes
@@ -236,7 +236,20 @@ class Site(TimeTrackedModel):
         node = self.doc_root
         parsed = ParsedPath()
         parsed.path = path
-        parts = match_slash.split(path)
+
+        if path == '/':
+            # special case for the home page
+            parsed.node = self.doc_root
+            parsed.item_type == ParsedPath.NODE
+            page = parsed.node.get_default_page(node.site.default_language)
+            if page != None:
+                # root has a default_page
+                parsed.item_type = ParsedPath.PAGE
+                parsed.page = page
+
+            return parsed
+
+        parts = MATCH_SLASH.split(path)
         found_end_node = False
         # step through the parts of the path looking for Node objects
         for part in parts:

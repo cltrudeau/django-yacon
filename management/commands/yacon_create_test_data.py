@@ -65,6 +65,24 @@ class Command(BaseCommand):
 
         # -----------------
         # create some pages
+        mp = MetaPage.create_translated_page(site.doc_root, pt_article, [
+            Translation(english,
+                'Home Page', 'homepage',
+                {
+                    bt_user:('<p>This is a most excellent home page.</p>'),
+                    bt_poll:"""
+<h3>Poll: Is This Your Favourite Home Page?</h3>
+<ul>
+<li>Yes</li>
+<li>Yes, most definitelyli>
+</ul>
+""",
+                }),
+            ]
+        )
+        site.doc_root.default_metapage = mp
+        site.doc_root.save()
+
         mp = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,
                 'Steak is good', 'steak',

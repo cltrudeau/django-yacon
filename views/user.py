@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # Generic Page Display Views
 # ============================================================================
 
-def display_page(request, uri):
+def display_page(request, uri=''):
     """Default page rendering method for the CMS.  Uses the request object to
     determine what site is being displayed and the uri passed in to find an
     page to render. """
@@ -37,7 +37,6 @@ def display_page(request, uri):
 
     return render_to_response(page.metapage.page_type.template, data, 
         context_instance=RequestContext(request))
-
 
 # ============================================================================
 # Ajax Views
