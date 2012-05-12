@@ -21,22 +21,32 @@
             Node Paths and Default Pages:
         </li>
         <ul>
-            {% for tuple in path_tuples %}
+            {% for item in path_items %}
                 <li>
-                    {% if tuple.0 %}
-                        {{tuple.0}} &mdash; (<i>{{tuple.1.code}}</i>)
+                    {% if item.path %}
+                        {{item.path}} &mdash; (<i>{{item.lang.code}}</i>)
+                        <a href="javascript:void(0);"
+onclick="edit_path({{item.translation.id}}, '{{item.lang.code}}', '{{item.translation.name}}', '{{item.path}}')">
+                            (edit)</a>
+                        <a href="javascript:void(0);"
+                            onclick="remove_path({{item.translation.id}})">
+                            (delete)</a>
                     {% else %}
-                        <i>No path for {{tuple.1.code}}</i>
+                        <i>No path for {{item.lang.code}}</i>
                     {% endif %}
                 </li>
-                {% if tuple.2 %}
+                {% if item.page %}
                 <ul>
                     <li>
-                            "{{tuple.2.title}}"
-                            <a href="{{tuple.0}}">(view)</a>
-                            <a href="javascript:void(0);"
-                onclick="choose_item('metapage:' + {{tuple.2.metapage.id}})">
-                                (info)</a>
+                        "{{item.page.title}}"
+                        {% if item.path %}
+                            <a href="{{item.path}}">(view)</a>
+                        {% else %}
+                            (<i>unreachable</i>)
+                        {% endif %}
+                        <a href="javascript:void(0);"
+            onclick="choose_item('metapage:' + {{item.page.metapage.id}})">
+                            (info)</a>
                     </li>
                 </ul>
                 {% endif %}

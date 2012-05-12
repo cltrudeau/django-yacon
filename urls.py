@@ -37,7 +37,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/node_info/(\d+)/$', 'node_info'),
         (r'^nexus/site_info/(\d+)/$', 'site_info'),
         (r'^nexus/get_sites/$', 'get_sites'),
-        (r'^nexus/get_page_types/$', 'get_page_types'),
+        (r'^nexus/page_types/$', 'page_types'),
         (r'^nexus/full_tree/(\d+)/$', 'full_tree'),
         (r'^nexus/full_tree_default_site/$', 'full_tree_default_site'),
 
@@ -48,8 +48,16 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/add_page/(\d+)/(\d+)/(.*)/(.*)/$', 'add_page'),
         (r'^nexus/remove_page_warn/(\d+)/$', 'remove_page_warn'),
         (r'^nexus/remove_page/(\d+)/$', 'remove_page'),
-        (r'^nexus/get_remaining_languages/(\d+)/$', 'get_remaining_languages'),
+        (r'^nexus/missing_node_translations/(\d+)/$', 
+            'missing_node_translations'),
+        (r'^nexus/missing_metapage_translations/(\d+)/$', 
+            'missing_metapage_translations'),
         (r'^nexus/add_translation/(\d+)/(.*)/(.*)/(.*)/$', 'add_translation'),
+        (r'^nexus/add_path/(\d+)/(.*)/(.*)/(.*)/$', 'add_path'),
+        (r'^nexus/remove_path_warn/(\d+)/$', 'remove_path_warn'),
+        (r'^nexus/remove_path/(\d+)/$', 'remove_path'),
+        (r'^nexus/edit_path_warn/(\d+)/$', 'edit_path_warn'),
+        (r'^nexus/edit_path/(\d+)/(.*)/(.*)/$', 'edit_path'),
     )
 
 if settings.YACON_TESTS_ENABLED:

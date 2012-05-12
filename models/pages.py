@@ -341,6 +341,9 @@ class Page(TimeTrackedModel):
         else:
             node_part = self.metapage.node.node_to_path(self.language)
 
+        if not node_part:
+            return None
+
         return '%s%s' % (node_part, self.slug)
 
     @property

@@ -39,6 +39,7 @@
             <button id="add_folder">Add Child Folder</button>
             <button id="add_page">Add Child Page</button>
             <button id="remove_folder_warn">Remove Folder</button>
+            <button id="add_path">Add Translation</button>
         </div>
         <div id="metapage_toolbar">
             <button id="remove_page_warn">Remove Page</button>
@@ -139,4 +140,66 @@
     </form>
 </div>
 
+<div id="add_path_dialog">
+    <p>
+        Enter name and slug for a new translated path:
+    </p>
+    <form id="add_path_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_path_lang">Language</label> </th>
+                <td>
+                    <select id="add_path_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_path_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_path_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_path_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="add_path_slug"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="remove_path_dialog">
+</div>
+
+<div id="edit_path_dialog">
+    <p>
+        Edit path details:
+    </p>
+    <form id="edit_path_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="edit_path_lang">Language</label> </th>
+                <td> 
+                    <input type="text" name="language" readonly="readonly"
+                        id="edit_path_lang" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_path_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="edit_path_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_path_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="edit_path_slug"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="edit_path_dialog_warn">
+    </div>
+</div>
 {% endblock content %}

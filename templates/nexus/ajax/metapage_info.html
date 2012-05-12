@@ -37,7 +37,11 @@
         {% if default_page %}
             <li> 
                 "{{default_page.title}}" ({{default_page.language.code}})
-                <a href="{{default_page.uri}}">(view)</a>
+                {% if default_page.uri %}
+                    <a href="{{default_page.uri}}">(view)</a>
+                {% else %}
+                    (<i>unreachable</i>)
+                {% endif %}
             </li>
             <ul>
                 <li>

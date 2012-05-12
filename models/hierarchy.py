@@ -274,3 +274,6 @@ class NodeTranslation(TimeTrackedModel):
 
     class Meta:
         app_label = 'yacon'
+
+    def get_path(self):
+        return self.node.node_to_path(self.language)

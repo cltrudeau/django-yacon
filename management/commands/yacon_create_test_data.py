@@ -163,7 +163,7 @@ class Command(BaseCommand):
         smoking.create_alias(fitness)
 
         # blog pages
-        for x in range(1, 4):
+        for x in range(1, 40):
             MetaPage.create_page(blog, pt_blog, 'Blog %s' % x, 'blog_%s' % x,
                 {
                     bt_user:'<p>Blog entry %s.</p>' % x,

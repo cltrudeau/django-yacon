@@ -14,7 +14,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.utils import quote, unquote
-from yacon.models.hierarchy import Node, BadSlug
+from yacon.models.hierarchy import Node, BadSlug, NodeTranslation
 from yacon.models.site import Site, SiteURL
 from yacon.models.pages import MetaPage, Page, PageType, Translation
 
@@ -134,6 +134,59 @@ def page_as_li(page):
     return '   <li>"%s" at %s (%s)</li>' % (page.title, page.uri, 
         page.language.code)
 
+
+def reachable_aliases(metapages, language=None):
+    """Returns a string containing an html <ul> list of any aliased pages
+    reachable from the "metapages" passed in.
+    """
+    aliases = MetaPage.objects.filter(alias__in=metapages)
+    alias_list = []
+    if len(aliases) != 0:
+        alias_list.append('<ul>')
+        for metapage in aliases:
+            for page in metapage.get_translations():
+                if language == None:
+                    # return all languages
+                    alias_list.append(page_as_li(page))
+                else:
+                    # return only languages that match what was passed in
+                    if page.language == language:
+                        alias_list.append(page_as_li(page))
+
+        alias_list.append('</ul>')
+    return '\n'.join(alias_list)
+
+
+def reachable_from_node(node, language=None, include_aliases=True):
+    """Returns a tuple of strings containing html <ul> lists of the Nodes and
+    pages that are children of "node" and any MetaPages associated with these
+    items.  
+
+    :params node: node to find reachables for
+    :params language: if None, returns all items, if specified restricts list
+        to just those with the given language, defaults to None
+    :params include_aliases: False to skip calculation of aliases, returns
+        None for second item in tuple
+
+    :returns: (node_list, alias_list)
+    """
+    alias_list = None
+    if include_aliases:
+        # find all of the MetaPages that would be unreachable
+        nodes = list(node.get_descendants())
+        nodes.append(node)
+        metapages = MetaPage.objects.filter(node__in=nodes)
+
+        # find anything that aliases one of the targeted metapages
+        alias_list = reachable_aliases(metapages, language)
+
+    node_list = \
+"""<ul>
+%s
+</ul>""" % _build_subtree_as_list(node)
+
+    return (node_list, alias_list)
+
 # ============================================================================
 # Ajax Methods
 # ============================================================================
@@ -151,19 +204,28 @@ def node_info(request, node_id):
         'node':node,
         'num_metapages':len(MetaPage.objects.filter(node=node)),
         'num_children':node.get_children_count(),
-        'path_tuples':[],
+        'path_items':[],
         'default_path':default_path,
     }
+
+    class PathItem(object):
+        pass
 
     # find all of the aliases for this page
     langs = node.site.get_languages()
     for lang in langs:
-        path = node.node_to_path(lang)
+        item = PathItem()
+        item.lang = lang
+        item.path = node.node_to_path(lang)
+        item.translation = None
+        if item.path:
+            item.translation = NodeTranslation.objects.get(node=node, 
+                language=lang)
         page = None
         if node.default_metapage != None:
-            page = node.default_metapage.get_translation(lang)
+            item.page = node.default_metapage.get_translation(lang)
 
-        data['path_tuples'].append((path, lang, page))
+        data['path_items'].append(item)
 
     return render_to_response('nexus/ajax/node_info.html', data, 
         context_instance=RequestContext(request))
@@ -226,7 +288,7 @@ def full_tree_default_site(request):
     return full_tree(request, sites[0].id)
 
 
-def get_page_types(request):
+def page_types(request):
     data = {}
     for page_type in PageType.objects.all():
         data[page_type.id] = page_type.name
@@ -234,7 +296,7 @@ def get_page_types(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-def get_remaining_languages(request, metapage_id):
+def missing_metapage_translations(request, metapage_id):
     """Returns a JSON object hash of languages for which there are no
     translations in this MetaPage."""
     metapage = get_object_or_404(MetaPage, id=metapage_id)
@@ -252,8 +314,27 @@ def get_remaining_languages(request, metapage_id):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+def missing_node_translations(request, node_id):
+    """Returns a JSON object hash of languages for which there are no
+    translations in this Node."""
+    node = get_object_or_404(Node, id=node_id)
+    data = {}
+    langs = [node.site.default_language, ]
+    for lang in node.site.alternate_language.all():
+        langs.append(lang)
+
+    for translation in NodeTranslation.objects.filter(node=node):
+        if translation.language in langs:
+            langs.remove(translation.language)
+
+    for lang in langs:
+        data[lang.identifier] = lang.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
 # ----------------------------------------------------------------------------
-# Dialog Box Methods
+# Toolbar Dialog Box Methods
 
 def remove_folder_warn(request, node_id):
     """Ajax call that returns a listing of the nodes and pages that would be
@@ -261,27 +342,10 @@ def remove_folder_warn(request, node_id):
     node = get_object_or_404(Node, id=node_id)
 
     # find all of the MetaPages that would be removed
-    nodes = list(node.get_descendants())
-    nodes.append(node)
-    metapages = MetaPage.objects.filter(node__in=nodes)
-
-    # find anything that aliases one of the targeted metapages
-    aliases = MetaPage.objects.filter(alias__in=metapages)
-    alias_list = []
-    if len(aliases) != 0:
-        alias_list.append('<ul>')
-        for metapage in aliases:
-            for page in metapage.get_translations():
-                alias_list.append(page_as_li(page))
-
-        alias_list.append('</ul>')
-
+    (nodes, aliases) = reachable_from_node(node)
     data = {
-        'nodes':\
-"""<ul>
-%s
-</ul>""" % _build_subtree_as_list(node),
-        'aliases':'\n'.join(alias_list),
+        'nodes':nodes,
+        'aliases':aliases,
     }
 
     return render_to_response('nexus/ajax/remove_folder_warning.html', data,
@@ -300,6 +364,7 @@ def remove_folder(request, node_id):
 def add_folder(request, node_id, title, slug):
     """Adds a new node underneath the given one."""
     node = get_object_or_404(Node, id=node_id)
+    title = urllib.unquote(title)
     slug = urllib.unquote(slug)
     data = {}
     try:
@@ -315,6 +380,7 @@ def add_page(request, node_id, page_type_id, title, slug):
     """Adds a new page underneath the given node."""
     node = get_object_or_404(Node, id=node_id)
     page_type = get_object_or_404(PageType, id=page_type_id)
+    title = urllib.unquote(title)
     slug = urllib.unquote(slug)
 
     data = {}
@@ -339,20 +405,12 @@ def remove_page_warn(request, metapage_id):
     page_list.append('</ul>')
 
     # find anything that aliases the targeted metapage
-    aliases = MetaPage.objects.filter(alias=metapage)
-    alias_list = []
-    if len(aliases) != 0:
-        alias_list.append('<ul>')
-        for metapage in aliases:
-            for page in metapage.get_translations():
-                alias_list.append(page_as_li(page))
-
-        alias_list.append('</ul>')
+    alias_list = reachable_aliases([metapage, ])
 
     data = {
         'metapage':metapage,
         'pages':'\n'.join(page_list),
-        'aliases':'\n'.join(alias_list),
+        'aliases':alias_list,
     }
 
     return render_to_response('nexus/ajax/remove_page_warning.html', data,
@@ -371,6 +429,7 @@ def remove_page(request, metapage_id):
 def add_translation(request, metapage_id, lang, title, slug):
     """Adds a translation to the given MetaPage."""
     metapage = get_object_or_404(MetaPage, id=metapage_id)
+    title = urllib.unquote(title)
     slug = urllib.unquote(slug)
 
     data = {}
@@ -387,3 +446,78 @@ def add_translation(request, metapage_id, lang, title, slug):
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def add_path(request, node_id, lang, name, slug):
+    """Adds a translation path to the given Node."""
+    node = get_object_or_404(Node, id=node_id)
+    name = urllib.unquote(name)
+    slug = urllib.unquote(slug)
+
+    data = {}
+    try:
+        langs = node.site.get_languages(lang)
+        if len(langs) == 0:
+            raise ValueError('Bad language selected')
+
+        NodeTranslation.objects.create(node=node, slug=slug, name=name, 
+            language=langs[0])
+    except BadSlug, e:
+        data['error'] = e.message
+    except ValueError, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+# ----------------------------------------------------------------------------
+# Inline Action Dialog Methods
+
+def remove_path_warn(request, translation_id):
+    """Ajax call that returns a listing of the nodes and pages that would be
+    effected if translation with id "translation_id" is changed."""
+    translation = get_object_or_404(NodeTranslation, id=translation_id)
+
+    (nodes, aliases) = reachable_from_node(translation.node,
+        translation.language, include_aliases=False)
+
+    data = {
+        'path':translation.get_path(),
+        'nodes':nodes,
+    }
+
+    return render_to_response('nexus/ajax/remove_path_warning.html', data,
+        context_instance=RequestContext(request))
+
+
+def remove_path(request, translation_id):
+    translation = get_object_or_404(NodeTranslation, id=translation_id)
+    translation.delete()
+    return HttpResponse()
+
+
+def edit_path_warn(request, translation_id):
+    """Ajax call that returns a listing of the nodes and pages that would be
+    effected if translation with id "translation_id" is changed."""
+    translation = get_object_or_404(NodeTranslation, id=translation_id)
+
+    (nodes, aliases) = reachable_from_node(translation.node,
+        translation.language, include_aliases=False)
+
+    data = {
+        'path':translation.get_path(),
+        'nodes':nodes,
+    }
+
+    return render_to_response('nexus/ajax/edit_path_warning.html', data,
+        context_instance=RequestContext(request))
+
+
+def edit_path(request, translation_id, name, slug):
+    translation = get_object_or_404(NodeTranslation, id=translation_id)
+    slug = urllib.unquote(slug)
+    name = urllib.unquote(name)
+
+    translation.slug = slug
+    translation.name = name
+    translation.save()
+    return HttpResponse()
