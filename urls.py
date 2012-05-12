@@ -60,6 +60,13 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/edit_path/(\d+)/(.*)/(.*)/$', 'edit_path'),
         (r'^nexus/make_default_metapage/(\d+)/$', 'make_default_metapage'),
         (r'^nexus/remove_page_translation/(\d+)/$', 'remove_page_translation'),
+        (r'^nexus/missing_site_languages/(\d+)/$', 'missing_site_languages'),
+        (r'^nexus/site_languages/(\d+)/$', 'site_languages'),
+        (r'^nexus/add_site_lang/(\d+)/(.*)/$', 'add_site_lang'),
+        (r'^nexus/set_site_default_lang/(\d+)/(.*)/$', 'set_site_default_lang'),
+
+        # settings page dialog items
+        (r'^nexus/add_language/(.*)/(.*)/$', 'add_language'),
     )
 
 if settings.YACON_TESTS_ENABLED:

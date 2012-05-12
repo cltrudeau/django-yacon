@@ -71,8 +71,8 @@ function load_metapage_toolbar() {
     });
 }
 
-function load_site_toolbar() {
-    // *** Site Toolbar
+function load_site_sidebar() {
+    // *** Site Sidebar -- appears above tree, has site selector
     $('#site_info').button().click(function() {
         value = $('#site_select').attr('value');
         if( value == null || value == "nop" || value == "add" ) {
@@ -84,15 +84,37 @@ function load_site_toolbar() {
         var tree = $('#tree').dynatree("getTree");
         tree.activateKey(null);
         hide_all_toolbars();
+        $('#site_toolbar').show();
+        var site_id = $('#site_select').val();
+        $.ajax({
+            url: '/yacon/nexus/missing_site_languages/' + site_id +'/',
+            success: function(data) {
+                if( count_keys(data) != 0 ) {
+                    $('#add_site_lang').show();
+                }
+            },
+        });
 
         // load site info via ajax
         $("div#node_container").load("/yacon/nexus/site_info/" + value + "/");
     });
 }
 
+function load_site_toolbar() {
+    // *** Site Toolbar -- toolbar when site info is displayed
+    $('#add_site_lang').button().click(function() {
+        $('#add_site_lang_dialog').dialog("open");
+    });
+    $('#add_site_lang').hide();
+
+    $('#set_site_default_lang').button().click(function() {
+        $('#set_site_default_lang_dialog').dialog("open");
+    });
+}
 
 function load_toolbars() {
     load_folder_toolbar();
     load_metapage_toolbar();
+    load_site_sidebar();
     load_site_toolbar();
 }

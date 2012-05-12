@@ -3,25 +3,23 @@
 {% block scripts %}
     {{ block.super }}
     <!-- scripts to prepoulate slugs -->
-    <script type="text/JavaScript" src="/static/js/djangoadmin/urlify.js">
+    <script type="text/JavaScript" src="/static/js/yacon/djangoadmin/urlify.js">
     </script>
 
-    <script type="text/JavaScript" src="/static/js/control_panel/helpers.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/helpers.js">
     </script>
-    <script type="text/JavaScript" src="/static/js/control_panel/tree.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/tree.js">
     </script>
-    <script type="text/JavaScript" 
-        src="/static/js/control_panel/site_control.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/site_control.js">
     </script>
-    <script type="text/JavaScript" src="/static/js/control_panel/toolbars.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/toolbars.js">
     </script>
-    <script type="text/JavaScript" src="/static/js/control_panel/dialogs.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/dialogs.js">
     </script>
-    <script type="text/JavaScript" src="/static/js/control_panel/autopop.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/autopop.js">
     </script>
-    <script type="text/JavaScript" src="/static/js/control_panel/ready.js">
+    <script type="text/JavaScript" src="/static/js/yacon/panel/ready.js">
     </script>
-
 
     <script type="text/JavaScript">
         $(document).ready(function(){
@@ -37,7 +35,7 @@
             <select id="site_select">
             </select>
         </div>
-        <div id="site_toolbar">
+        <div id="site_sidebar">
             <button id="site_info">Site Info</button>
         </div>
     </div>
@@ -60,6 +58,10 @@
             <button id="remove_page_warn">Remove Page</button>
             <button id="add_translation">Add Translation</button>
             <button id="make_default_page">Default For Node</button>
+        </div>
+        <div id="site_toolbar">
+            <button id="set_site_default_lang">Set Default Language</button>
+            <button id="add_site_lang">Add Language</button>
         </div>
     </div>
     <div id="node_container">
@@ -217,5 +219,42 @@
     </form>
     <div id="edit_path_dialog_warn">
     </div>
+</div>
+
+<div id="add_site_lang_dialog">
+    <p>
+        Choose a language to add to this site.  Additional languages can be
+        added on the "Settings" tab.
+    </p>
+    <form id="add_site_lang_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_site_lang_lang">Language</label> </th>
+                <td>
+                    <select id="add_site_lang_lang">
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="set_site_default_lang_dialog">
+    <p>
+        Choose a language to make the default for this site.
+    </p>
+    <form id="set_site_default_lang_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="set_site_default_lang_lang">Language</label> 
+                </th>
+                <td>
+                    <select id="set_site_default_lang_lang">
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </form>
 </div>
 {% endblock content %}

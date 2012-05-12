@@ -38,12 +38,3 @@ def create_block_type(name, key, module_name, content_handler_name):
         content_handler_name=content_handler_name)
     bt.save()
     return bt
-
-# ============================================================================
-# URL Methods
-
-def quote(string):
-    return urllib.quote(string, '')
-
-def unquote(string):
-    return urllib.unquote(string)

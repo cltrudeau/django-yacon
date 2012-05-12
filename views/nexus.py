@@ -7,13 +7,14 @@
 #
 
 import logging, json, urllib
+from collections import OrderedDict
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
-from yacon.utils import quote, unquote
+from yacon.models.common import Language
 from yacon.models.hierarchy import Node, BadSlug, NodeTranslation
 from yacon.models.site import Site, SiteURL
 from yacon.models.pages import MetaPage, Page, PageType, Translation
@@ -33,10 +34,13 @@ def control_panel(request):
         context_instance=RequestContext(request))
 
 def config(request):
-    data = {}
-    data['title'] = 'Config'
+    langs = Language.objects.all().order_by('identifier')
+    data = {
+        'title':'Settings',
+        'langs':langs,
+    }
 
-    return render_to_response('nexus/config.html', data, 
+    return render_to_response('nexus/settings.html', data, 
         context_instance=RequestContext(request))
 
 # ============================================================================
@@ -188,7 +192,7 @@ def reachable_from_node(node, language=None, include_aliases=True):
     return (node_list, alias_list)
 
 # ============================================================================
-# Ajax Methods
+# Control Panel Ajax Methods
 # ============================================================================
 
 def node_info(request, node_id):
@@ -219,8 +223,12 @@ def node_info(request, node_id):
         item.path = node.node_to_path(lang)
         item.translation = None
         if item.path:
-            item.translation = NodeTranslation.objects.get(node=node, 
-                language=lang)
+            try:
+                item.translation = NodeTranslation.objects.get(node=node, 
+                    language=lang)
+            except NodeTranslation.DoesNotExist:
+                # no translations available, e.g. root node, do nothing
+                pass
         page = None
         if node.default_metapage != None:
             item.page = node.default_metapage.get_translation(lang)
@@ -328,6 +336,34 @@ def missing_node_translations(request, node_id):
         if translation.language in langs:
             langs.remove(translation.language)
 
+    for lang in langs:
+        data[lang.identifier] = lang.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def missing_site_languages(request, site_id):
+    """Returns a JSON hash of languages in the system but not in the given
+    site."""
+    site = get_object_or_404(Site, id=site_id)
+    data = {}
+
+    all_langs = set(Language.objects.all())
+    site_langs = set([site.default_language, ])
+    site_langs.update(site.alternate_language.all().order_by('identifier'))
+    for lang in all_langs.difference(site_langs):
+        data[lang.identifier] = lang.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def site_languages(request, site_id):
+    """Returns a JSON hash of languages for the given site."""
+    site = get_object_or_404(Site, id=site_id)
+    data = OrderedDict()
+
+    langs = [site.default_language, ]
+    langs.extend(site.alternate_language.all().order_by('identifier'))
     for lang in langs:
         data[lang.identifier] = lang.name
 
@@ -539,4 +575,46 @@ def remove_page_translation(request, page_id):
     page = get_object_or_404(Page, id=page_id)
     page.delete()
 
+    return HttpResponse()
+
+
+def add_site_lang(request, site_id, identifier):
+    site = get_object_or_404(Site, id=site_id)
+    identifier = urllib.unquote(identifier)
+
+    try:
+        language = Language.objects.get(identifier=identifier)
+        site.alternate_language.add(language)
+    except Language.DoesNotExist:
+        # only an ajax call, this dies and nothing happens anyhow
+        pass
+
+    return HttpResponse()
+
+
+def set_site_default_lang(request, site_id, identifier):
+    site = get_object_or_404(Site, id=site_id)
+    identifier = urllib.unquote(identifier)
+
+    try:
+        language = Language.objects.get(identifier=identifier)
+        if site.default_language != language:
+            site.alternate_language.add(site.default_language)
+            site.default_language = language
+            site.save()
+    except Language.DoesNotExist:
+        # only an ajax call, this dies and nothing happens anyhow
+        pass
+
+    return HttpResponse()
+
+# ============================================================================
+# Settings Page Ajax Methods
+# ============================================================================
+
+def add_language(request, name, identifier):
+    name = urllib.unquote(name)
+    identifier = urllib.unquote(identifier)
+
+    Language.factory(name, identifier)
     return HttpResponse()

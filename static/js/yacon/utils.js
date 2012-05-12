@@ -1,13 +1,3 @@
-// =======================================================
-// General Helper Functions
-
-function hide_all_toolbars() {
-    $('#folder_toolbar').hide();
-    $('#metapage_toolbar').hide();
-    $('#add_translation').hide()
-    $('#add_path').hide()
-}
-
 function repopulate_select(selector, data) {
     $(selector).children().remove();
     for( var key in data ){
@@ -33,6 +23,22 @@ function count_keys(data) {
 
 function create_dialog(selector, title, ok_label, url_generator, success, 
         complete) {
+
+    // call full with default behaviour for pressing the ok button
+    create_dialog_full(selector, title, ok_label, 
+        function() {
+            var url = url_generator();
+            $.ajax({
+                url: url,
+                success: success,
+                complete: complete,
+            });
+        },
+        url_generator, success, complete);
+}
+
+function create_dialog_full(selector, title, ok_label, ok_press, url_generator, 
+        success, complete) {
     var height = Math.floor(0.80 * $(window).height());
     var width = Math.floor(0.80 * $(window).width());
 
@@ -46,21 +52,7 @@ function create_dialog(selector, title, ok_label, url_generator, success,
         buttons: [
             {
                 text:ok_label,
-                click: function() {
-                    var node_id = active_node_id();
-                    if( node_id != null ) {
-                        var url = url_generator();
-                        $.ajax({
-                            url: url,
-                            success: success,
-                            complete: complete,
-                        });
-                    }
-                    else {
-                        $(this).dialog('close');
-                    }
-                    return false;
-                },
+                click: ok_press,
             },
             {
                 text:"Cancel",

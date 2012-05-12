@@ -1,6 +1,6 @@
 function load_folder_dialogs() {
     // *** Folder Toolbar Dialogs
-    create_dialog('#remove_folder_dialog', 'Remove Folder', 'Remove',
+    create_dialog_using_tree('#remove_folder_dialog', 'Remove Folder', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
             return "/yacon/nexus/remove_folder/" + node_id + "/";
@@ -12,7 +12,7 @@ function load_folder_dialogs() {
             $('#remove_folder_dialog').dialog('close');
         }
     );
-    create_dialog('#add_folder_dialog', 'Add Folder', 'Add',
+    create_dialog_using_tree('#add_folder_dialog', 'Add Folder', 'Add',
         function() { // url generator
             var node_id = active_node_id();
             var title = $('#add_folder_form input#add_folder_title').val();
@@ -34,7 +34,7 @@ function load_folder_dialogs() {
             $('#add_folder_dialog').dialog('close');
         }
     );
-    create_dialog('#add_page_dialog', 'Add Page', 'Add',
+    create_dialog_using_tree('#add_page_dialog', 'Add Page', 'Add',
         function() { // url generator
             var node_id = active_node_id();
             var pagetype = $('#add_page_form #add_page_pagetype').val();
@@ -68,7 +68,7 @@ function load_folder_dialogs() {
             }
         });
     });
-    create_dialog('#add_path_dialog', 'Add Translation', 'Add',
+    create_dialog_using_tree('#add_path_dialog', 'Add Translation', 'Add',
         function() { // url generator
             console.debug('inside url gen');
             var node_id = active_node_id();
@@ -107,7 +107,7 @@ function load_folder_dialogs() {
 }
 
 function load_metapage_dialogs() {
-    create_dialog('#remove_page_dialog', 'Remove MetaPage', 'Remove',
+    create_dialog_using_tree('#remove_page_dialog', 'Remove MetaPage', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
             return "/yacon/nexus/remove_page/" + node_id + "/";
@@ -120,8 +120,8 @@ function load_metapage_dialogs() {
         }
     );
 
-    create_dialog('#add_translation_dialog', 'Add Translation', 'Add',
-        function() { // url generator
+    create_dialog_using_tree('#add_translation_dialog', 'Add Translation', 
+        'Add', function() { // url generator
             console.debug('inside url gen');
             var node_id = active_node_id();
             var lang = $('#add_translation_form #add_translation_lang').val();
@@ -162,7 +162,7 @@ function load_metapage_dialogs() {
 
 function load_inline_dialogs() {
     // *** Node Dialogs
-    create_dialog('#remove_path_dialog', 'Remove Path', 'Remove',
+    create_dialog_using_tree('#remove_path_dialog', 'Remove Path', 'Remove',
         function() { // url generator
             return "/yacon/nexus/remove_path/" + remove_path_translation_id 
                 + "/";
@@ -174,7 +174,7 @@ function load_inline_dialogs() {
             $('#remove_path_dialog').dialog('close');
         }
     );
-    create_dialog('#edit_path_dialog', 'Edit Path', 'Save',
+    create_dialog_using_tree('#edit_path_dialog', 'Edit Path', 'Save',
         function() { // url generator
             var slug = $('#edit_path_form input#edit_path_slug').val();
             var name = $('#edit_path_form input#edit_path_name').val();
@@ -190,8 +190,65 @@ function load_inline_dialogs() {
     );
 }
 
+function load_site_dialogs() {
+    create_dialog('#add_site_lang_dialog', 'Add Language', 'Add',
+        function() { // url generator
+            var site_id = $('#site_select').val();
+            var lang = $('#add_site_lang_form #add_site_lang_lang').val();
+            return "/yacon/nexus/add_site_lang/" + site_id + "/" + lang + "/";
+        },
+        function(data) { // on success of ajax call
+                refresh_tree();
+        },
+        function() { // on completion of ajax call
+            $('#add_site_lang_dialog').dialog('close');
+        }
+    );
+    $('#add_site_lang_dialog').bind('dialogopen.yacon', function(event, ui) {
+        // ajax load the language listing when we pop the dialog
+        var site_id = $('#site_select').val();
+        $.ajax({
+            url: "/yacon/nexus/missing_site_languages/" + site_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old languages, replace with what server sent
+                repopulate_select('#add_site_lang_lang', data);
+            }
+        });
+    });
+    create_dialog('#set_site_default_lang_dialog', 'Set Language', 'Change',
+        function() { // url generator
+            var site_id = $('#site_select').val();
+            var s = '#set_site_default_lang_form #set_site_default_lang_lang';
+            var lang = $(s).val();
+            return "/yacon/nexus/set_site_default_lang/" + site_id + "/" 
+                + lang + "/";
+        },
+        function(data) { // on success of ajax call
+                refresh_tree();
+        },
+        function() { // on completion of ajax call
+            $('#set_site_default_lang_dialog').dialog('close');
+        }
+    );
+    $('#set_site_default_lang_dialog').bind('dialogopen.yacon', 
+            function(event, ui) {
+        // ajax load the language listing when we pop the dialog
+        var site_id = $('#site_select').val();
+        $.ajax({
+            url: "/yacon/nexus/site_languages/" + site_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old languages, replace with what server sent
+                repopulate_select('#set_site_default_lang_lang', data);
+            }
+        });
+    });
+}
+
 function load_dialogs() {
     load_folder_dialogs();
     load_metapage_dialogs();
     load_inline_dialogs();
+    load_site_dialogs();
 }
