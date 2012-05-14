@@ -8,7 +8,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core import management
 
-from yacon.models.language import Language
+from yacon.models.common import Language
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Translation
 from yacon.models.hierarchy import NodeTranslation

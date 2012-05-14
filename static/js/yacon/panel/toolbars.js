@@ -106,10 +106,6 @@ function load_site_toolbar() {
         $('#add_site_lang_dialog').dialog("open");
     });
     $('#add_site_lang').hide();
-
-    $('#set_site_default_lang').button().click(function() {
-        $('#set_site_default_lang_dialog').dialog("open");
-    });
 }
 
 function load_toolbars() {

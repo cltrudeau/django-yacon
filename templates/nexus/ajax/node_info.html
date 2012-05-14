@@ -26,7 +26,7 @@
                     {% if item.path %}
                         {{item.path}} &mdash; (<i>{{item.lang.code}}</i>)
                         <a href="javascript:void(0);"
-onclick="edit_path({{item.translation.id}}, '{{item.lang.code}}', '{{item.translation.name}}', '{{item.path}}')">
+onclick="edit_path({{item.translation.id}}, '{{item.lang.code|escapejs}}', '{{item.translation.name|escapejs}}', '{{item.path|escapejs}}')">
                             (edit)</a>
                         <a href="javascript:void(0);"
                             onclick="remove_path({{item.translation.id}})">

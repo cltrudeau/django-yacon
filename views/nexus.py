@@ -9,6 +9,7 @@
 import logging, json, urllib
 from collections import OrderedDict
 
+from django.db import IntegrityError
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template import RequestContext
@@ -16,7 +17,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.models.common import Language
 from yacon.models.hierarchy import Node, BadSlug, NodeTranslation
-from yacon.models.site import Site, SiteURL
+from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Page, PageType, Translation
 
 logger = logging.getLogger(__name__)
@@ -257,21 +258,20 @@ def metapage_info(request, metapage_id):
 
 
 def get_sites(request):
-    sites = Site.objects.all()
+    sites = Site.objects.all().order_by('id')
     data = {}
     for site in sites:
         data[site.id] = site.name
 
+    print 'get_sites: ', data
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 def site_info(request, site_id):
     site = get_object_or_404(Site, id=site_id)
-    url = SiteURL.objects.get(site=site)
 
     data = {
         'site':site,
-        'url':url.base_url,
         'alternate_languages':site.alternate_language.all(),
     }
     return render_to_response('nexus/ajax/site_info.html', data,
@@ -364,6 +364,15 @@ def site_languages(request, site_id):
 
     langs = [site.default_language, ]
     langs.extend(site.alternate_language.all().order_by('identifier'))
+    for lang in langs:
+        data[lang.identifier] = lang.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def all_languages(request):
+    data = OrderedDict()
+    langs = Language.objects.all().order_by('identifier')
     for lang in langs:
         data[lang.identifier] = lang.name
 
@@ -577,6 +586,8 @@ def remove_page_translation(request, page_id):
 
     return HttpResponse()
 
+# ----------------------------------------------------------------------------
+# Site Management Methods
 
 def add_site_lang(request, site_id, identifier):
     site = get_object_or_404(Site, id=site_id)
@@ -592,21 +603,57 @@ def add_site_lang(request, site_id, identifier):
     return HttpResponse()
 
 
-def set_site_default_lang(request, site_id, identifier):
-    site = get_object_or_404(Site, id=site_id)
-    identifier = urllib.unquote(identifier)
+def add_site(request, name, domain, lang_identifier):
+    name = urllib.unquote(name)
+    domain = urllib.unquote(domain)
+    lang_identifier = urllib.unquote(lang_identifier)
+    data = {}
 
     try:
-        language = Language.objects.get(identifier=identifier)
-        if site.default_language != language:
-            site.alternate_language.add(site.default_language)
-            site.default_language = language
-            site.save()
+        language = Language.objects.get(identifier=lang_identifier)
+        site = Site.create_site(name, domain, [language, ])
     except Language.DoesNotExist:
         # only an ajax call, this dies and nothing happens anyhow
-        pass
+        data['error'] = 'Problem occurred with language code'
+    except IntegrityError, e:
+        if 'Key (name)' in e.message:
+            data['error'] = 'Site with name "%s" already exists' % name
+        elif 'Key (domain)' in e.message:
+            data['error'] = 'Site for domain "%s" already exists' % domain
+        else:
+            data['error'] = 'An error occurred.  The database reported %s' % \
+                e.message
 
-    return HttpResponse()
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def edit_site(request, site_id, name, domain, lang_identifier):
+    site = get_object_or_404(Site, id=site_id)
+    name = urllib.unquote(name)
+    domain = urllib.unquote(domain)
+    lang_identifier = urllib.unquote(lang_identifier)
+
+    data = {}
+    try:
+        language = Language.objects.get(identifier=lang_identifier)
+        site.set_default_language(language)
+
+        site.name = name
+        site.domain = domain
+        site.save()
+    except Language.DoesNotExist:
+        # only an ajax call, this dies and nothing happens anyhow
+        data['error'] = 'Problem occurred with language code'
+    except IntegrityError, e:
+        if 'Key (name)' in e.message:
+            data['error'] = 'Site with name "%s" already exists' % name
+        elif 'Key (domain)' in e.message:
+            data['error'] = 'Site for domain "%s" already exists' % domain
+        else:
+            data['error'] = 'An error occurred.  The database reported %s' % \
+                e.message
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 # ============================================================================
 # Settings Page Ajax Methods
@@ -614,7 +661,7 @@ def set_site_default_lang(request, site_id, identifier):
 
 def add_language(request, name, identifier):
     name = urllib.unquote(name)
-    identifier = urllib.unquote(identifier)
+    identifier = urllib.unquote(identifier).lower()
 
     Language.factory(name, identifier)
     return HttpResponse()

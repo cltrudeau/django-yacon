@@ -8,6 +8,8 @@
 
     <script type="text/JavaScript" src="/static/js/yacon/panel/helpers.js">
     </script>
+    <script type="text/JavaScript" src="/static/js/yacon/panel/actions.js">
+    </script>
     <script type="text/JavaScript" src="/static/js/yacon/panel/tree.js">
     </script>
     <script type="text/JavaScript" src="/static/js/yacon/panel/site_control.js">
@@ -60,7 +62,6 @@
             <button id="make_default_page">Default For Node</button>
         </div>
         <div id="site_toolbar">
-            <button id="set_site_default_lang">Set Default Language</button>
             <button id="add_site_lang">Add Language</button>
         </div>
     </div>
@@ -239,19 +240,56 @@
     </form>
 </div>
 
-<div id="set_site_default_lang_dialog">
-    <p>
-        Choose a language to make the default for this site.
-    </p>
-    <form id="set_site_default_lang_form">
+<div id="edit_site_dialog">
+    <form id="edit_site_form">
         <table class="dialog_form_table">
             <tr>
                 <th> 
-                    <label for="set_site_default_lang_lang">Language</label> 
+                    <label for="edit_site_lang">Default Language</label> 
                 </th>
                 <td>
-                    <select id="set_site_default_lang_lang">
+                    <select id="edit_site_lang">
                     </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_site_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="edit_site_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_site_domain">Domain</label> </th>
+                <td> 
+                    <input type="text" name="domain" id="edit_site_domain" /> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_new_site_dialog">
+    <form id="add_new_site_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="add_new_site_lang">Default Language</label> 
+                </th>
+                <td>
+                    <select id="add_new_site_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_new_site_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_new_site_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_new_site_domain">Domain</label> </th>
+                <td> 
+                    <input type="text" name="domain" id="add_new_site_domain"/>
                 </td>
             </tr>
         </table>

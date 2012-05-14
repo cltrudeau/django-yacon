@@ -73,6 +73,7 @@ class Site(TimeTrackedModel):
     together pages, menus and associated configuration.
     """
     name = models.CharField(max_length=25, unique=True)
+    domain = models.CharField(max_length=100, unique=True)
     doc_root = models.ForeignKey('yacon.Node', blank=True, null=True, 
         related_name='+')
     menus = models.ManyToManyField('yacon.Node', blank=True, null=True,
@@ -86,12 +87,12 @@ class Site(TimeTrackedModel):
     # --------------------------------------------
     # Factory/Fetch Methods
     @classmethod
-    def create_site(cls, name, base_url, languages=[], config={}):
+    def create_site(cls, name, domain, languages=[], config={}):
         """Creates a Site object with corresponding SiteURL and SiteConfig
         entries.
 
         :param name -- name of site
-        :param base_url -- url that this site is responsible for
+        :param domain -- domain of site
         :param languages -- a list of Language objects that will be the
             allowed languages for this site.   First item in the list is
             treated as the default language for the site.  If no list is given
@@ -108,18 +109,14 @@ class Site(TimeTrackedModel):
         else:
             default_language = languages.pop(0)
 
-        # create the Site object
-        site = Site(name=name, default_language=default_language)
+        # create the Site object and a document root to go along with it
+        site = Site(name=name, domain=domain, default_language=default_language)
         site.save()
+        site.create_doc_root()
 
         # set any remaining languages
         for lang in languages:
             site.alternate_language.add(lang)
-
-        # create the root of the document hierarchy and the base url
-        site.create_doc_root()
-        url = SiteURL(site=site, base_url=base_url)
-        url.save()
 
         # for any config passed in create the corresponding objects
         for name in config.keys():
@@ -134,8 +131,7 @@ class Site(TimeTrackedModel):
         corresponding site or raises a 404 if no matching site found"""
         domain = request.META['HTTP_HOST']
         logger.debug('using domain "%s"' % domain)
-        site_url = get_object_or_404(SiteURL, base_url=domain)
-        site = site_url.site
+        site = get_object_or_404(Site, domain=domain)
         logger.debug('found site %s (id=%d)' % (site.name, site.id))
 
         return site
@@ -206,6 +202,18 @@ class Site(TimeTrackedModel):
                 identifier__istartswith=language_code))
 
         return langs
+
+    def set_default_language(self, language):
+        """Sets the default language to "language".  If the default language
+        has changed, the current default language is moved to the list of
+        alternate languages."""
+        if self.default_language != language:
+            if self.alternate_language.filter(id=language.id).count() == 0:
+                # language isn't in the alterante list, add it
+                self.alternate_language.add(site.default_language)
+
+            self.default_language = language
+            self.save()
 
     # -----------------------------------------------------------------------
     # Search Methods
@@ -334,16 +342,6 @@ class Site(TimeTrackedModel):
         # Node without a default_page
         return None
             
-
-class SiteURL(TimeTrackedModel):
-    """Defines the URLs that are associated with a Site"""
-
-    site = models.ForeignKey(Site)
-    base_url = models.CharField(max_length=100, unique=True)
-
-    class Meta:
-        app_label = 'yacon'
-
 
 class SiteConfig(TimeTrackedModel):
     """A name/value pair object for configuring a site"""

@@ -53,7 +53,6 @@ def ajax_preconditions(target):
         if request.method != 'POST':
             raise Http404('GET method not supported for ajax_submit')
 
-        print request.POST
         if not request.REQUEST.has_key('block_id'):
             raise Http404('ajax_submit requires "block_id" parameter')
 

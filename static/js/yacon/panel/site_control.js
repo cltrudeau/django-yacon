@@ -1,12 +1,22 @@
+// global var for tracking what site was selected if we hit "add site"
+var previously_selected_site = null;
+
 function site_setup() {
+    $('#site_select').focus(function() {
+        // before the change event, store what was in the select
+        previously_selected_site = $('#site_select').val();
+    });
+
     // setup change action when a new site is picked
     $('#site_select').change(function() {
         var value = $(this).attr('value');
         if( value == 'nop' ) {
+            $('#site_select').val(previously_selected_site);
+            $('#site_select').selectbox('refresh');
             return;
         }
         if( value == 'add' ) {
-            console.debug('id10t selected add')
+            $('#add_new_site_dialog').dialog('open');
             return;
         }
 

@@ -62,8 +62,10 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/remove_page_translation/(\d+)/$', 'remove_page_translation'),
         (r'^nexus/missing_site_languages/(\d+)/$', 'missing_site_languages'),
         (r'^nexus/site_languages/(\d+)/$', 'site_languages'),
+        (r'^nexus/all_languages/$', 'all_languages'),
         (r'^nexus/add_site_lang/(\d+)/(.*)/$', 'add_site_lang'),
-        (r'^nexus/set_site_default_lang/(\d+)/(.*)/$', 'set_site_default_lang'),
+        (r'^nexus/edit_site/(\d+)/(.*)/(.*)/(.*)/$', 'edit_site'),
+        (r'^nexus/add_site/(.*)/(.*)/(.*)/$', 'add_site'),
 
         # settings page dialog items
         (r'^nexus/add_language/(.*)/(.*)/$', 'add_language'),

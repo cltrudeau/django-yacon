@@ -1,9 +1,13 @@
 <div class="node" id="{{site.id}}">
-    <h2> Site Info for: {{site.name}} </h2>
-
+    <h2> 
+        Site Info for: {{site.name}} 
+        <a href="javascript:void(0);"
+onclick="edit_site({{site.id}}, '{{site.name|escapejs}}', '{{site.domain|escapejs}}')">
+            (edit)</a>
+    </h2>
     <ul>
         <li>
-            URL: {{url}}
+            Domain: {{site.domain}}
         </li>
         <li>
             Default Language: {{site.default_language.name}}
