@@ -2,6 +2,7 @@
 # blame ctrudeau chr(64) arsensa.com
 
 import exceptions, logging
+from django.template import RequestContext, Template
 from django.utils.safestring import mark_safe
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,9 @@ class FlatContent(ContentHandler):
     other work, essentially just outputs what is in the db for the block"""
     def internal_render(self, request, block):
         logger.debug('returning content')
-        return block.content
+        c = RequestContext(request)
+        t = Template(block.content)
+        return t.render(c)
 
 
 class EditableContent(ContentHandler):

@@ -148,14 +148,14 @@ class Command(BaseCommand):
                 'Smoking is bad', 'smoking',
                 {
                     bt_user:'<p>Smoking is bad unless you are a salmon.</p>',
-                    bt_poll:poll,
+                    bt_poll:poll.content,
                 }),
             Translation(french,
                 'Fumer est mauvais', 'fumer',
                 {
                     bt_user:('<p>Fumer est mauvais, sauf si vous êtes un '
                         'saumo.</p>'),
-                    bt_poll:lepoll,
+                    bt_poll:lepoll.content,
                 })
             ])
 
@@ -166,7 +166,7 @@ class Command(BaseCommand):
         for x in range(1, 40):
             MetaPage.create_page(blog, pt_blog, 'Blog %s' % x, 'blog_%s' % x,
                 {
-                    bt_user:'<p>Blog entry %s.</p>' % x,
+                    bt_blog:'<p>Blog entry %s.</p>' % x,
                 }
             )
 

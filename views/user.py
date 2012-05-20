@@ -29,11 +29,12 @@ def display_page(request, uri=''):
         raise Http404('CMS did not contain a page for uri: %s' % uri)
 
     logger.debug('displaying page: %s' % page)
-    data = {}
-    data['page'] = page
-    data['translations'] = page.other_translations()
-    data['request'] = request
-    data['uri'] = uri
+    data = {
+        'page':page,
+        'translations':page.other_translations(),
+        'request':request,
+        'uri':uri,
+    }
 
     return render_to_response(page.metapage.page_type.template, data, 
         context_instance=RequestContext(request))

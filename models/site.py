@@ -266,23 +266,33 @@ class Site(TimeTrackedModel):
                 continue 
 
             if not found_end_node:
-                # search the children of this Node for the slug we've parsed
-                kids = list(node.get_children())
-                nts = NodeTranslation.objects.filter(slug=part, node__in=kids)
-                if len(nts) > 0:
-                    # found slugs -- there should only be one, but to play it
-                    # safe we don't enforce that
-                    if len(nts) > 1:
-                        logger.warning('Multiple slugs matched for children '
-                            + 'of node=%s' % node + ' and slug=%s' % part)
-
-                    parsed.slugs_in_path.append(part)
-                    parsed.node = nts[0].node
-                    parsed.item_type = ParsedPath.NODE
-                    node = nts[0].node
-                else:
-                    parsed.slugs_after_item.append(part)
+                # search for a matching page within this node
+                page = Page.find(node, [part, ])
+                if page != None:
+                    parsed.page = page
+                    parsed.language = page.language
+                    parsed.item_type = ParsedPath.PAGE
                     found_end_node = True
+                else:
+                    # no matching pages, look for child nodes
+                    kids = list(node.get_children())
+                    nts = NodeTranslation.objects.filter(slug=part, 
+                        node__in=kids)
+                    if len(nts) > 0:
+                        # found slugs -- there should only be one, but to play
+                        # it safe we don't enforce that
+                        if len(nts) > 1:
+                            logger.warning(('Multiple slugs matched for '
+                                'children of node=%s and slug=%s' % (node, 
+                                part)))
+
+                        parsed.slugs_in_path.append(part)
+                        parsed.node = nts[0].node
+                        parsed.item_type = ParsedPath.NODE
+                        node = nts[0].node
+                    else:
+                        parsed.slugs_after_item.append(part)
+                        found_end_node = True
             else:
                 # already found leaf Node, all slugs after this get stored
                 parsed.slugs_after_item.append(part)

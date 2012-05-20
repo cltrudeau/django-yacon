@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 # =============================================================================
 
-def globals(context):
+def globals(request):
     data = {
         'admin_enabled': 'django.contrib.admin' in settings.INSTALLED_APPS,
     }
