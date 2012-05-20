@@ -74,7 +74,7 @@ class Command(BaseCommand):
 <h3>Poll: Is This Your Favourite Home Page?</h3>
 <ul>
 <li>Yes</li>
-<li>Yes, most definitelyli>
+<li>Yes, most definitely</li>
 </ul>
 """,
                 }),

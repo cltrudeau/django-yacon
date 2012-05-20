@@ -2,8 +2,9 @@ function repopulate_select(selector, data) {
     $(selector).children().remove();
     for( var key in data ){
         if( data.hasOwnProperty(key) ){
+            console.debug('adding key: ' + key);
             $(selector).append('<option value="' + key + '">' + data[key]
-                + '<option>');
+                + '</option>');
         }
     }
 }

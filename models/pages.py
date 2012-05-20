@@ -344,7 +344,8 @@ class Page(TimeTrackedModel):
         if not node_part:
             return None
 
-        return '%s%s' % (node_part, self.slug)
+        return '//%s%s%s' % (self.metapage.node.site.domain, node_part, 
+            self.slug)
 
     @property
     def lang_code(self):
