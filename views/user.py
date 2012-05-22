@@ -30,6 +30,7 @@ def display_page(request, uri=''):
 
     logger.debug('displaying page: %s' % page)
     data = {
+        'site':site,
         'page':page,
         'translations':page.other_translations(),
         'request':request,

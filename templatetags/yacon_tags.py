@@ -7,6 +7,9 @@ import logging, traceback
 from django import template
 from django.template import loader
 
+from yacon.models.pages import BlockType
+from yacon.models.hierarchy import Menu
+
 register = template.Library()
 logger = logging.getLogger(__name__)
 
@@ -19,6 +22,8 @@ templates = {
     'editable': loader.get_template('blocks/editable.html'),
 
     # errors
+    'no_such_block_type': 
+        loader.get_template('blocks/errors/no_such_block_type.html'),
     'no_such_block': loader.get_template('blocks/errors/no_such_block.html'),
     'exception': loader.get_template('blocks/errors/exception.html'),
 }
@@ -54,10 +59,52 @@ def _render_block_by_key(context, tag_name, key):
     try:
         context['block'] = block
         request = context['request']
-        return (True, block.render(request))
+        return (True, block.render(request, context))
     except Exception, e:
         context['exception'] = traceback.format_exc()
         return (False, templates['exception'].render(context))
+
+
+def _render_menuitem(menuitem, language, selected, indent):
+    spacing = indent * '    '
+    results = []
+    translations = menuitem.menuitemtranslation_set.filter(language=language)
+
+    li_class = ''
+    if menuitem.metapage:
+        page = menuitem.metapage.get_translation(language=language)
+        if page:
+            name = page.title
+            if len(translations) != 0:
+                name = translations[0].name
+
+            content = '<a href="%s">%s</a>' % (page.uri, name)
+        else:
+            content = '<i>empty translation (%s)</i>' % language.code
+            if len(translations) != 0:
+                content = translation[0].name
+    else:
+        if len(translations) == 0:
+            content = '<i>empty translation (%s)</i>' % language.code
+        else:
+            content = translations[0].name
+
+    if menuitem.metapage == selected:
+        li_class = ' class="selected"'
+
+    li = '%s<li%s> %s</li>' % (spacing, li_class, content)
+    results.append(li)
+
+    children = menuitem.get_children()
+    if len(children) != 0:
+        results.append('%s<ul>' % spacing)
+        for child in menuitem.get_children():
+            subitems = _render_menuitem(child, language, selected, indent + 1)
+            results.append(subitems)
+
+        results.append('%s</ul>' % spacing)
+
+    return '\n'.join(results)
 
 # ============================================================================
 # Template Tags
@@ -111,3 +158,41 @@ def editable_block_by_key(context, key):
         content = templates['editable'].render(context)
 
     return content
+
+
+@register.simple_tag(takes_context=True)
+def menu(context, name):
+    """Returns a <ul> representation of the named menu."""
+    results = ['<ul>']
+
+    menu = Menu.objects.get(site=context['site'], name=name)
+    page = context['page']
+    for item in menu.first_level.all():
+        results.append(_render_menuitem(item, page.language, page.metapage, 1))
+
+    results.append('</ul>')
+    return '\n'.join(results)
+
+
+@register.simple_tag(takes_context=True)
+def dynamic_content_by_key(context, key):
+    """DynamicContent content handlers do not require any Block to be stored
+    in the database, but can be fired directly.  A BlockType is registered
+    as usual, but this method, unlike block_by_key, doesn't look for a Block,
+    but renders the ContentHandler directly."""
+    # fetch the named block type
+    logger.debug('key is: %s' % key)
+    context['tag_name'] = 'dynamic_content_by_key'
+    context['tag_parameters'] = {
+        'key':key,
+    }
+    try:
+        block_type = BlockType.objects.get(key=key)
+        request = context['request']
+        handler = block_type.get_content_handler()
+        return handler.render(request, context, None)
+    except BlockType.DoesNotExist:
+        return templates['no_such_block_type'].render(context)
+    except Exception, e:
+        context['exception'] = traceback.format_exc()
+        return templates['exception'].render(context)

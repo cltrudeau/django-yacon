@@ -12,4 +12,14 @@
 
 {% block_by_key "poll" %}
 
+<h2> Dynamic </h2>
+
+<p>
+{% dynamic_content_by_key "right_now" %}
+</p>
+
+<h2> Menu </h2>
+
+{% menu "Menu 1" %}
+
 {% endblock body %}

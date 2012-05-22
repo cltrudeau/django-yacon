@@ -277,3 +277,59 @@ class NodeTranslation(TimeTrackedModel):
 
     def get_path(self):
         return self.node.node_to_path(self.language)
+
+# ============================================================================
+# Menu Management
+
+class MenuItem(MP_Node, TimeTrackedModel):
+    """A MenuItem is a node in a hierarchy that is displayed to the user,
+    typically for navigation, that is independent of the document hierarchy.
+    A MenuItem can be "clickable" and associated with a Metapage, or not
+    "clickable" and simply a placeholder in the hierarchy.  
+
+    A Metapage is only allowed to be mapped to a single MenuItem across all
+    menus.  This allows for easy determination from the URL as to where in the
+    menu the user is.  If you want the same content to show up in two
+    MenuItems then create a Metapage alias.
+    """
+    metapage = models.ForeignKey('yacon.MetaPage', blank=True, null=True,
+        unique=True)
+
+    class Meta:
+        app_label = 'yacon'
+
+    def create_child(self, metapage, translations={}):
+        child = self.add_child(metapage=metapage)
+        for key, value in translations.items():
+            MenuItemTranslation.objects.create(language=key, name=value, 
+                menuitem=child)
+        return child
+
+
+class Menu(TimeTrackedModel):
+    """Represents a menu associated with a site.  The name in this menu is for
+    configuration purposes only, the MenuItems contained within it (and their
+    translations) are what are displayed to the user.
+    """
+    name = models.CharField(max_length=30)
+    site = models.ForeignKey('yacon.Site')
+    first_level = models.ManyToManyField(MenuItem)
+
+    def create_child(self, metapage, translations={}):
+        item = MenuItem.add_root(metapage=metapage)
+        self.first_level.add(item)
+        for key, value in translations.items():
+            MenuItemTranslation.objects.create(language=key, name=value, 
+                menuitem=item)
+        return item
+
+
+class MenuItemTranslation(TimeTrackedModel):
+    """Stores translations of MenuItem names according to Language object.  
+    """
+    language = models.ForeignKey(Language, related_name='+')
+    name = models.CharField(max_length=30)
+    menuitem = models.ForeignKey(MenuItem)
+
+    class Meta:
+        app_label = 'yacon'

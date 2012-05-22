@@ -172,11 +172,11 @@ class Block(models.Model):
     class Meta:
         app_label = 'yacon'
 
-    def render(self, request):
+    def render(self, request, context):
         """Returns a rendered version of the block via its ContentHandler"""
 
         handler = self.block_type.get_content_handler()
-        return handler.render(request, self)
+        return handler.render(request, context, self)
 
 # ============================================================================
 # Page & Supporting Classes

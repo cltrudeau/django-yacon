@@ -18,7 +18,7 @@
     <!-- nav bar -->
     <script type="text/JavaScript">
         $(document).ready(function(){
-            $('#navbar').tabnav();
+            //$('#navbar').tabnav();
         });
     </script>
 
@@ -27,20 +27,13 @@
     {% block scripts %}
     {% endblock scripts %}
 
-    <!-- yacon style and scripts -->
+    <!-- yacon style and scripts 
     <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
+    -->
+    <link rel="stylesheet" type="text/css" href="/static/css/test.css"/>
 </head>
 <body>
     <div id="container">
-        <div id="navbar">
-            {% block navbar %}
-                {% include "nexus/includes/nav.html" %}
-            {% endblock navbar %}
-        </div>
-        <div id="content">
-            {% block content %}
-            {% endblock content %}
-        </div>
     </div>
 </body>
 </html>

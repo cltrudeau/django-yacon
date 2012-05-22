@@ -22,7 +22,8 @@ def create_page_type(name, template):
     return pt
 
 
-def create_block_type(name, key, module_name, content_handler_name):
+def create_block_type(name, key, module_name, content_handler_name,
+        content_handler_parms={}):
     """Creates and saves a new BlockType object
 
     @param name -- name of the BlockType
@@ -31,10 +32,13 @@ def create_block_type(name, key, module_name, content_handler_name):
         found in 
     @param content_handler -- string specifying the name of the ContentHandler
         class for this BlockType
+    @param content_handler_parms -- optional dictionary of parameters to
+        initialize the ContentHandler with
 
     @returns -- the created BlockType object
     """
     bt = BlockType(name=name, key=key, module_name=module_name, 
-        content_handler_name=content_handler_name)
+        content_handler_name=content_handler_name, 
+        content_handler_parms=content_handler_parms)
     bt.save()
     return bt

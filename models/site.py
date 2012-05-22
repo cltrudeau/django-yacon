@@ -301,6 +301,8 @@ class Site(TimeTrackedModel):
             # didn't find a Node in the path, return what we've built
             return parsed
 
+        # ??? doing this twice?
+
         # if you get here then we found a Node, check for pages and default
         # pages 
         if len(parsed.slugs_after_item) > 0:

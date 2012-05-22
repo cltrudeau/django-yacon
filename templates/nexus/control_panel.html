@@ -32,7 +32,7 @@
 
 {% block content %}
 <div class="left">
-    <div id="toolbar" class="ui-widget-header ui-corner-all">
+    <div class="toolbar ui-widget-header ui-corner-all">
         <div id="site_select_wrapper">
             <select id="site_select">
             </select>
@@ -41,15 +41,21 @@
             <button id="site_info">Site Info</button>
         </div>
     </div>
-    <br/>
-    <div id="tree">
-    </div>
-    <br/>
-    <div id="page_types_tree">
+    <div id="tree_container">
+        <div id="tree">
+            <h2> Pages </h2>
+            <div id="footree">
+            </div>
+        </div>
+        <div id="menu_tree_container">
+            <h2> Menus </h2>
+            <div id="menu_tree">
+            </div>
+        </div>
     </div>
 </div>
 <div class="right">
-    <div id="toolbar" class="ui-widget-header ui-corner-all">
+    <div class="toolbar ui-widget-header ui-corner-all">
         <div id="folder_toolbar">
             <button id="add_folder">Add Child Folder</button>
             <button id="add_page">Add Child Page</button>

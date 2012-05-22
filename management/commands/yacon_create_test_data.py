@@ -11,7 +11,7 @@ from django.core import management
 from yacon.models.common import Language
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Translation
-from yacon.models.hierarchy import NodeTranslation
+from yacon.models.hierarchy import NodeTranslation, Menu
 from yacon.utils import create_page_type, create_block_type
 
 class Command(BaseCommand):
@@ -62,6 +62,12 @@ class Command(BaseCommand):
             'yacon.models.content', 'FlatContent')
         bt_blog = create_block_type('Blog Content', 'blog', 
             'yacon.models.content', 'FlatContent')
+        bt_now = create_block_type('Right Now Content', 'right_now', 
+            'yacon.models.content', 'DynamicContent', 
+            {'module':'yacon.examples.dynamic', 'function':'right_now'})
+
+        # create a couple of menus
+        menu1 = Menu.objects.create(name='Menu 1', site=site)
 
         # -----------------
         # create some pages
@@ -82,6 +88,8 @@ class Command(BaseCommand):
         )
         site.doc_root.default_metapage = mp
         site.doc_root.save()
+        menu1.create_child(mp)
+        sub_menu = menu1.create_child(None, { english:'Sub Menu1' })
 
         mp = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,
@@ -117,6 +125,7 @@ class Command(BaseCommand):
         )
         health.default_metapage = mp
         health.save()
+        sub_menu.create_child(mp)
 
         # create a page without the default translation
         MetaPage.create_translated_page(health, pt_article, [
@@ -158,6 +167,7 @@ class Command(BaseCommand):
                     bt_poll:lepoll.content,
                 })
             ])
+        sub_menu.create_child(smoking, {english:'Puffing'})
 
         # Smoking alias in Fitness
         smoking.create_alias(fitness)
@@ -170,6 +180,7 @@ class Command(BaseCommand):
                 }
             )
 
+        # -----------------
         # create a second site
         Site.create_site('Second Site', 'dummyhost', 
             languages=[site.default_language])
