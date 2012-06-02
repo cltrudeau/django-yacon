@@ -7,9 +7,6 @@ function load_folder_dialogs() {
         },
         function(data) { // on success of ajax call
             refresh_tree();
-        },
-        function() { // on completion of ajax call
-            $('#remove_folder_dialog').dialog('close');
         }
     );
     create_dialog_using_tree('#add_folder_dialog', 'Add Folder', 'Add',
@@ -29,9 +26,6 @@ function load_folder_dialogs() {
                 // something was wrong with our slug, show the user
                 alert(data['error']);
             }
-        },
-        function() { // on completion of ajax call
-            $('#add_folder_dialog').dialog('close');
         }
     );
     create_dialog_using_tree('#add_page_dialog', 'Add Page', 'Add',
@@ -52,9 +46,6 @@ function load_folder_dialogs() {
                 // something was wrong with our slug, show the user
                 alert(data['error']);
             }
-        },
-        function() { // on completion of ajax call
-            $('#add_page_dialog').dialog('close');
         }
     );
     $('#add_page_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -86,9 +77,6 @@ function load_folder_dialogs() {
                 // something was wrong with our slug, show the user
                 alert(data['error']);
             }
-        },
-        function() { // on completion of ajax call
-            $('#add_path_dialog').dialog('close');
         }
     );
     $('#add_path_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -106,6 +94,38 @@ function load_folder_dialogs() {
 }
 
 function load_metapage_dialogs() {
+    create_dialog_using_tree('#add_menuitem_dialog', 'Add To Menu', 'Add',
+        function() { // url generator
+            var node_id = active_node_id();
+            var menu = $('#add_menuitem_menu').val();
+            var name = $('#add_menuitem_name').val();
+            return "/yacon/nexus/add_menuitem/" + menu + "/" + node_id + "/"
+                + name + "/";
+        },
+        function(data) { // on success of ajax call
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something went wrong, show the user
+                alert(data['error']);
+            }
+        }
+    );
+    $('#add_menuitem_dialog').bind('dialogopen.yacon', function(event, ui) {
+        // ajax load the menu listing when we pop the dialog
+        var node_id = active_node_id();
+        $.ajax({
+            url: "/yacon/nexus/menu_listing/" + node_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old menus, replace with what server sent
+                repopulate_select('#add_menuitem_menu', data);
+            }
+        });
+    });
+
     create_dialog_using_tree('#remove_page_dialog', 'Remove MetaPage', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
@@ -113,9 +133,6 @@ function load_metapage_dialogs() {
         },
         function(data) { // on success of ajax call
             refresh_tree();
-        },
-        function() { // on completion of ajax call
-            $('#remove_page_dialog').dialog('close');
         }
     );
 
@@ -139,9 +156,6 @@ function load_metapage_dialogs() {
                 // something was wrong with our slug, show the user
                 alert(data['error']);
             }
-        },
-        function() { // on completion of ajax call
-            $('#add_translation_dialog').dialog('close');
         }
     );
     $('#add_translation_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -167,9 +181,6 @@ function load_inline_dialogs() {
         },
         function(data) { // on success of ajax call
             refresh_tree();
-        },
-        function() { // on completion of ajax call
-            $('#remove_path_dialog').dialog('close');
         }
     );
     create_dialog_using_tree('#edit_path_dialog', 'Edit Path', 'Save',
@@ -181,9 +192,6 @@ function load_inline_dialogs() {
         },
         function(data) { // on success of ajax call
             refresh_tree();
-        },
-        function() { // on completion of ajax call
-            $('#edit_path_dialog').dialog('close');
         }
     );
 }
@@ -197,9 +205,6 @@ function load_site_dialogs() {
         },
         function(data) { // on success of ajax call
                 refresh_tree();
-        },
-        function() { // on completion of ajax call
-            $('#add_site_lang_dialog').dialog('close');
         }
     );
     $('#add_site_lang_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -231,9 +236,6 @@ function load_site_dialogs() {
                 // something was wrong with our parms, show the user
                 alert(data['error']);
             }
-        },
-        function() { // on completion of ajax call
-            $('#edit_site_dialog').dialog('close');
         }
     );
     $('#edit_site_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -280,9 +282,6 @@ function load_site_dialogs() {
                 // something was wrong with our parms, show the user
                 alert(data['error']);
             }
-        },
-        function() { // on completion of ajax call
-            $('#add_new_site_dialog').dialog('close');
         }
     );
     $('#add_new_site_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -302,9 +301,67 @@ function load_site_dialogs() {
     });
 }
 
+function load_menu_dialogs() {
+    create_dialog_using_tree('#remove_menu_dialog', 'Remove Menu', 'Remove',
+        function() { // url generator
+            var node_id = active_node_id();
+            return "/yacon/nexus/remove_menu/" + node_id + "/";
+        },
+        function(data) { // on success of ajax call
+            refresh_tree();
+        }
+    );
+
+    create_dialog_using_tree('#remove_menuitem_dialog', 'Remove Menu Item', 
+            'Remove',
+        function() { // url generator
+            var node_id = active_node_id();
+            return "/yacon/nexus/remove_menuitem/" + node_id + "/";
+        },
+        function(data) { // on success of ajax call
+            refresh_tree();
+        }
+    );
+
+    create_dialog_using_tree('#add_menuitem_translation_dialog', 
+            'Add Translation', 'Add', 
+        function() { // url generator
+            var node_id = active_node_id();
+            var lang = $('#add_menuitem_translation_lang').val();
+            var name = $('#add_menuitem_translation_name').val();
+            return "/yacon/nexus/add_menuitem_translation/" + node_id + "/" 
+                + lang + "/" + name + "/";
+        },
+        function(data) { // on success of ajax call
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something went wrong, show the user
+                alert(data['error']);
+            }
+        }
+    );
+    $('#add_menuitem_translation_dialog').bind('dialogopen.yacon', 
+            function(event, ui) {
+        // ajax load the language listing when we pop the dialog
+        var node_id = active_node_id();
+        $.ajax({
+            url: "/yacon/nexus/missing_menuitem_translations/" + node_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old translations, replace with what server sent
+                repopulate_select('#add_menuitem_translation_lang', data);
+            }
+        });
+    });
+}
+
 function load_dialogs() {
     load_folder_dialogs();
     load_metapage_dialogs();
     load_inline_dialogs();
     load_site_dialogs();
+    load_menu_dialogs();
 }

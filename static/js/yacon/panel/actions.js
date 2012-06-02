@@ -49,3 +49,18 @@ function edit_site(site_id, name, domain) {
 
     $('#edit_site_dialog').dialog('open');
 }
+
+
+function remove_menuitem_translation(menuitem_id, title) {
+    action = confirm('Remove translation \"' + title + '"?');
+    if( action ) {
+        $.ajax({
+            url: "/yacon/nexus/remove_menuitem_translation/" + menuitem_id 
+                + "/",
+            dataType: "json",
+            success: function(data) {
+                refresh_tree();
+            }
+        });
+    }
+}

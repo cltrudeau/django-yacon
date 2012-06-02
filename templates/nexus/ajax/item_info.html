@@ -1,0 +1,95 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#menuitem_toolbar').show();
+
+        {% if menuitem.has_missing_translations %}
+            $('#add_menuitem_translation').show();
+        {% else %}
+            $('#add_menuitem_translation').hide();
+        {% endif %}
+
+        {% if menuitem.can_move_out %}
+            $('#menuitem_move_out').show();
+        {% else %}
+            $('#menuitem_move_out').hide();
+        {% endif %}
+
+        {% if menuitem.can_move_up %}
+            $('#menuitem_move_up').show();
+        {% else %}
+            $('#menuitem_move_up').hide();
+        {% endif %}
+
+        {% if menuitem.can_move_down %}
+            $('#menuitem_move_down').show();
+        {% else %}
+            $('#menuitem_move_down').hide();
+        {% endif %}
+    });
+</script>
+
+<div class="node" id="{{menuitem.id}}">
+    <h2> MenuItem Info for: {{menu.name|safe}} </h2>
+
+    <h2> MenuItem{% if default_translation %}: {{translation.name}}{% endif %} 
+    (id={{menuitem.id}})
+    </h2>
+
+    <ul>
+        <li>
+            Created: {{menuitem.created}}
+        </li>
+        <li>
+            Last Updated: {{menuitem.updated}}
+        </li>
+        <li>
+            MenuItem ID: {{menuitem.id}}
+        </li>
+        <li>
+            Owning Menu: {{menuitem.menu.name}} (id={{menuitem.menu.id}})
+        </li>
+        <li>
+            MetaPage ID: {{menuitem.metapage.id}}
+        </li>
+    </ul>
+
+    <h3>Contents</h3>
+
+    <ul>
+        {% if default_translation %}
+            <li> 
+                "{{default_translation.name}}" 
+                    ({{default_translation.language.code}})
+                {% if default_translation.page.uri %}
+                    <a href="{{default_translation.page.uri}}">(view)</a>&nbsp;
+                    <a href="javascript:void(0);"
+onclick="remove_menuitem_translation({{default_translation.id}}, '{{default_translation.name|escapejs}}')">
+                        (delete)</a>
+                {% else %}
+                    (<i>unreachable</i>)
+                {% endif %}
+            </li>
+        {% else %}
+            <li> 
+                <i>No Default Translation 
+                    ({{menuitem.menu.site.default_language.code}})</i>
+            </li>
+        {% endif %}
+        {% for item in translated_items %}
+            <li> 
+                "{{item.name}}" 
+                    ({{item.language.code}})
+                {% if item.page.uri %}
+                    <a href="{{item.page.uri}}">(view)</a>&nbsp;
+                    <a href="javascript:void(0);"
+onclick="remove_menuitem_translation({{item.id}}, '{{item.name|escapejs}}')">
+                        (delete)</a>
+                {% else %}
+                    (<i>unreachable</i>)
+                {% endif %}
+            </li>
+
+        {% empty %}
+        {% endfor %}
+    </ul>
+</div>

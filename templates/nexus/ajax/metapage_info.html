@@ -1,3 +1,27 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#metapage_toolbar').show();
+
+        {% if metapage.has_missing_translations %}
+            $('#add_translation').show();
+        {% else %}
+            $('#add_translation').hide();
+        {% endif %}
+
+        {% if metapage.is_node_default %}
+            $('#make_default_page').hide();
+        {% else %}
+            $('#make_default_page').show();
+        {% endif %}
+
+        {% if menuitem %}
+            $('#add_menuitem').hide();
+        {% else %}
+            $('#add_menuitem').show();
+        {% endif %}
+    });
+</script>
+
 <div class="node" id="{{page.id}}">
     <h2> MetaPage{% if default_page %}: {{default_page.title}}{% endif %} 
     (id={{metapage.id}})
@@ -28,6 +52,14 @@
         </li>
         <li>
             Template: {{metapage.page_type.template}}
+        </li>
+        <li>
+            In Menu: 
+            {% if menuitem %}
+                {{menuitem.menu.name}}
+            {% else %}
+                <i>Not in a menu</i>
+            {% endif %}
         </li>
     </ul>
 

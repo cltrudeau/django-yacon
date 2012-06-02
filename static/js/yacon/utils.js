@@ -22,8 +22,7 @@ function count_keys(data) {
 // =======================================================
 // Dialog Creation Function
 
-function create_dialog(selector, title, ok_label, url_generator, success, 
-        complete) {
+function create_dialog(selector, title, ok_label, url_generator, success) {
 
     // call full with default behaviour for pressing the ok button
     create_dialog_full(selector, title, ok_label, 
@@ -32,14 +31,11 @@ function create_dialog(selector, title, ok_label, url_generator, success,
             $.ajax({
                 url: url,
                 success: success,
-                complete: complete,
             });
-        },
-        url_generator, success, complete);
+        });
 }
 
-function create_dialog_full(selector, title, ok_label, ok_press, url_generator, 
-        success, complete) {
+function create_dialog_full(selector, title, ok_label, ok_press) {
     var height = Math.floor(0.80 * $(window).height());
     var width = Math.floor(0.80 * $(window).width());
 
@@ -53,7 +49,11 @@ function create_dialog_full(selector, title, ok_label, ok_press, url_generator,
         buttons: [
             {
                 text:ok_label,
-                click: ok_press,
+                click: function() {
+                    ok_press()
+                    $(this).dialog('close');
+                    return false;
+                }
             },
             {
                 text:"Cancel",

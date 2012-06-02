@@ -1,9 +1,7 @@
-# yacon.views.nexus.py
+# yacon.views.settings_tab.py
 # blame ctrudeau chr(64) arsensa.com
 #
-# Nexus is the area for administrators to control the contents of the site,
-# permissions, user management etc.  Not named the obvious "admin" to avoid
-# conflicts with Django's admin features
+# Views for the Settings tab in Nexus
 #
 
 import logging, json, urllib
@@ -24,24 +22,12 @@ from yacon.models.pages import MetaPage, Page, PageType, Translation
 logger = logging.getLogger(__name__)
 
 # ============================================================================
-# Tab Views
+# Settings Page Ajax Methods
 # ============================================================================
 
-def control_panel(request):
-    data = {
-        'title':'Control Panel',
-    }
+def add_language(request, name, identifier):
+    name = urllib.unquote(name)
+    identifier = urllib.unquote(identifier).lower()
 
-    return render_to_response('nexus/control_panel.html', data, 
-        context_instance=RequestContext(request))
-
-
-def config(request):
-    langs = Language.objects.all().order_by('identifier')
-    data = {
-        'title':'Settings',
-        'langs':langs,
-    }
-
-    return render_to_response('nexus/settings.html', data, 
-        context_instance=RequestContext(request))
+    Language.factory(name, identifier)
+    return HttpResponse()

@@ -370,6 +370,7 @@ class MetaPage(TimeTrackedModel):
     node = models.ForeignKey('yacon.Node')
     _page_type = models.ForeignKey(PageType, blank=True, null=True)
     alias = models.ForeignKey('yacon.MetaPage', blank=True, null=True)
+    is_node_default = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'yacon'
@@ -475,6 +476,18 @@ class MetaPage(TimeTrackedModel):
         return metapage
 
     # -------------------------------------------
+    # Setters
+    def make_default_for_node(self):
+        # find any other nodes that are marked as default and unset them
+        mps = MetaPage.objects.filter(node=self.node, is_node_default=True)
+        for mp in mps:
+            mp.is_node_default = False
+            mp.save()
+
+        self.is_node_default = True
+        self.save()
+
+    # -------------------------------------------
     # Alias Methods
     def is_alias(self):
         """Returns True if this MetaPage is an alias of another.
@@ -564,3 +577,9 @@ class MetaPage(TimeTrackedModel):
             return None
 
         return page
+
+    @property
+    def has_missing_translations(self):
+        """Returns True if there are languages in the site that there are no
+        pages for."""
+        return self.page_set.count() != self.node.site.language_count()

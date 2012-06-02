@@ -1,6 +1,8 @@
 function hide_all_toolbars() {
     $('#folder_toolbar').hide();
     $('#metapage_toolbar').hide();
+    $('#menu_toolbar').hide();
+    $('#menuitem_toolbar').hide();
     $('#site_toolbar').hide();
     $('#add_translation').hide();
     $('#add_path').hide();
@@ -8,7 +10,7 @@ function hide_all_toolbars() {
 }
 
 function create_dialog_using_tree(selector, title, ok_label, url_generator, 
-        success, complete) {
+        success) {
     // call full with behaviour for items dealing with a selected node in the
     // tree
     create_dialog_full(selector, title, ok_label, 
@@ -19,13 +21,11 @@ function create_dialog_using_tree(selector, title, ok_label, url_generator,
                 $.ajax({
                     url: url,
                     success: success,
-                    complete: complete,
                 });
             }
             else {
                 $(this).dialog('close');
             }
             return false;
-        },
-        url_generator, success, complete);
+        });
 }

@@ -1,0 +1,174 @@
+# yacon.views.left_control.py
+# blame ctrudeau chr(64) arsensa.com
+#
+# Left pane of Nexus control panel.  Contains Site drop-down and the site
+# tree.
+#
+
+import logging, json, urllib
+from collections import OrderedDict
+
+from django.db import IntegrityError
+from django.conf import settings
+from django.http import Http404, HttpResponse
+from django.template import RequestContext
+from django.shortcuts import render_to_response, get_object_or_404
+
+from yacon.models.common import Language
+from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
+    MenuItemTranslation)
+from yacon.models.site import Site
+from yacon.models.pages import MetaPage, Page, PageType, Translation
+
+logger = logging.getLogger(__name__)
+
+# ============================================================================
+# Tree Building Methods
+# ============================================================================
+
+def _pages_subtree(node, language):
+    """Returns a hash representation in dynatree format of the node passed in
+    and its children."""
+    name = '%s (%s)' % (node.name, node.slug)
+    if node.name == None:
+        name = '<i>empty translation (%s)</i>' % language.code
+
+    node_hash = {
+        'title': name,
+        'key': 'node:%d' % node.id,
+        'icon': 'fatcow/folder.png',
+        'expand': True,
+    }
+
+    if node.has_children():
+        children = []
+        for child in node.get_children():
+            subtree = _pages_subtree(child, language)
+            children.append(subtree)
+
+        node_hash['children'] = children
+
+    # leaf node, check for pages
+    metapages = MetaPage.objects.filter(node=node)
+    if len(metapages) != 0:
+        children = []
+        for metapage in metapages:
+            icon = "fatcow/page_white.png"
+            if metapage.is_alias():
+                icon = "fatcow/page_white_link.png"
+            page = metapage.get_default_translation()
+            if page == None:
+                title = '<i>empty translation (%s)</i>' % language.code
+            else:
+                title = page.title
+
+            page_hash = {
+                'title': title,
+                'key': 'metapage:%d' % metapage.id,
+                'icon': icon,
+            }
+            children.append(page_hash)
+
+        if 'children' in node_hash:
+            node_hash['children'].extend(children)
+        else:
+            node_hash['children'] = children
+
+    return node_hash
+
+
+def _menuitem_subtree(menuitem, language):
+    """Returns a hash representation in dynatree format of the menuitem passed
+    in and its children."""
+    try:
+        tx = MenuItemTranslation.objects.get(menuitem=menuitem, 
+            language=language)
+        name = tx.name
+    except MenuItemTranslation.DoesNotExist:
+        name = '<i>empty translation (%s)</i>' % language.code
+
+    menuitem_node = {
+        'title': name,
+        'key': 'menuitem:%d' % menuitem.id,
+        'expand': True,
+    }
+
+    if menuitem.has_children():
+        children = []
+        for child in menuitem.get_children():
+            subtree = _menuitem_subtree(child, language)
+            children.append(subtree)
+
+        menuitem_node['children'] = children
+
+    return menuitem_node
+
+
+def _build_dynatree(site):
+    """Returns a dynatree hash representation of our pages and menu
+    hierarchy."""
+    subtree = _pages_subtree(site.doc_root, site.default_language)
+    subtree['activate'] = True
+    pages_node = {
+        'title': 'Pages',
+        'key': 'system:pages',
+        'expand': True,
+        'icon': 'fatcow/folders_explorer.png',
+        'children': [subtree, ],
+    }
+
+    language = site.default_language
+    menus = []
+    for menu in Menu.objects.filter(site=site):
+        items = []
+        for item in menu.first_level.all():
+            items.append(_menuitem_subtree(item, language))
+
+        menus.append({
+            'title': menu.name,
+            'key': 'menu:%d' % menu.id,
+            'expand': True,
+            'children':items,
+        })
+
+    menus_node = {
+        'title': 'Menus',
+        'key': 'system:menus',
+        'expand': True,
+        'icon': 'fatcow/folders_explorer.png',
+        'children': menus,
+    }
+
+    tree = [pages_node, menus_node]
+    return tree
+
+# ============================================================================
+# Control Panel: Site Methods
+# ============================================================================
+
+def get_sites(request):
+    sites = Site.objects.all().order_by('id')
+    data = {}
+    for site in sites:
+        data[site.id] = site.name
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+# ============================================================================
+# Control Panel: Tree Methods
+# ============================================================================
+
+def full_tree(request, site_id):
+    site = get_object_or_404(Site, id=site_id)
+    tree = _build_dynatree(site)
+
+    return HttpResponse(json.dumps(tree), content_type='application/json')
+
+
+def full_tree_default_site(request):
+    # pick the first site and return it
+    sites = Site.objects.all()
+    if len(sites) == 0:
+        return HttpResponse(json.dumps([]), content_type='application/json')
+
+    return full_tree(request, sites[0].id)

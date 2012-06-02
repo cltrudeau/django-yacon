@@ -28,11 +28,16 @@ function load_folder_toolbar() {
             $('#add_path_dialog').dialog("open");
         }
     });
-    $('#add_path').hide()
-
 }
 
 function load_metapage_toolbar() {
+    $('#add_menuitem').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_menuitem_dialog').dialog("open");
+        }
+    });
+
     $('#remove_page_warn').button().click(function() {
         var node_id = active_node_id();
         if( node_id != null ) {
@@ -49,7 +54,6 @@ function load_metapage_toolbar() {
             $('#add_translation_dialog').dialog("open");
         }
     });
-    $('#add_translation').hide()
 
     $('#make_default_page').button().click(function() {
         var node_id = active_node_id();
@@ -67,6 +71,74 @@ function load_metapage_toolbar() {
                     }
                 });
             }
+        }
+    });
+}
+
+function load_menu_toolbars() {
+    $('#remove_menu_warn').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            // get the warning about the metapage to remove
+            var dialog = $('#remove_menu_dialog');
+            dialog.load("/yacon/nexus/remove_menu_warn/" + node_id + "/");
+            dialog.dialog("open");
+        }
+    });
+
+    $('#remove_menuitem_warn').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            // get the warning about the metapage to remove
+            var dialog = $('#remove_menuitem_dialog');
+            dialog.load("/yacon/nexus/remove_menuitem_warn/" + node_id + "/");
+            dialog.dialog("open");
+        }
+    });
+
+    $('#add_menuitem_translation').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_menuitem_translation_dialog').dialog("open");
+        }
+    });
+
+    $('#menuitem_move_out').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $.ajax({
+                url: "/yacon/nexus/move_menuitem_out/" + node_id + "/",
+                dataType: "json",
+                success: function(data) {
+                    refresh_tree();
+                }
+            });
+        }
+    });
+
+    $('#menuitem_move_up').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $.ajax({
+                url: "/yacon/nexus/move_menuitem_up/" + node_id + "/",
+                dataType: "json",
+                success: function(data) {
+                    refresh_tree();
+                }
+            });
+        }
+    });
+
+    $('#menuitem_move_down').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $.ajax({
+                url: "/yacon/nexus/move_menuitem_down/" + node_id + "/",
+                dataType: "json",
+                success: function(data) {
+                    refresh_tree();
+                }
+            });
         }
     });
 }
@@ -105,7 +177,6 @@ function load_site_toolbar() {
     $('#add_site_lang').button().click(function() {
         $('#add_site_lang_dialog').dialog("open");
     });
-    $('#add_site_lang').hide();
 }
 
 function load_toolbars() {
@@ -113,4 +184,5 @@ function load_toolbars() {
     load_metapage_toolbar();
     load_site_sidebar();
     load_site_toolbar();
+    load_menu_toolbars();
 }

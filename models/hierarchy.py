@@ -24,7 +24,16 @@ class BadSlug(exceptions.Exception):
 # Hierarchy Management
 # ============================================================================
 
-class Node(MP_Node, TimeTrackedModel):
+class BaseNode(MP_Node, TimeTrackedModel):
+    class Meta:
+        abstract = True
+        app_label = 'yacon'
+
+    def has_children(self):
+        return self.get_children_count() > 0
+
+
+class Node(BaseNode):
     """A Site object represents a collection of page hiearchies and menus that
     are represented as a series of trees.  The Node object is a single node in
     one of those trees.
@@ -45,8 +54,6 @@ class Node(MP_Node, TimeTrackedModel):
     around formatting of slugs, etc.  
     """
     site = models.ForeignKey('yacon.Site')
-    default_metapage = models.ForeignKey('yacon.MetaPage', blank=True, 
-        null=True, related_name='+')
 
     class Meta:
         app_label = 'yacon'
@@ -127,6 +134,20 @@ class Node(MP_Node, TimeTrackedModel):
     def slug(self):
         """Returns the slug for this Node in the Site's default translation"""
         return self.get_slug()
+
+    @property
+    def has_missing_translations(self):
+        """Returns True if there are languages in the site that there are no
+        translations for in this node."""
+        return self.nodetranslation_set.count() != self.site.language_count()
+
+    @property
+    def default_metapage(self):
+        mps = self.metapage_set.filter(is_node_default=True)
+        if len(mps) == 0:
+            return None
+
+        return mps[0]
 
     def get_default_page(self, language):
         """If this Node has an associated default MetaPage item return a
@@ -259,9 +280,6 @@ class Node(MP_Node, TimeTrackedModel):
             path += slug + '/'
         return path
 
-    def has_children(self):
-        return self.get_children_count() > 0
-
 
 class NodeTranslation(TimeTrackedModel):
     """Stores translations of Node names and slugs according to Language
@@ -281,7 +299,7 @@ class NodeTranslation(TimeTrackedModel):
 # ============================================================================
 # Menu Management
 
-class MenuItem(MP_Node, TimeTrackedModel):
+class MenuItem(BaseNode):
     """A MenuItem is a node in a hierarchy that is displayed to the user,
     typically for navigation, that is independent of the document hierarchy.
     A MenuItem can be "clickable" and associated with a Metapage, or not
@@ -292,18 +310,93 @@ class MenuItem(MP_Node, TimeTrackedModel):
     menu the user is.  If you want the same content to show up in two
     MenuItems then create a Metapage alias.
     """
-    metapage = models.ForeignKey('yacon.MetaPage', blank=True, null=True,
+    metapage = models.OneToOneField('yacon.MetaPage', blank=True, null=True,
         unique=True)
+    menu = models.ForeignKey('yacon.Menu')
 
     class Meta:
         app_label = 'yacon'
 
+    def __unicode__(self):
+        return 'MenuItem(id=%s)' % self.id
+
     def create_child(self, metapage, translations={}):
-        child = self.add_child(metapage=metapage)
+        child = self.add_child(metapage=metapage, menu=self.menu)
         for key, value in translations.items():
             MenuItemTranslation.objects.create(language=key, name=value, 
                 menuitem=child)
         return child
+
+    # --------------------
+    # Translation Access Methods
+    def get_translation(self, language):
+        """Returns a MenuItemTranslation object for this MenuItem in the given 
+        language.
+
+        :param language: Language for the corresponding translation
+
+        :returns: MenuItemTranslation object or None
+        """
+        try:
+            return MenuItemTranslation.objects.get(menuitem=self, 
+                language=language)
+        except MenuItemTranslation.DoesNotExist:
+            return None
+
+    def get_translations(self, ignore_default=False):
+        """Returns a list of MenuItemTranslation objects representing the 
+        for this MenuItem.
+
+        :param ignore_default: if True the default language will not be
+            returned in the list; defaults to False
+
+        :returns: list of MenuItemTranslation objects
+        """
+        try:
+            txs = MenuItemTranslation.objects.filter(menuitem=self)
+            if ignore_default:
+                txs = txs.exclude(language=self.menu.site.default_language)
+
+            return txs
+
+        except MenuItemTranslation.DoesNotExist:
+            return None
+
+    def get_default_translation(self):
+        """Returns the MenuItemTranslation object for the site default language
+
+        :returns: MenuItemTranslation object or None
+        """
+        try:
+            return MenuItemTranslation.objects.get(menuitem=self, 
+                language=self.menu.site.default_language)
+        except MenuItemTranslation.DoesNotExist:
+            return None
+
+    @property
+    def has_missing_translations(self):
+        """Returns True if there are languages in the site that there are no
+        translations for in this metapage."""
+        return (self.menuitemtranslation_set.count() != 
+            self.node.site.language_count())
+
+    @property
+    def can_move_out(self):
+        """Returns True if this item is not at root depth."""
+        depth = self.get_depth() 
+        return depth != 1
+
+    @property
+    def can_move_up(self):
+        """Returns True if this item is not the first sibling."""
+        first = self.get_first_sibling() 
+        return first != self
+
+    @property
+    def can_move_down(self):
+        """Returns True if this item is not the last sibling."""
+        last = self.get_last_sibling() 
+        return last != self
 
 
 class Menu(TimeTrackedModel):
@@ -313,11 +406,13 @@ class Menu(TimeTrackedModel):
     """
     name = models.CharField(max_length=30)
     site = models.ForeignKey('yacon.Site')
-    first_level = models.ManyToManyField(MenuItem)
+
+    @property
+    def first_level(self):
+        return MenuItem.objects.filter(menu=self, depth=1)
 
     def create_child(self, metapage, translations={}):
-        item = MenuItem.add_root(metapage=metapage)
-        self.first_level.add(item)
+        item = MenuItem.add_root(metapage=metapage, menu=self)
         for key, value in translations.items():
             MenuItemTranslation.objects.create(language=key, name=value, 
                 menuitem=item)
@@ -333,3 +428,18 @@ class MenuItemTranslation(TimeTrackedModel):
 
     class Meta:
         app_label = 'yacon'
+
+    def __unicode__(self):
+        return 'MenuItemTranslation: %s (%s)' % (self.name, self.language.code)
+
+    @property 
+    def page(self):
+        """Returns the Page that corresponds to this language for the MetaPage
+        that this item's menuitem points to.  Essentially, where this item
+        points."""
+        if hasattr(self, '_cached_page'):
+            return self._cached_page
+
+        self._cached_page = self.menuitem.metapage.get_translation(
+            self.language)
+        return self._cached_page

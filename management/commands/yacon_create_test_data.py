@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 }),
             ]
         )
-        site.doc_root.default_metapage = mp
+        mp.make_default_for_node()
         site.doc_root.save()
         menu1.create_child(mp)
         sub_menu = menu1.create_child(None, { english:'Sub Menu1' })
@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 }),
             ]
         )
-        health.default_metapage = mp
+        mp.make_default_for_node()
         health.save()
         sub_menu.create_child(mp)
 
@@ -167,7 +167,7 @@ class Command(BaseCommand):
                     bt_poll:lepoll.content,
                 })
             ])
-        sub_menu.create_child(smoking, {english:'Puffing'})
+        sub_menu.create_child(smoking, {english:'Puffing', french:'Le Puffing'})
 
         # Smoking alias in Fitness
         smoking.create_alias(fitness)

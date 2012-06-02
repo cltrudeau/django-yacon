@@ -1,3 +1,14 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#site_toolbar').show();
+
+        {% if site.has_missing_languages %}
+            $('#add_site_lang').show();
+        {% else %}
+            $('#add_site_lang').hide();
+        {% endif %}
+    });
+</script>
 <div class="node" id="{{site.id}}">
     <h2> 
         Site Info for: {{site.name}} 

@@ -215,6 +215,16 @@ class Site(TimeTrackedModel):
             self.default_language = language
             self.save()
 
+    def language_count(self):
+        """Returns number of translations for this site."""
+        return self.alternate_language.all().count() + 1
+
+    def has_missing_languages(self):
+        """Returns True if there are defined languages that aren't assigned to
+        this site."""
+        langs = Language.objects.all().count()
+        return langs != self.language_count()
+
     # -----------------------------------------------------------------------
     # Search Methods
 

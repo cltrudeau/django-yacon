@@ -1,0 +1,24 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#menu_toolbar').show();
+    });
+</script>
+
+<div class="node" id="{{menu.id}}">
+    <h2> Menu Info for: {{menu.name|safe}} </h2>
+
+    <ul>
+        <li>
+            Menu ID: {{menu.id}}
+        </li>
+        <li>
+            Menu Name: {{menu.name}}
+        </li>
+        <li>
+            Created: {{menu.created}}
+        </li>
+        <li>
+            Last Updated: {{menu.updated}}
+        </li>
+    </ul>
+</div>

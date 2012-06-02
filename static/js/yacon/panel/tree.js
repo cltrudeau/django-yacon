@@ -12,39 +12,14 @@ function create_tree() {
             var node_type = pieces[0];
             var node_id = pieces[1];
 
-            var link = '/yacon/nexus/metapage_info/';
-            if( node_type == 'node' )
-                link = '/yacon/nexus/node_info/';
-
-            link += "" + node_id + "/";
-
-            $("div#node_container").load(link);
-
-            // show the appropriate action bar
-            if( node_type == 'node') {
-                $('#folder_toolbar').show();
-                $.ajax({
-                    url: '/yacon/nexus/missing_node_translations/' + 
-                        node_id +'/',
-                    success: function(data) {
-                        if( count_keys(data) != 0 ) {
-                            $('#add_path').show()
-                        }
-                    },
-                });
+            if( node_type == 'system') {
+                // system node, show a blank page
+                $("div#node_container").html('');
             }
-            if( node_type == 'metapage') {
-                // action is a metapage
-                $('#metapage_toolbar').show();
-                $.ajax({
-                    url: '/yacon/nexus/missing_metapage_translations/' + 
-                        node_id +'/',
-                    success: function(data) {
-                        if( count_keys(data) != 0 ) {
-                            $('#add_translation').show()
-                        }
-                    },
-                });
+            else {
+                // non-system node, show the corresponding link
+                $("div#node_container").load('/yacon/nexus/' + node_type 
+                    + '_info/' + node_id + "/");
             }
         },
         onPostInit: function(isReloading, isError) {
