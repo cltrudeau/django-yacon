@@ -1,3 +1,4 @@
 - removing a translation effects the alias without warning the user
 - removing a translation from an alias shouldn't be possible
 - add way of adding a Menu
+- no way of renaming menu items or their translations
