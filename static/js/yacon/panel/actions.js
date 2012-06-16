@@ -30,8 +30,15 @@ function remove_path(translation_id) {
     dialog.dialog("open");
 }
 
-function remove_page_translation(page_id, title) {
-    action = confirm('Remove translation \"' + title + '"?');
+function remove_page_translation(page_id, title, has_alias) {
+    if( has_alias == 'True' ) {
+        action = confirm('Translation \"' + title + '" is aliased, are you '
+            + 'sure you want to remove it?');
+    }
+    else {
+        action = confirm('Remove translation \"' + title + '"?');
+    }
+
     if( action ) {
         $.ajax({
             url: "/yacon/nexus/remove_page_translation/" + page_id + "/",

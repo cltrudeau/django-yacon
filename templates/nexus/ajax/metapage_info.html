@@ -71,9 +71,11 @@
                 "{{default_page.title}}" ({{default_page.language.code}})
                 {% if default_page.uri %}
                     <a href="{{default_page.uri}}">(view)</a>&nbsp;
-                    <a href="javascript:void(0);"
-onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|escapejs}}')">
-                        (delete)</a>
+                    {% if not metapage.alias %}
+                        <a href="javascript:void(0);"
+onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|escapejs}}', '{{default_page.metapage.has_alias}}')">
+                            (delete)</a>
+                    {% endif %}
                 {% else %}
                     (<i>unreachable</i>)
                 {% endif %}
@@ -130,9 +132,11 @@ onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|esca
             <li>
                 "{{page.title}}" ({{page.language.code}})
                 <a href="{{page.uri}}">(view)</a>
-                <a href="javascript:void(0);"
-    onclick="remove_page_translation({{page.id}}, '{{page.title|escapejs}}')">
-                    (delete)</a>
+                {% if not metapage.alias %}
+                    <a href="javascript:void(0);"
+    onclick="remove_page_translation({{page.id}}, '{{page.title|escapejs}}', '{{page.metapage.has_alias}}')">
+                        (delete)</a>
+                {% endif %}
             </li>
             <ul>
                 <li>

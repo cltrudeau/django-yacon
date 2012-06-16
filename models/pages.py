@@ -512,6 +512,11 @@ class MetaPage(TimeTrackedModel):
 
         return self.alias
 
+    @property
+    def has_alias(self):
+        aliases = MetaPage.objects.filter(alias=self)
+        return len(aliases) != 0
+
     # -------------------------------------------
     # Search Methods
 
