@@ -32,8 +32,9 @@ function remove_path(translation_id) {
 
 function remove_page_translation(page_id, title, has_alias) {
     if( has_alias == 'True' ) {
-        action = confirm('Translation \"' + title + '" is aliased, are you '
-            + 'sure you want to remove it?');
+        action = confirm('Translation \"' + title + '" is aliased.  Removing '
+            + 'the translation will automatically remove it from any aliases. '
+            + 'Are you sure you want to remove it?');
     }
     else {
         action = confirm('Remove translation \"' + title + '"?');
