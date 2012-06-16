@@ -49,7 +49,13 @@
             Owning Menu: {{menuitem.menu.name}} (id={{menuitem.menu.id}})
         </li>
         <li>
-            MetaPage ID: {{menuitem.metapage.id}}
+            MetaPage: 
+            {% if menuitem.metapage %}
+                {{menuitem.metapage.default_title}}&nbsp; 
+                (id={{menuitem.metapage.id}})
+            {% else %}
+                <i>None</i>
+            {% endif %}
         </li>
     </ul>
 

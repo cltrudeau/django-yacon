@@ -488,6 +488,18 @@ class MetaPage(TimeTrackedModel):
         self.save()
 
     # -------------------------------------------
+    # Getters
+    @property
+    def default_title(self):
+        """Returns the title of the Page for this MetaPage in the default
+        translation, or None if there is no such Page."""
+        default_page = self.get_default_translation()
+        if default_page:
+            return default_page.title
+
+        return None
+
+    # -------------------------------------------
     # Alias Methods
     def is_alias(self):
         """Returns True if this MetaPage is an alias of another.
