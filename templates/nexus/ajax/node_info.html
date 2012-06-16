@@ -7,6 +7,12 @@
         {% else %}
             $('#add_path').hide();
         {% endif %}
+
+        {% if default_path == '/' %}
+            $('#remove_folder_warn').hide();
+        {% else %}
+            $('#remove_folder_warn').show();
+        {% endif %}
     });
 </script>
 
