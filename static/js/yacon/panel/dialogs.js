@@ -356,6 +356,17 @@ function load_menu_dialogs() {
             }
         });
     });
+
+    create_dialog_using_tree('#add_menu_dialog', 'Add Menu', 'Add', 
+        function() { // url generator
+            var site_id = $('#site_select').val();
+            var name = $('#add_menu_name').val();
+            return "/yacon/nexus/add_menu/" + site_id + "/" + name + "/";
+        },
+        function(data) { // on success of ajax call
+            refresh_tree();
+        }
+    );
 }
 
 function load_dialogs() {

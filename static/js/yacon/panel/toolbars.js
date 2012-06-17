@@ -179,10 +179,18 @@ function load_site_toolbar() {
     });
 }
 
+function load_menucontrol_toolbar() {
+    // *** Menu Control Toolbar -- toolbar when Menus root is displayed
+    $('#add_menu').button().click(function() {
+        $('#add_menu_dialog').dialog("open");
+    });
+}
+
 function load_toolbars() {
     load_folder_toolbar();
     load_metapage_toolbar();
     load_site_sidebar();
     load_site_toolbar();
+    load_menucontrol_toolbar();
     load_menu_toolbars();
 }

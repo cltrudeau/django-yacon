@@ -343,6 +343,16 @@ def page_types(request):
 # MenuItem Toolbar Dialog Box Methods
 # ============================================================================
 
+def add_menu(request, site_id, name):
+    """Adds a new Menu."""
+    site = get_object_or_404(Site, id=site_id)
+    name = urllib.unquote(name)
+
+    data = {}
+    Menu.objects.create(name=name, site=site)
+    return HttpResponse()
+
+
 def add_menuitem_translation(request, menuitem_id, lang, name):
     """Adds a translation to the given MetaPage."""
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)

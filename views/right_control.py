@@ -153,6 +153,11 @@ def missing_metapage_translations(request, metapage_id):
 # Control Panel: Menu Selected Methods
 # ============================================================================
 
+def menus_control(request):
+    return render_to_response('nexus/ajax/menus_control.html', {}, 
+        context_instance=RequestContext(request))
+
+
 def menu_info(request, menu_id):
     menu = get_object_or_404(Menu, id=menu_id)
 

@@ -46,6 +46,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/site_info/(\d+)/$', 'site_info'),
         (r'^nexus/node_info/(\d+)/$', 'node_info'),
         (r'^nexus/metapage_info/(\d+)/$', 'metapage_info'),
+        (r'^nexus/menus_control/$', 'menus_control'),
         (r'^nexus/menu_info/(\d+)/$', 'menu_info'),
         (r'^nexus/menuitem_info/(\d+)/$', 'menuitem_info'),
         (r'^nexus/missing_node_translations/(\d+)/$', 
@@ -96,6 +97,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/add_site/(.*)/(.*)/(.*)/$', 'add_site'),
 
         # menu dialogs
+        (r'^nexus/add_menu/(\d+)/(.*)/$', 'add_menu'),
         (r'^nexus/remove_menu_warn/(\d+)/$', 'remove_menu_warn'),
         (r'^nexus/remove_menu/(\d+)/$', 'remove_menu'),
 

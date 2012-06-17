@@ -12,9 +12,13 @@ function create_tree() {
             var node_type = pieces[0];
             var node_id = pieces[1];
 
-            if( node_type == 'system') {
+            if( node_type == 'system' && node_id == 'pages') {
                 // system node, show a blank page
                 $("div#node_container").html('');
+            }
+            else if( node_type == 'system' && node_id == 'menus') {
+                // load the menus page
+                $("div#node_container").load('/yacon/nexus/menus_control/');
             }
             else {
                 // non-system node, show the corresponding link

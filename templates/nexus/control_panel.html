@@ -63,6 +63,9 @@
         <div id="site_toolbar">
             <button id="add_site_lang">Add Language</button>
         </div>
+        <div id="menucontrol_toolbar">
+            <button id="add_menu">Add Menu</button>
+        </div>
         <div id="menu_toolbar">
             <button id="remove_menu_warn">Remove Menu</button>
         </div>
@@ -357,6 +360,22 @@
                 <td>
                     <select id="add_menuitem_menu">
                     </select>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_menu_dialog">
+    <p>
+        Enter a name for the new menu:
+    </p>
+    <form id="add_menu_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_menu_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_menu_name" /> 
                 </td>
             </tr>
         </table>
