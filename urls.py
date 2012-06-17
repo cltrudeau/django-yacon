@@ -108,6 +108,10 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/remove_menuitem/(\d+)/$', 'remove_menuitem'),
         (r'^nexus/add_menuitem_translation/(\d+)/(.*)/(.*)/$', 
             'add_menuitem_translation'),
+        (r'^nexus/rename_menuitem_translation/(\d+)/(.*)/$', 
+            'rename_menuitem_translation'),
+        (r'^nexus/create_menuitem_translation/(\d+)/(.*)/(.*)/$', 
+            'create_menuitem_translation'),
     )
 
 if settings.YACON_TESTS_ENABLED:

@@ -1,4 +1,11 @@
 <script type="text/JavaScript">
+    function rename_dialog(id, name, lang) {
+        $('#rename_menuitem_translation_id').val(id);
+        $('#rename_menuitem_translation_name').val(name);
+        $('#relang_menuitem_translation_lang').val(lang);
+        $('#rename_menuitem_translation_dialog').dialog('open');
+    }
+
     $(document).ready(function(){
         $('#menuitem_toolbar').show();
 
@@ -62,25 +69,26 @@
     <h3>Contents</h3>
 
     <ul>
-        {% if default_translation %}
-            <li> 
+        <li> 
+            {% if default_translation %}
                 "{{default_translation.name}}" 
                     ({{default_translation.language.code}})
                 {% if default_translation.page.uri %}
                     <a href="{{default_translation.page.uri}}">(view)</a>&nbsp;
                     <a href="javascript:void(0);"
-onclick="remove_menuitem_translation({{default_translation.id}}, '{{default_translation.name|escapejs}}')">
-                        (delete)</a>
+    onclick="remove_menuitem_translation({{default_translation.id}}, '{{default_translation.name|escapejs}}')">
+                        (delete)&nbsp;</a>
                 {% else %}
-                    (<i>unreachable</i>)
+                    (<i>unreachable</i>)&nbsp;
                 {% endif %}
-            </li>
-        {% else %}
-            <li> 
-                <i>No Default Translation 
-                    ({{menuitem.menu.site.default_language.code}})</i>
-            </li>
-        {% endif %}
+            {% else %}
+                    <i>No Default Translation 
+                        ({{menuitem.menu.site.default_language.code}})</i>
+            {% endif %}
+            <a href="javascript:void(0);"
+onclick="rename_dialog({{default_translation.id|default:"''"}}, '{{default_translation.name|escapejs}}', '{{menuitem.menu.site.default_language.code|escapejs}}')">
+                (rename)</a>
+        </li>
         {% for item in translated_items %}
             <li> 
                 "{{item.name}}" 
@@ -93,6 +101,9 @@ onclick="remove_menuitem_translation({{item.id}}, '{{item.name|escapejs}}')">
                 {% else %}
                     (<i>unreachable</i>)
                 {% endif %}
+                <a href="javascript:void(0);"
+                onclick="rename_dialog({{item.id|default:"''"}}, '{{item.name|escapejs}}', '{{item.language.code|escapejs}}')">
+                    (rename)</a>
             </li>
 
         {% empty %}

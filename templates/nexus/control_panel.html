@@ -381,4 +381,25 @@
         </table>
     </form>
 </div>
+
+<div id="rename_menuitem_translation_dialog">
+    <p>
+        Change the name for this translation:
+    </p>
+    <form id="rename_menuitem_translation_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="rename_menuitem_translation_name">Name</label> 
+                </th>
+                <td> 
+                    <input type="text" name="name" 
+                        id="rename_menuitem_translation_name" /> 
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" id="rename_menuitem_translation_id" /> 
+        <input type="hidden" id="rename_menuitem_translation_lang" /> 
+    </form>
+</div>
 {% endblock content %}

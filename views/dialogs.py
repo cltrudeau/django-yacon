@@ -394,6 +394,35 @@ def add_menuitem(request, menu_id, metapage_id, name):
         
     return HttpResponse()
 
+
+def rename_menuitem_translation(request, translation_id, name):
+    """Renames the given translation item."""
+    name = urllib.unquote(name)
+    tx = get_object_or_404(MenuItemTranslation, id=translation_id)
+    tx.name = name
+    tx.save()
+
+    return HttpResponse()
+
+
+def create_menuitem_translation(request, menuitem_id, lang, name):
+    """Renames the given translation item."""
+    name = urllib.unquote(name)
+    menuitem = get_object_or_404(MenuItem, id=menuitem_id)
+
+    data = {}
+    try:
+        langs = menuitem.menu.site.get_languages(lang)
+        if len(langs) == 0:
+            raise ValueError('Bad language selected')
+
+        MenuItemTranslation.objects.create(menuitem=menuitem, name=name,
+            language=langs[0])
+    except ValueError, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
 # ============================================================================
 # Inline Action Dialog Methods
 # ============================================================================

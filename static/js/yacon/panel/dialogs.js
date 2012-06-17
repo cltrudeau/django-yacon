@@ -367,6 +367,28 @@ function load_menu_dialogs() {
             refresh_tree();
         }
     );
+
+    create_dialog_using_tree('#rename_menuitem_translation_dialog', 
+            'Rename Translation', 'Rename', 
+        function() { // url generator
+            var menuitem_id = active_node_id();
+            var tx_id = $('#rename_menuitem_translation_id').val();
+            var name = $('#rename_menuitem_translation_name').val();
+            var lang = $('#rename_menuitem_translation_lang').val();
+
+            if( tx_id != '' ) {
+                return "/yacon/nexus/rename_menuitem_translation/" + tx_id 
+                    + "/" + name + "/";
+            }
+            else {
+                return "/yacon/nexus/create_menuitem_translation/" 
+                    + menuitem_id + "/" + lang + "/" + name + "/";
+            }
+        },
+        function(data) { // on success of ajax call
+                refresh_tree();
+        }
+    );
 }
 
 function load_dialogs() {
