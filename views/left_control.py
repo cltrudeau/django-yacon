@@ -128,6 +128,7 @@ def _build_dynatree(site):
             'title': menu.name,
             'key': 'menu:%d' % menu.id,
             'expand': True,
+            'icon': 'fatcow/folders.png',
             'children':items,
         })
 
