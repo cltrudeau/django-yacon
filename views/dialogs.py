@@ -354,7 +354,7 @@ def add_menu(request, site_id, name):
 
 
 def add_menuitem_translation(request, menuitem_id, lang, name):
-    """Adds a translation to the given MetaPage."""
+    """Adds a translation to the given menu item."""
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
     name = urllib.unquote(name)
 

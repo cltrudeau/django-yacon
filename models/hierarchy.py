@@ -377,8 +377,12 @@ class MenuItem(BaseNode):
     def has_missing_translations(self):
         """Returns True if there are languages in the site that there are no
         translations for in this metapage."""
-        return (self.menuitemtranslation_set.count() != 
-            self.node.site.language_count())
+        txs = self.menuitemtranslation_set.count()
+        langs = self.menu.site.language_count()
+        print 'has_missing_tx tx: ', txs
+        print 'has_missing_tx lang: ', langs
+
+        return txs != langs
 
     @property
     def can_move_out(self):
