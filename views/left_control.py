@@ -40,15 +40,7 @@ def _pages_subtree(node, language):
         'expand': True,
     }
 
-    if node.has_children():
-        children = []
-        for child in node.get_children():
-            subtree = _pages_subtree(child, language)
-            children.append(subtree)
-
-        node_hash['children'] = children
-
-    # leaf node, check for pages
+    # check for pages at this level
     metapages = MetaPage.objects.filter(node=node)
     if len(metapages) != 0:
         children = []
@@ -68,6 +60,18 @@ def _pages_subtree(node, language):
                 'icon': icon,
             }
             children.append(page_hash)
+
+        if 'children' in node_hash:
+            node_hash['children'].extend(children)
+        else:
+            node_hash['children'] = children
+
+    # process any children of this level
+    if node.has_children():
+        children = []
+        for child in node.get_children():
+            subtree = _pages_subtree(child, language)
+            children.append(subtree)
 
         if 'children' in node_hash:
             node_hash['children'].extend(children)
