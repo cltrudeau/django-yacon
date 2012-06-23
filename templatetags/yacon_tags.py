@@ -65,7 +65,7 @@ def _render_block_by_key(context, tag_name, key):
         return (False, templates['exception'].render(context))
 
 
-def _render_menuitem(menuitem, language, selected, indent):
+def _render_menuitem(menuitem, language, selected, last, separator, indent):
     spacing = indent * '    '
     results = []
     translations = menuitem.menuitemtranslation_set.filter(language=language)
@@ -92,7 +92,10 @@ def _render_menuitem(menuitem, language, selected, indent):
     if menuitem.metapage == selected:
         li_class = ' class="selected"'
 
-    li = '%s<li%s> %s</li>' % (spacing, li_class, content)
+    if last:
+        separator = ''
+
+    li = '%s<li%s> %s%s</li>' % (spacing, li_class, content, separator)
     results.append(li)
 
     children = menuitem.get_children()
@@ -161,16 +164,20 @@ def editable_block_by_key(context, key):
 
 
 @register.simple_tag(takes_context=True)
-def menu(context, name):
-    """Returns a <ul> representation of the named menu."""
-    results = ['<ul>']
+def menu(context, name, separator=''):
+    """Returns the <li> and nested <ul> representation of the named menu.
+    Note that this does not include the surround <ul> tags, this is on purpose
+    so that you can add content in the templates."""
+    results = []
 
     menu = Menu.objects.get(site=context['site'], name=name)
     page = context['page']
-    for item in menu.first_level.all():
-        results.append(_render_menuitem(item, page.language, page.metapage, 1))
+    items = list(menu.first_level.all())
+    for item in items:
+        last = item == items[-1]
+        results.append(_render_menuitem(item, page.language, page.metapage, 
+            last, separator, 1))
 
-    results.append('</ul>')
     return '\n'.join(results)
 
 
