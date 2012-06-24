@@ -259,6 +259,29 @@ class Page(TimeTrackedModel):
         # if you get here than no exact matches an no aliased matches
         return None
 
+    @classmethod
+    def find_by_page_type(cls, page_type, language=None):
+        """Returns all of the pages for the given page_type.  If the language
+        parameter is provided then the results are restricted to just that
+        language.
+
+        :param page_type: returns pages that have this PageType object
+        :param language: optional language to restrict the search by
+
+        :returns: list of Page objects
+        """
+        pages = []
+        metapages = MetaPage.objects.filter(_page_type=page_type)
+        for metapage in metapages:
+            if language:
+                page = metapage.get_translation(language)
+                if page:
+                    pages.append(page)
+            else:
+                pages.extend(metapage.get_translations())
+
+        return pages
+
     def other_translations(self):
         """Returns a list of Page objects that represent other translations
         for this page.

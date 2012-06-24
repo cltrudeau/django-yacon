@@ -4,6 +4,7 @@
 import urllib, logging
 from functools import wraps
 
+from django.conf import settings
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse
@@ -12,6 +13,11 @@ from yacon.models.site import Site
 from yacon.models.pages import Block
 
 logger = logging.getLogger(__name__)
+
+# ============================================================================
+# Constants
+
+PAGE_CONTEXT = None
 
 # ============================================================================
 # Generic Page Display Views
@@ -36,6 +42,31 @@ def display_page(request, uri=''):
         'request':request,
         'uri':uri,
     }
+
+    if settings.YACON_PAGE_CONTEXT:
+        global PAGE_CONTEXT
+        if not PAGE_CONTEXT:
+            try:
+                logger.debug('about to import %s' % settings.YACON_PAGE_CONTEXT)
+
+                fn_name = None
+                mod_name = None
+                parts = settings.YACON_PAGE_CONTEXT.split('.')
+                fn_name = parts[-1]
+                mod_name = '.'.join(parts[:-1])
+
+                mod = __import__(mod_name, globals(), locals(), [fn_name])
+                logger.debug('mod import successful')
+
+                PAGE_CONTEXT = getattr(mod, fn_name)
+            except Exception, e:
+                msg = ('importing YACON_PAGE_CONTEXT caused exception, setting:'
+                    '"%s", module name:"%s", function name: "%s"' % (
+                    settings.YACON_PAGE_CONTEXT, mod_name, fn_name))
+                logger.exception(msg)
+                raise e
+
+        PAGE_CONTEXT(request, uri, data)
 
     return render_to_response(page.metapage.page_type.template, data, 
         context_instance=RequestContext(request))
