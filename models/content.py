@@ -2,6 +2,8 @@
 # blame ctrudeau chr(64) arsensa.com
 
 import exceptions, logging, traceback
+
+from django.http import Http404
 from django.template import RequestContext, Template
 from django.utils.safestring import mark_safe
 
@@ -60,6 +62,9 @@ class ContentHandler(object):
         caught and marking what is returned as safe."""
         try:
             return mark_safe(self.internal_render(request, context, block))
+        except Http404, h:
+            # don't want special handling for 404s, just pass them up
+            raise h
         except Exception, e:
             et = e.__class__.__name__
             ot = self.__class__.__name__
@@ -75,6 +80,7 @@ Typical causes are errors in the internal_render() method.
 """ % (ot, et, e)
 
             cre = ContentRenderingException(msg)
+            logger.exception(msg)
             raise cre
 
 
@@ -107,6 +113,9 @@ class DynamicContent(ContentHandler):
         f = getattr(mod, self.parms['function'])
         try:
             return f(request, context, block)
+        except Http404, h:
+            # don't want special handling for 404s, just pass them up
+            raise h
         except Exception, e:
             et = e.__class__.__name__
             msg = \
