@@ -379,8 +379,6 @@ class MenuItem(BaseNode):
         translations for in this metapage."""
         txs = self.menuitemtranslation_set.count()
         langs = self.menu.site.language_count()
-        print 'has_missing_tx tx: ', txs
-        print 'has_missing_tx lang: ', langs
 
         return txs != langs
 

@@ -174,8 +174,6 @@ def move_menuitem_out(request, menuitem_id):
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
     try:
         parent = menuitem.get_parent()
-        print 'menuitem: ', menuitem
-        print 'parent: ', parent
         menuitem.move(parent, 'right')
     except:
         logger.exception('problem moving item out %s', menuitem_id)
