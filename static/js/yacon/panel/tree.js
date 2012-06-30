@@ -14,7 +14,8 @@ function create_tree() {
 
             if( node_type == 'system' && node_id == 'pages') {
                 // system node, show a blank page
-                $("div#node_container").html('');
+                $("div#node_container").html('<p>Click on an item in the ' 
+                    + 'tree to the left.</p>');
             }
             else if( node_type == 'system' && node_id == 'menus') {
                 // load the menus page

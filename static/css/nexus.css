@@ -25,6 +25,12 @@ body {
     height: 600px;
 }
 
+/* One-Column View */
+.inside {
+    height:100%;
+    padding-left: 6px;
+}
+
 /* Two-Column Views */
 .right, .left {
     height:100%;
