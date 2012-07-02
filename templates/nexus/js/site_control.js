@@ -40,11 +40,13 @@ function site_setup() {
             // remove old sites, replace with what server sent
             repopulate_select('#site_select', data);
 
-            // add site actions
-            $('#site_select').append('<option value="nop">' + 
-                '----------</option>');
-            $('#site_select').append('<option value="add">Add Site' +
-                '</option>');
+            {% if not settings.YACON_DISABLE_ADD_SITE %}
+                // add site actions
+                $('#site_select').append('<option value="nop">' + 
+                    '----------</option>');
+                $('#site_select').append('<option value="add">Add Site' +
+                    '</option>');
+            {% endif %}
 
             // turn widget into jquery style drop down, then force a change
             // event

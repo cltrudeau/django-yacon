@@ -32,6 +32,9 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/$', redirect_to, {'url':'/yacon/nexus/control_panel/'}),
         (r'^nexus/control_panel/$', 'control_panel'),
         (r'^nexus/config/$', 'config'),
+        (r'^nexus/js/site_control.js/$', direct_to_template, 
+            {'template':'nexus/js/site_control.js',
+            'mimetype':'application/javascript'}),
     )
 
     # control panel, left pane
