@@ -13,6 +13,7 @@ from django.http import Http404, HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
+from yacon.decorators import superuser_required
 from yacon.models.common import Language
 from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
     Menu, MenuItem, MenuItemTranslation)
@@ -155,6 +156,7 @@ def reachable_from_node(node, language=None, include_aliases=True):
 # Site Dialog Methods
 # ============================================================================
 
+@superuser_required
 def missing_site_languages(request, site_id):
     """Returns a JSON hash of languages in the system but not in the given
     site."""
@@ -170,6 +172,7 @@ def missing_site_languages(request, site_id):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def site_languages(request, site_id):
     """Returns a JSON hash of languages for the given site."""
     site = get_object_or_404(Site, id=site_id)
@@ -183,6 +186,7 @@ def site_languages(request, site_id):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def all_languages(request):
     data = OrderedDict()
     langs = Language.objects.all().order_by('identifier')
@@ -195,6 +199,7 @@ def all_languages(request):
 # Node Toolbar Dialog Box Methods
 # ============================================================================
 
+@superuser_required
 def remove_folder_warn(request, node_id):
     """Ajax call that returns a listing of the nodes and pages that would be
     effected if node with id "node_id" is deleted."""
@@ -211,6 +216,7 @@ def remove_folder_warn(request, node_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def remove_folder(request, node_id):
     """Deletes node with id "node_id" and all of its children.  Unlinks any
     aliases to removed items."""
@@ -220,6 +226,7 @@ def remove_folder(request, node_id):
     return HttpResponse()
 
 
+@superuser_required
 def add_folder(request, node_id, title, slug):
     """Adds a new node underneath the given one."""
     node = get_object_or_404(Node, id=node_id)
@@ -235,6 +242,7 @@ def add_folder(request, node_id, title, slug):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def add_page(request, node_id, page_type_id, title, slug):
     """Adds a new page underneath the given node."""
     node = get_object_or_404(Node, id=node_id)
@@ -251,6 +259,7 @@ def add_page(request, node_id, page_type_id, title, slug):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def add_path(request, node_id, lang, name, slug):
     """Adds a translation path to the given Node."""
     node = get_object_or_404(Node, id=node_id)
@@ -276,6 +285,7 @@ def add_path(request, node_id, lang, name, slug):
 # MetaPage Toolbar Dialog Box Methods
 # ============================================================================
 
+@superuser_required
 def remove_page_warn(request, metapage_id):
     """Ajax call that returns a listing of the translated pages that would be
     effected if metapage with id "metapage_id" is deleted."""
@@ -301,6 +311,7 @@ def remove_page_warn(request, metapage_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def remove_page(request, metapage_id):
     """Deletes metapage with id "metapage_id" and all of its pages.  Unlinks any
     aliases to removed items."""
@@ -310,6 +321,7 @@ def remove_page(request, metapage_id):
     return HttpResponse()
 
 
+@superuser_required
 def add_translation(request, metapage_id, lang, title, slug):
     """Adds a translation to the given MetaPage."""
     metapage = get_object_or_404(MetaPage, id=metapage_id)
@@ -332,6 +344,7 @@ def add_translation(request, metapage_id, lang, title, slug):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def page_types(request):
     data = {}
     for page_type in PageType.objects.all():
@@ -343,6 +356,7 @@ def page_types(request):
 # MenuItem Toolbar Dialog Box Methods
 # ============================================================================
 
+@superuser_required
 def add_menu(request, site_id, name):
     """Adds a new Menu."""
     site = get_object_or_404(Site, id=site_id)
@@ -353,6 +367,7 @@ def add_menu(request, site_id, name):
     return HttpResponse()
 
 
+@superuser_required
 def add_menuitem_translation(request, menuitem_id, lang, name):
     """Adds a translation to the given menu item."""
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
@@ -372,6 +387,7 @@ def add_menuitem_translation(request, menuitem_id, lang, name):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def menu_listing(request, metapage_id):
     """Returns a list of the menus for the site."""
     metapage = get_object_or_404(MetaPage, id=metapage_id)
@@ -383,6 +399,7 @@ def menu_listing(request, metapage_id):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def add_menuitem(request, menu_id, metapage_id, name):
     """Adds a new menuitem to the given menu."""
     menu = get_object_or_404(Menu, id=menu_id)
@@ -395,6 +412,7 @@ def add_menuitem(request, menu_id, metapage_id, name):
     return HttpResponse()
 
 
+@superuser_required
 def rename_menuitem_translation(request, translation_id, name):
     """Renames the given translation item."""
     name = urllib.unquote(name)
@@ -405,6 +423,7 @@ def rename_menuitem_translation(request, translation_id, name):
     return HttpResponse()
 
 
+@superuser_required
 def create_menuitem_translation(request, menuitem_id, lang, name):
     """Renames the given translation item."""
     name = urllib.unquote(name)
@@ -427,6 +446,7 @@ def create_menuitem_translation(request, menuitem_id, lang, name):
 # Inline Action Dialog Methods
 # ============================================================================
 
+@superuser_required
 def remove_path_warn(request, translation_id):
     """Ajax call that returns a listing of the nodes and pages that would be
     effected if translation with id "translation_id" is changed."""
@@ -444,12 +464,14 @@ def remove_path_warn(request, translation_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def remove_path(request, translation_id):
     translation = get_object_or_404(NodeTranslation, id=translation_id)
     translation.delete()
     return HttpResponse()
 
 
+@superuser_required
 def edit_path_warn(request, translation_id):
     """Ajax call that returns a listing of the nodes and pages that would be
     effected if translation with id "translation_id" is changed."""
@@ -467,6 +489,7 @@ def edit_path_warn(request, translation_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def edit_path(request, translation_id, name, slug):
     translation = get_object_or_404(NodeTranslation, id=translation_id)
     slug = urllib.unquote(slug)
@@ -478,6 +501,7 @@ def edit_path(request, translation_id, name, slug):
     return HttpResponse()
 
 
+@superuser_required
 def make_default_metapage(request, metapage_id):
     """Sets the given metapage to be the default page for its parent node."""
     metapage = get_object_or_404(MetaPage, id=metapage_id)
@@ -486,6 +510,7 @@ def make_default_metapage(request, metapage_id):
     return HttpResponse()
 
 
+@superuser_required
 def remove_page_translation(request, page_id):
     """Deletes page with id "page_id"."""
     page = get_object_or_404(Page, id=page_id)
@@ -494,6 +519,7 @@ def remove_page_translation(request, page_id):
     return HttpResponse()
 
 
+@superuser_required
 def remove_menuitem_translation(request, tx_id):
     """Deletes menu item translation with id "tx_id". """
     tx = get_object_or_404(MenuItemTranslation, id=tx_id)
@@ -502,6 +528,7 @@ def remove_menuitem_translation(request, tx_id):
     return HttpResponse()
 
 
+@superuser_required
 def remove_menu_warn(request, menu_id):
     """Ajax call that returns a listing of the menuitems that would be
     effected if menu with id "menu_id" is removed.  """
@@ -522,6 +549,7 @@ def remove_menu_warn(request, menu_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def remove_menuitem_warn(request, menuitem_id):
     """Ajax call that returns a listing of the menuitems that would be
     effected if menuitem with id "menuitem_id" is removed.  """
@@ -539,6 +567,7 @@ def remove_menuitem_warn(request, menuitem_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def remove_menuitem(request, menuitem_id):
     """Deletes menu item with id "menuitem_id". """
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
@@ -547,6 +576,7 @@ def remove_menuitem(request, menuitem_id):
     return HttpResponse()
 
 
+@superuser_required
 def remove_menu(request, menu_id):
     """Deletes menu with id "menu_id". """
     menu = get_object_or_404(Menu, id=menu_id)
@@ -558,6 +588,7 @@ def remove_menu(request, menu_id):
 # Site Management Methods
 # ============================================================================
 
+@superuser_required
 def add_site_lang(request, site_id, identifier):
     site = get_object_or_404(Site, id=site_id)
     identifier = urllib.unquote(identifier)
@@ -572,6 +603,7 @@ def add_site_lang(request, site_id, identifier):
     return HttpResponse()
 
 
+@superuser_required
 def add_site(request, name, domain, lang_identifier):
     name = urllib.unquote(name)
     domain = urllib.unquote(domain)
@@ -596,6 +628,7 @@ def add_site(request, name, domain, lang_identifier):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+@superuser_required
 def edit_site(request, site_id, name, domain, lang_identifier):
     site = get_object_or_404(Site, id=site_id)
     name = urllib.unquote(name)

@@ -9,8 +9,6 @@ from django.views.generic.simple import redirect_to, direct_to_template
 urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # (r'^admin/', include(admin.site.urls)),
-
-    (r'^ajax_submit/$', 'yacon.views.user.ajax_submit'),
 )
 
 if settings.YACON_STATIC_SERVE and (settings.YACON_NEXUS_ENABLED or 

@@ -3,13 +3,14 @@
 <head>
     <title>Admin: {{title}}</title>
     <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
-    {% comment %}
-    <script type="text/JavaScript"
-        src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
-    </script>
-    {% endcomment %}
-    <script type="text/JavaScript" src="/static/js/jquery-1.7.2.min.js">
-    </script>
+    {% if settings.YACON_USE_LOCAL_JQUERY %}
+        <script type="text/JavaScript" src="/static/js/jquery-1.7.2.min.js">
+        </script>
+    {% else %}
+        <script type="text/JavaScript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+        </script>
+    {% endif %}
     <script type="text/JavaScript" 
         src="/static/js/jquery-ui-1.8.19.custom.min.js">
     </script>
@@ -35,6 +36,11 @@
     <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
 </head>
 <body>
+    <div id="menu">
+        <ul>
+            <li><a href="{{settings.LOGOUT_URL}}">Logout</a></li>
+        </ul>
+    </div>
     <div id="container">
         <div id="navbar">
             {% block navbar %}

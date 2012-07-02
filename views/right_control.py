@@ -13,6 +13,7 @@ from django.http import Http404, HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
+from yacon.decorators import superuser_required
 from yacon.models.common import Language
 from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
     MenuItem, MenuItemTranslation)
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Control Panel: Site Info Button Methods
 # ============================================================================
 
+@superuser_required
 def site_info(request, site_id):
     site = get_object_or_404(Site, id=site_id)
 
@@ -40,6 +42,7 @@ def site_info(request, site_id):
 # Control Panel: Node Selected Methods
 # ============================================================================
 
+@superuser_required
 def node_info(request, node_id):
     node = Node.objects.get(id=node_id)
     if node == None:
@@ -84,6 +87,7 @@ def node_info(request, node_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def missing_node_translations(request, node_id):
     """Returns a JSON object hash of languages for which there are no
     translations in this Node."""
@@ -107,6 +111,7 @@ def missing_node_translations(request, node_id):
 # Control Panel: MetaPage Selected Methods
 # ============================================================================
 
+@superuser_required
 def metapage_info(request, metapage_id):
     metapage = get_object_or_404(MetaPage, id=metapage_id)
 
@@ -130,6 +135,7 @@ def metapage_info(request, metapage_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def missing_metapage_translations(request, metapage_id):
     """Returns a JSON object hash of languages for which there are no
     translations in this MetaPage."""
@@ -153,11 +159,13 @@ def missing_metapage_translations(request, metapage_id):
 # Control Panel: Menu Selected Methods
 # ============================================================================
 
+@superuser_required
 def menus_control(request):
     return render_to_response('nexus/ajax/menus_control.html', {}, 
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def menu_info(request, menu_id):
     menu = get_object_or_404(Menu, id=menu_id)
 
@@ -170,6 +178,7 @@ def menu_info(request, menu_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def move_menuitem_out(request, menuitem_id):
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
     try:
@@ -181,6 +190,7 @@ def move_menuitem_out(request, menuitem_id):
     return HttpResponse()
 
 
+@superuser_required
 def move_menuitem_up(request, menuitem_id):
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
     try:
@@ -192,6 +202,7 @@ def move_menuitem_up(request, menuitem_id):
     return HttpResponse()
 
 
+@superuser_required
 def move_menuitem_down(request, menuitem_id):
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
     try:
@@ -206,6 +217,7 @@ def move_menuitem_down(request, menuitem_id):
 # Control Panel: MenuItem Selected Methods
 # ============================================================================
 
+@superuser_required
 def menuitem_info(request, menuitem_id):
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
 
@@ -223,6 +235,7 @@ def menuitem_info(request, menuitem_id):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def missing_menuitem_translations(request, menuitem_id):
     """Returns a JSON object hash of languages for which there are no
     translations in this MenuItem."""

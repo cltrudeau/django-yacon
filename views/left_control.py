@@ -14,6 +14,7 @@ from django.http import Http404, HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
+from yacon.decorators import superuser_required
 from yacon.models.common import Language
 from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
     MenuItemTranslation)
@@ -151,6 +152,7 @@ def _build_dynatree(site):
 # Control Panel: Site Methods
 # ============================================================================
 
+@superuser_required
 def get_sites(request):
     sites = Site.objects.all().order_by('id')
     data = {}
@@ -163,6 +165,7 @@ def get_sites(request):
 # Control Panel: Tree Methods
 # ============================================================================
 
+@superuser_required
 def full_tree(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     tree = _build_dynatree(site)
@@ -170,6 +173,7 @@ def full_tree(request, site_id):
     return HttpResponse(json.dumps(tree), content_type='application/json')
 
 
+@superuser_required
 def full_tree_default_site(request):
     # pick the first site and return it
     sites = Site.objects.all()

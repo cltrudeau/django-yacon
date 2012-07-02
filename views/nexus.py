@@ -15,6 +15,7 @@ from django.http import Http404, HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
+from yacon.decorators import superuser_required
 from yacon.models.common import Language
 from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
     MenuItemTranslation)
@@ -27,6 +28,7 @@ logger = logging.getLogger(__name__)
 # Tab Views
 # ============================================================================
 
+@superuser_required
 def control_panel(request):
     data = {
         'title':'Control Panel',
@@ -36,6 +38,7 @@ def control_panel(request):
         context_instance=RequestContext(request))
 
 
+@superuser_required
 def config(request):
     langs = Language.objects.all().order_by('identifier')
     data = {

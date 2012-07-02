@@ -171,12 +171,18 @@ def menu(context, name, separator=''):
     results = []
 
     menu = Menu.objects.get(site=context['site'], name=name)
-    page = context['page']
+    if 'page' in context:
+        language = context['page'].language
+        select = context['page'].metapage
+    else:
+        language = context['site'].default_language
+        select = None
+
     items = list(menu.first_level.all())
     for item in items:
-        last = item == items[-1]
-        results.append(_render_menuitem(item, page.language, page.metapage, 
-            last, separator, 1))
+        last = (item == items[-1])
+        menuitem = _render_menuitem(item, language, select, last, separator, 1)
+        results.append(menuitem)
 
     return '\n'.join(results)
 
