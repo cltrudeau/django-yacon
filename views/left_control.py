@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # Tree Building Methods
 # ============================================================================
 
-def _pages_subtree(node, language):
+def _pages_subtree(node, language, is_root=False):
     """Returns a hash representation in dynatree format of the node passed in
     and its children."""
     name = '%s (%s)' % (node.name, node.slug)
@@ -32,8 +32,9 @@ def _pages_subtree(node, language):
         'title': name,
         'key': 'node:%d' % node.id,
         'icon': 'fatcow/folder.png',
-        'expand': True,
     }
+    if is_root:
+        node_hash['expand'] = True
 
     # check for pages at this level
     metapages = MetaPage.objects.filter(node=node)
@@ -76,7 +77,7 @@ def _pages_subtree(node, language):
     return node_hash
 
 
-def _menuitem_subtree(menuitem, language):
+def _menuitem_subtree(menuitem, language, is_root=True):
     """Returns a hash representation in dynatree format of the menuitem passed
     in and its children."""
     try:
@@ -89,8 +90,9 @@ def _menuitem_subtree(menuitem, language):
     menuitem_node = {
         'title': name,
         'key': 'menuitem:%d' % menuitem.id,
-        'expand': True,
     }
+    if is_root:
+        menuitem_node['expand'] = True
 
     if menuitem.has_children():
         children = []
@@ -98,6 +100,7 @@ def _menuitem_subtree(menuitem, language):
             subtree = _menuitem_subtree(child, language)
             children.append(subtree)
 
+        menuitem_node['icon'] = 'fatcow/folder.png'
         menuitem_node['children'] = children
 
     return menuitem_node
@@ -106,7 +109,7 @@ def _menuitem_subtree(menuitem, language):
 def _build_dynatree(site):
     """Returns a dynatree hash representation of our pages and menu
     hierarchy."""
-    subtree = _pages_subtree(site.doc_root, site.default_language)
+    subtree = _pages_subtree(site.doc_root, site.default_language, True)
     subtree['activate'] = True
     pages_node = {
         'title': 'Pages',
@@ -121,7 +124,7 @@ def _build_dynatree(site):
     for menu in Menu.objects.filter(site=site):
         items = []
         for item in menu.first_level.all():
-            items.append(_menuitem_subtree(item, language))
+            items.append(_menuitem_subtree(item, language, True))
 
         menus.append({
             'title': menu.name,
