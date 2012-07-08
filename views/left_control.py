@@ -7,11 +7,11 @@
 
 import logging, json
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 
 from yacon.decorators import superuser_required
-from yacon.models.hierarchy import Menu, MenuItemTranslation
+from yacon.models.hierarchy import Node, Menu, MenuItem, MenuItemTranslation
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # Tree Building Methods
 # ============================================================================
 
-def _pages_subtree(node, language, is_root=False):
+def _pages_subtree(node, language, is_root, depth_limit):
     """Returns a hash representation in dynatree format of the node passed in
     and its children."""
     name = '%s (%s)' % (node.name, node.slug)
@@ -35,6 +35,14 @@ def _pages_subtree(node, language, is_root=False):
     }
     if is_root:
         node_hash['expand'] = True
+
+    if depth_limit == 0:
+        # reached as far as we're going to go, just check for kids
+        count = MetaPage.objects.filter(node=node).count()
+        if count != 0 or node.has_children():
+            node_hash['isLazy'] = True
+
+        return node_hash
 
     # check for pages at this level
     metapages = MetaPage.objects.filter(node=node)
@@ -66,7 +74,10 @@ def _pages_subtree(node, language, is_root=False):
     if node.has_children():
         children = []
         for child in node.get_children():
-            subtree = _pages_subtree(child, language)
+            dl = depth_limit
+            if dl != -1:
+                dl = dl - 1
+            subtree = _pages_subtree(child, language, False, dl)
             children.append(subtree)
 
         if 'children' in node_hash:
@@ -77,7 +88,7 @@ def _pages_subtree(node, language, is_root=False):
     return node_hash
 
 
-def _menuitem_subtree(menuitem, language, is_root=True):
+def _menuitem_subtree(menuitem, language, is_root, depth_limit):
     """Returns a hash representation in dynatree format of the menuitem passed
     in and its children."""
     try:
@@ -94,10 +105,21 @@ def _menuitem_subtree(menuitem, language, is_root=True):
     if is_root:
         menuitem_node['expand'] = True
 
+    if depth_limit == 0:
+        # reached as far as we're going to go, check for kids
+        if menuitem.has_children():
+            menuitem_node['isLazy'] = True
+            menuitem_node['icon'] = 'fatcow/folder.png'
+
+        return menuitem_node
+
     if menuitem.has_children():
         children = []
         for child in menuitem.get_children():
-            subtree = _menuitem_subtree(child, language)
+            dl = depth_limit
+            if depth_limit != -1:
+                dl -= 1
+            subtree = _menuitem_subtree(child, language, False, dl)
             children.append(subtree)
 
         menuitem_node['icon'] = 'fatcow/folder.png'
@@ -109,7 +131,7 @@ def _menuitem_subtree(menuitem, language, is_root=True):
 def _build_dynatree(site):
     """Returns a dynatree hash representation of our pages and menu
     hierarchy."""
-    subtree = _pages_subtree(site.doc_root, site.default_language, True)
+    subtree = _pages_subtree(site.doc_root, site.default_language, True, 1)
     subtree['activate'] = True
     pages_node = {
         'title': 'Pages',
@@ -124,7 +146,7 @@ def _build_dynatree(site):
     for menu in Menu.objects.filter(site=site):
         items = []
         for item in menu.first_level.all():
-            items.append(_menuitem_subtree(item, language, True))
+            items.append(_menuitem_subtree(item, language, True, 1))
 
         menus.append({
             'title': menu.name,
@@ -167,6 +189,7 @@ def full_tree(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     tree = _build_dynatree(site)
 
+    print tree
     return HttpResponse(json.dumps(tree), content_type='application/json')
 
 
@@ -178,3 +201,28 @@ def full_tree_default_site(request):
         return HttpResponse(json.dumps([]), content_type='application/json')
 
     return full_tree(request, sites[0].id)
+
+
+@superuser_required
+def sub_tree(request):
+    key = request.GET.get('key')
+    if not key:
+        raise Http404('no key sent')
+
+    (node_type, node_id) = key.split(':')
+    if not node_type or not node_id:
+        raise Http404('bad key sent: "%s"' % key)
+
+    if node_type == 'node':
+        node = get_object_or_404(Node, id=node_id)
+        tree = _pages_subtree(node, node.site.default_language, False, 1)
+        subtree = tree['children']
+    elif node_type == 'menuitem':
+        menuitem = get_object_or_404(MenuItem, id=node_id)
+        tree = _menuitem_subtree(menuitem, menuitem.menu.site.default_language, 
+            False, 1)
+        subtree = tree['children']
+    else:
+        raise Http404('bad node_type sent: "%s"' % node_type)
+
+    return HttpResponse(json.dumps(subtree), content_type='application/json')

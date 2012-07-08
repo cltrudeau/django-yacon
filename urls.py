@@ -44,6 +44,7 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/get_sites/$', 'get_sites'),
         (r'^nexus/full_tree/(\d+)/$', 'full_tree'),
         (r'^nexus/full_tree_default_site/$', 'full_tree_default_site'),
+        (r'^nexus/sub_tree/$', 'sub_tree'),
     )
 
     # control panel, right pane

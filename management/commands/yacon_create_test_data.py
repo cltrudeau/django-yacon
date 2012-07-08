@@ -91,6 +91,8 @@ class Command(BaseCommand):
         site.doc_root.save()
         menu1.create_child(mp)
         sub_menu = menu1.create_child(None, { english:'Sub Menu1' })
+        sm2 = sub_menu.create_child(None, { english:'Sub Menu1.1' })
+        sm2.create_child(None, { english:'Sub Menu1.1.1' })
 
         mp = MetaPage.create_translated_page(health, pt_article, [
             Translation(english,

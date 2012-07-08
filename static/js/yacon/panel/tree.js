@@ -51,6 +51,14 @@ function create_tree() {
         persist: true,
         initAjax: {
             url: init_ajax_url()
+        },
+        onLazyRead: function(node) {
+            node.appendAjax({
+                url:"/yacon/nexus/sub_tree/",
+                data: {
+                    "key":node.data.key
+                }
+            });
         }
     });
 }
