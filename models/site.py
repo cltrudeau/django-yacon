@@ -1,7 +1,5 @@
-# yacon.models.hierarchy.py
-# blame ctrudeau chr(64) arsensa.com
-
-import re, exceptions, logging
+# yacon.models.site.py
+import re, logging
 
 from django.db import models
 from django.shortcuts import get_object_or_404
@@ -210,7 +208,7 @@ class Site(TimeTrackedModel):
         if self.default_language != language:
             if self.alternate_language.filter(id=language.id).count() == 0:
                 # language isn't in the alterante list, add it
-                self.alternate_language.add(site.default_language)
+                self.alternate_language.add(self.default_language)
 
             self.default_language = language
             self.save()

@@ -1,6 +1,4 @@
 # yacon.models.common.py
-# blame ctrudeau chr(64) arsensa.com
-
 import logging
 from django.db import models
 from django.conf import settings

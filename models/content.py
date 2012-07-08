@@ -1,6 +1,4 @@
 # yacon.models.content.py
-# blame ctrudeau chr(64) arsensa.com
-
 import exceptions, logging, traceback
 
 from django.http import Http404

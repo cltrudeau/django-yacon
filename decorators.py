@@ -1,7 +1,5 @@
 # yacon.decorators.py
-# blame ctrudeau chr(64) arsensa.com
 
-import logging
 from functools import wraps
 
 from django.contrib.auth.views import redirect_to_login

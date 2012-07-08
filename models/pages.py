@@ -1,10 +1,7 @@
 # yacon.models.pages.py
-# blame ctrudeau chr(64) arsensa.com
-
 import exceptions, logging
 from django.db import models
 from django.utils import simplejson as json
-from django.core.exceptions import FieldError
 
 from yacon.definitions import SLUG_LENGTH
 from yacon.models.common import Language, TimeTrackedModel

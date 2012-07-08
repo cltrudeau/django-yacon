@@ -1,5 +1,4 @@
 # yacon.tests.py
-# blame ctrudeau chr(64) arsensa.com
 
 from django.utils import unittest
 from django.core import management
@@ -7,7 +6,7 @@ from django.contrib.auth.models import User, Group
 
 from yacon.models.language import Language
 from yacon.models.site import Site, ParsedPath
-from yacon.models.pages import MetaPage, Page, DoubleAliasException
+from yacon.models.pages import Page, DoubleAliasException
 from yacon.models.hierarchy import Node, BadSlug
 from yacon.models.groupsq import GroupOfGroups, OwnedGroupOfGroups
 

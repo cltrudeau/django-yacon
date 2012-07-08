@@ -60,7 +60,7 @@ def _render_block_by_key(context, tag_name, key):
         context['block'] = block
         request = context['request']
         return (True, block.render(request, context))
-    except Exception, e:
+    except Exception:
         context['exception'] = traceback.format_exc()
         return (False, templates['exception'].render(context))
 
@@ -82,7 +82,7 @@ def _render_menuitem(menuitem, language, selected, last, separator, indent):
         else:
             content = '<i>empty translation (%s)</i>' % language.code
             if len(translations) != 0:
-                content = translation[0].name
+                content = translations[0].name
     else:
         if len(translations) == 0:
             content = '<i>empty translation (%s)</i>' % language.code
@@ -102,7 +102,8 @@ def _render_menuitem(menuitem, language, selected, last, separator, indent):
     if len(children) != 0:
         results.append('%s<ul>' % spacing)
         for child in menuitem.get_children():
-            subitems = _render_menuitem(child, language, selected, indent + 1)
+            subitems = _render_menuitem(child, language, selected, last,
+                separator, indent + 1)
             results.append(subitems)
 
         results.append('%s</ul>' % spacing)
@@ -206,6 +207,49 @@ def dynamic_content_by_key(context, key):
         return handler.render(request, context, None)
     except BlockType.DoesNotExist:
         return templates['no_such_block_type'].render(context)
-    except Exception, e:
+    except Exception:
         context['exception'] = traceback.format_exc()
         return templates['exception'].render(context)
+
+
+@register.simple_tag(takes_context=True)
+def tsort(context, name):
+    """Used to produce the ascending/descending links for sorting a table.
+
+    :param name: name of the tag to print the tsort for, if the request object
+        contains a "sort" parameter that matches this name then the links will
+        show selection appropriately
+
+    :returns: html containing links and images for sorting a table
+    """
+    request = context['request']
+    sort = request.GET.get('sort')
+    if not sort:
+        sort = context.get('default_sort')
+    direction = request.GET.get('direction')
+
+    request.path
+
+    lines = [
+        '<a href="%s?sort=%s">' % (request.path, name), 
+        '<img ',
+    ]
+    if sort == name and direction != 'rev':
+        lines.append('class="selected" ')
+
+    lines.extend([
+        'src="/static/icons/fatcow/sort_down.png">',
+        '</a>',
+        '<a href="%s?sort=%s&direction=rev">' % (request.path, name),
+        '<img '
+    ])
+
+    if sort == name and direction == 'rev':
+        lines.append('class="selected" ')
+
+    lines.extend([
+        'src="/static/icons/fatcow/sort_up.png">',
+        '</a>',
+    ])
+
+    return ''.join(lines)

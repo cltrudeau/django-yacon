@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from yacon.models.common import Language
 from yacon.models.site import Site
@@ -9,4 +9,4 @@ class Command(BaseCommand):
         domain='localhost:8000'
 
         language = Language.factory(name='English', identifier='en')
-        site = Site.create_site(name, domain, languages=[language])
+        Site.create_site(name, domain, languages=[language])

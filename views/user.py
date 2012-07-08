@@ -1,17 +1,12 @@
 # yacon.views.user.py
 # blame ctrudeau chr(64) arsensa.com
 
-import urllib, logging
-from functools import wraps
+import logging
 
-from django.conf import settings
 from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
-from django.http import Http404, HttpResponse
+from django.shortcuts import render_to_response
+from django.http import Http404
 
-from yacon.decorators import superuser_required
-from yacon.models.site import Site
-from yacon.models.pages import Block
 from yacon.utils import prepare_context
 
 logger = logging.getLogger(__name__)

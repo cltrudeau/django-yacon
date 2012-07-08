@@ -1,0 +1,22 @@
+Yacon was built on the shoulder of giants, credit for source for non-original 
+code include:
+
+Pacakges
+~~~~~~~~
+    ckeditor
+        - licensed under LGPL, see files in yacon.ckeditor
+
+
+Snippets
+~~~~~~~~
+    util.get_user_attributes()
+        - snippet based on Stackoverflow posting, users:
+            http://stackoverflow.com/users/376728/aaronasterling
+            http://stackoverflow.com/users/515491/jakob-simon-gaarde
+        - original posting:
+            http://stackoverflow.com/questions/4241171/inspect-python-class-attributes
+
+
+Contributors
+~~~~~~~~~~~~
+    primary blame: ctrudeau chr(64) arsensa.com

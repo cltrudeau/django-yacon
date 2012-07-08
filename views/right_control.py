@@ -4,21 +4,17 @@
 # Right pane in Nexus control panel.  Shows the contents of items selected in
 # the site tree in the left panel.
 
-import logging, json, urllib
-from collections import OrderedDict
+import logging, json
 
-from django.db import IntegrityError
-from django.conf import settings
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.decorators import superuser_required
-from yacon.models.common import Language
-from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
+from yacon.models.hierarchy import (Node, NodeTranslation, Menu,
     MenuItem, MenuItemTranslation)
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage, Page, PageType, Translation
+from yacon.models.pages import MetaPage
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +73,7 @@ def node_info(request, node_id):
             except NodeTranslation.DoesNotExist:
                 # no translations available, e.g. root node, do nothing
                 pass
-        page = None
+
         if node.default_metapage != None:
             item.page = node.default_metapage.get_translation(lang)
 

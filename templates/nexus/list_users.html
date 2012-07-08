@@ -1,0 +1,44 @@
+{% extends "nexus/nexus_base.html" %}
+{% load pagination_tags %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            $('#add_user').button().click(function() {
+                document.location.href = '/yacon/nexus/add_user/';
+            });
+            $('#navbar').tabnav('select', 2);
+        });
+    </script>
+{% endblock scripts %}
+{% block css %}
+    {{block.super}}
+    <link type="text/css" rel="stylesheet" href="/static/css/extra_nexus.css"/>
+{% endblock css %}
+
+{% block content %}
+<div class="inside">
+    <br/>
+    <button id="add_user">Add User</button>
+    <br/>
+    <h2>Users</h2>
+
+    {% autopaginate profiles 25 %}
+    <div id="paginator">
+        {% paginate %}
+    </div>
+    <table>
+        <thead>
+            {% include "nexus/includes/users_header.html" %}
+        </thead>
+        <tbody>
+        {% for profile in profiles %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                {% include "nexus/includes/users_row.html" %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

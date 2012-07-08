@@ -1,6 +1,4 @@
 # yacon.models.hierarchy.py
-# blame ctrudeau chr(64) arsensa.com
-
 import re, exceptions, logging
 
 from django.db import models
@@ -104,7 +102,6 @@ class Node(BaseNode):
             level already
         """
         translations[self.site.default_language] = (name, slug)
-        children = self.get_children()
 
         # check for bad slugs
         for key, value in translations.items():

@@ -5,14 +5,15 @@
 #
 # Unit tests for Yacon
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core import management
 
 from yacon.models.common import Language
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Translation
 from yacon.models.hierarchy import NodeTranslation, Menu
-from yacon.utils import create_page_type, create_block_type
+from yacon.models.users import UserProfile
+from yacon.helpers import create_page_type, create_block_type
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
@@ -62,7 +63,7 @@ class Command(BaseCommand):
             'yacon.models.content', 'FlatContent')
         bt_blog = create_block_type('Blog Content', 'blog', 
             'yacon.models.content', 'FlatContent')
-        bt_now = create_block_type('Right Now Content', 'right_now', 
+        create_block_type('Right Now Content', 'right_now', 
             'yacon.models.content', 'DynamicContent', 
             {'module':'yacon.examples.dynamic', 'function':'right_now'})
 
@@ -184,3 +185,17 @@ class Command(BaseCommand):
         # create a second site
         Site.create_site('Second Site', 'dummyhost', 
             languages=[site.default_language])
+
+        # -----------------
+        # create some test users
+        UserProfile.create('fflintstone', 'Fred', 'Flintstone', 
+            'fred@quarry.com', 'yabbadabbadoo')
+        UserProfile.create('brubble', 'Barney', 'Rubble', 
+            'barney@quarry.com', 'yabbadabbadoo')
+
+        # create an admin
+        profile = UserProfile.create('admin', 'A', 'Admin', 'admin@admin.com', 
+            'shady!Eggs')
+        profile.user.is_staff = True
+        profile.user.is_superuser = True
+        profile.user.save()

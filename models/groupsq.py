@@ -1,6 +1,5 @@
 # groupsq.models.py
-# blame ctrudeau chr(64) arsensa.com
-
+#
 # GroupSq (Group Squared) works with Django auth to provide groups of groups
 # and classes of groups functionality.
 

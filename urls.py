@@ -1,5 +1,5 @@
-from django.conf.urls.defaults import *
 from django.conf import settings
+from django.conf.urls.defaults import patterns
 from django.views.generic.simple import redirect_to, direct_to_template
 
 # Uncomment the next two lines to enable the admin:
@@ -33,6 +33,10 @@ if settings.YACON_NEXUS_ENABLED:
         (r'^nexus/js/site_control.js/$', direct_to_template, 
             {'template':'nexus/js/site_control.js',
             'mimetype':'application/javascript'}),
+        (r'^nexus/list_users/$', 'list_users'),
+        (r'^nexus/edit_user/(\d+)/$', 'edit_user'),
+        (r'^nexus/add_user/$', 'add_user'),
+        (r'^nexus/user_password/(\d+)/$', 'user_password'),
     )
 
     # control panel, left pane

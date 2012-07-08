@@ -8,17 +8,16 @@ import logging, json, urllib
 from collections import OrderedDict
 
 from django.db import IntegrityError
-from django.conf import settings
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon.decorators import superuser_required
 from yacon.models.common import Language
 from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
-    Menu, MenuItem, MenuItemTranslation)
+    MenuItem, MenuItemTranslation)
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage, Page, PageType, Translation
+from yacon.models.pages import MetaPage, Page, PageType
 
 logger = logging.getLogger(__name__)
 
@@ -361,8 +360,6 @@ def add_menu(request, site_id, name):
     """Adds a new Menu."""
     site = get_object_or_404(Site, id=site_id)
     name = urllib.unquote(name)
-
-    data = {}
     Menu.objects.create(name=name, site=site)
     return HttpResponse()
 
@@ -612,7 +609,7 @@ def add_site(request, name, domain, lang_identifier):
 
     try:
         language = Language.objects.get(identifier=lang_identifier)
-        site = Site.create_site(name, domain, [language, ])
+        Site.create_site(name, domain, [language, ])
     except Language.DoesNotExist:
         # only an ajax call, this dies and nothing happens anyhow
         data['error'] = 'Problem occurred with language code'

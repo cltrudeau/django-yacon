@@ -1,0 +1,12 @@
+{% load yacon_tags %}
+
+            <tr>
+                <th>Username {% tsort 'user__username' %}</th>
+                <th>
+                    Last, First {% tsort 'user__last_name,user__first_name' %}
+                </th>
+                <th>E-mail {% tsort 'user__email' %}</th>
+                <th>Staff? {% tsort 'user__is_staff' %}</th>
+                <th>Super User? {% tsort 'user__is_superuser' %}</th>
+                <th><br/></th>
+            </tr>
