@@ -1,0 +1,27 @@
+Contents of this directory contain the original packages of 3rd party
+libraries and extensions used in yacon.  Full content is stored here for
+reference and in some cases license compliance.  Packages are not served from
+this directory, but elsewhere (noted below) to minimize code exposed to the
+world and/or to track customizations as required.
+
+CKEditor
+~~~~~~~~
+
+CKEditor is redistributed with Yacon under the LGPL.  All contents are
+contained in this directory to meet licensing requirements.  
+
+The editor is server under /static/ckeditor, where the minimum subset of files
+is kept to reduce exposure.
+
+http://ckeditor.com/
+http://ckeditor.com/license
+
+
+jQuery-File-Upload
+~~~~~~~~~~~~~~~~~~
+jQuery-File-Upload is redistributed with Yacon under an MIT license.  This
+copy is from the jQuery-UI branch
+
+Copyright 2010, Sebastian Tschan
+https://blueimp.net
+https://github.com/blueimp/jQuery-File-Upload

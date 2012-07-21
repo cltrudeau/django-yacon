@@ -120,6 +120,14 @@ if settings.YACON_NEXUS_ENABLED:
             'create_menuitem_translation'),
     )
 
+    # uploads tab
+    urlpatterns += patterns('yacon.views.uploads',
+        (r'^nexus/uploads_tab/$', 'uploads_tab'),
+        (r'^nexus/uploads_tab2/$', 'uploads_tab2'),
+        (r'^nexus/upload_file/$', 'upload_file'),
+    )
+
+
 if settings.YACON_TESTS_ENABLED:
     urlpatterns += patterns('',
         (r'^tests/$', direct_to_template, {'template':'tests/index.html'}),

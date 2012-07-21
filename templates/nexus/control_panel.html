@@ -2,6 +2,19 @@
 
 {% block scripts %}
     {{ block.super }}
+    <!-- dynatree -->
+    <link type="text/css" rel="stylesheet" 
+        href="/static/js/skin/ui.dynatree.css" />	
+    <script type="text/JavaScript" src="/static/js/jquery.cookie.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/jquery.dynatree.min.js">
+    </script>
+
+    <!-- select box -->
+    <script type="text/JavaScript" 
+        src="/static/js/jquery-ui-selectbox-widget.min.js">
+    </script>
+
     <!-- scripts to prepoulate slugs -->
     <script type="text/JavaScript" src="/static/js/yacon/djangoadmin/urlify.js">
     </script>

@@ -19,7 +19,7 @@ class BadSlug(exceptions.Exception):
     pass
 
 # ============================================================================
-# Hierarchy Management
+# Site and Page Hierarchy Management
 # ============================================================================
 
 class BaseNode(MP_Node, TimeTrackedModel):
@@ -295,6 +295,7 @@ class NodeTranslation(TimeTrackedModel):
 
 # ============================================================================
 # Menu Management
+# ============================================================================
 
 class MenuItem(BaseNode):
     """A MenuItem is a node in a hierarchy that is displayed to the user,

@@ -1,8 +1,0 @@
-CKEditor is redistributed with Yacon under the LGPL.  All contents are
-contained in this directory to meet licensing requirements.  
-
-The editor is server under /static/ckeditor, where the minimum subset of files
-is kept to reduce exposure.
-
-http://ckeditor.com/
-http://ckeditor.com/license

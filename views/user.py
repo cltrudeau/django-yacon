@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import Http404
 
-from yacon.utils import prepare_context
+from yacon.helpers import prepare_context
 
 logger = logging.getLogger(__name__)
 
