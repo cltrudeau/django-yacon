@@ -18,7 +18,8 @@ function load_folder_toolbar() {
         if( node_id != null ) {
             // get the warning about the nodes to remove
             var dialog = $('#remove_folder_dialog');
-            dialog.load("/yacon/nexus/remove_folder_warn/" + node_id + "/");
+            dialog.load("/yacon/nexus/control/remove_folder_warn/" + node_id 
+                + "/");
             dialog.dialog("open");
         }
     });
@@ -43,7 +44,8 @@ function load_metapage_toolbar() {
         if( node_id != null ) {
             // get the warning about the metapage to remove
             var dialog = $('#remove_page_dialog');
-            dialog.load("/yacon/nexus/remove_page_warn/" + node_id + "/");
+            dialog.load("/yacon/nexus/control/remove_page_warn/" + node_id 
+                + "/");
             dialog.dialog("open");
         }
     });
@@ -62,10 +64,11 @@ function load_metapage_toolbar() {
                 + 'node?');
             if( action ) {
                 $.ajax({
-                    url: "/yacon/nexus/make_default_metapage/" + node_id + "/",
+                    url: "/yacon/nexus/control/make_default_metapage/" 
+                        + node_id + "/",
                     dataType: "json",
                     success: function(data) {
-                        if( data['error'] == null ) {
+                        if( data == null ) {
                             refresh_tree();
                         }
                     }
@@ -81,7 +84,8 @@ function load_menu_toolbars() {
         if( node_id != null ) {
             // get the warning about the metapage to remove
             var dialog = $('#remove_menu_dialog');
-            dialog.load("/yacon/nexus/remove_menu_warn/" + node_id + "/");
+            dialog.load("/yacon/nexus/control/remove_menu_warn/" + node_id 
+                + "/");
             dialog.dialog("open");
         }
     });
@@ -91,7 +95,8 @@ function load_menu_toolbars() {
         if( node_id != null ) {
             // get the warning about the metapage to remove
             var dialog = $('#remove_menuitem_dialog');
-            dialog.load("/yacon/nexus/remove_menuitem_warn/" + node_id + "/");
+            dialog.load("/yacon/nexus/control/remove_menuitem_warn/" + node_id 
+                + "/");
             dialog.dialog("open");
         }
     });
@@ -107,7 +112,7 @@ function load_menu_toolbars() {
         var node_id = active_node_id();
         if( node_id != null ) {
             $.ajax({
-                url: "/yacon/nexus/move_menuitem_out/" + node_id + "/",
+                url: "/yacon/nexus/control/move_menuitem_out/" + node_id + "/",
                 dataType: "json",
                 success: function(data) {
                     refresh_tree();
@@ -120,7 +125,7 @@ function load_menu_toolbars() {
         var node_id = active_node_id();
         if( node_id != null ) {
             $.ajax({
-                url: "/yacon/nexus/move_menuitem_up/" + node_id + "/",
+                url: "/yacon/nexus/control/move_menuitem_up/" + node_id + "/",
                 dataType: "json",
                 success: function(data) {
                     refresh_tree();
@@ -133,7 +138,7 @@ function load_menu_toolbars() {
         var node_id = active_node_id();
         if( node_id != null ) {
             $.ajax({
-                url: "/yacon/nexus/move_menuitem_down/" + node_id + "/",
+                url: "/yacon/nexus/control/move_menuitem_down/" + node_id + "/",
                 dataType: "json",
                 success: function(data) {
                     refresh_tree();
@@ -159,7 +164,7 @@ function load_site_sidebar() {
         $('#site_toolbar').show();
         var site_id = $('#site_select').val();
         $.ajax({
-            url: '/yacon/nexus/missing_site_languages/' + site_id +'/',
+            url: '/yacon/nexus/control/missing_site_languages/' + site_id +'/',
             success: function(data) {
                 if( count_keys(data) != 0 ) {
                     $('#add_site_lang').show();
@@ -168,7 +173,8 @@ function load_site_sidebar() {
         });
 
         // load site info via ajax
-        $("div#node_container").load("/yacon/nexus/site_info/" + value + "/");
+        $("div#node_container").load("/yacon/nexus/control/site_info/" + value 
+            + "/");
     });
 }
 

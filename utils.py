@@ -35,13 +35,3 @@ def get_user_attributes(obj, exclude_methods=True):
             pass
 
     return results
-
-
-class JSONResponse(HttpResponse):
-    def __init__(self, *args, **kwargs):
-        if 'mimetype' not in kwargs:
-            kwargs['mimetype'] = 'application/json'
-        local_args = list(args)
-        local_args[0] = json.dumps(args[0])
-
-        super(JSONResponse, self).__init__(*local_args, **kwargs)

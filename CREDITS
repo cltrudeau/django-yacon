@@ -1,11 +1,27 @@
-Yacon was built on the shoulder of giants, credit for source for non-original 
+Yacon was built on the shoulder of giants, credits for source for non-original 
 code include:
 
 Pacakges
 ~~~~~~~~
-    ckeditor
-        - licensed under LGPL, see files in yacon.ckeditor
+    Full packages used can be found in yacon/3rdparty:
+        ckeditor
+        Valums File Uploader
 
+Widgets
+~~~~~~~
+    jQuery and jQuery UI
+        - MIT license
+        - http://jquery.org
+    dynatree:
+        - MIT license
+        - http://code.google.com/p/dynatree/
+    jQuery UI Selectbox 
+        - MIT license
+        - author: Sergiy Smolyak
+        - http://code.google.com/p/jquery-ui-selectbox-widget/
+    jQuery Tab Nav
+        - MIT license
+        - https://github.com/cltrudeau/jquery-tab-nav
 
 Snippets
 ~~~~~~~~
@@ -14,7 +30,13 @@ Snippets
             http://stackoverflow.com/users/376728/aaronasterling
             http://stackoverflow.com/users/515491/jakob-simon-gaarde
         - original posting:
-            http://stackoverflow.com/questions/4241171/inspect-python-class-attributes
+            http://stackoverflow.com/questions/4241171/
+
+Inspiration
+~~~~~~~~~~~
+    django-ajax-uploader
+        - provided ideas as to how to work with the Valums uploader
+        - https://github.com/GoodCloud/django-ajax-uploader
 
 
 Contributors

@@ -17,11 +17,11 @@ http://ckeditor.com/
 http://ckeditor.com/license
 
 
-jQuery-File-Upload
-~~~~~~~~~~~~~~~~~~
-jQuery-File-Upload is redistributed with Yacon under an MIT license.  This
-copy is from the jQuery-UI branch
+Valums File Uploader
+~~~~~~~~~~~~~~~~~~~~
+Valums File Uploader is redistributed with Yacon under the LGPL.  The entire
+package is included in this sub-directory with a subset of the files mixed
+into the running packages.
 
-Copyright 2010, Sebastian Tschan
-https://blueimp.net
-https://github.com/blueimp/jQuery-File-Upload
+Copyright 2010 Andrew Valums
+http://valums.com/ajax-upload/

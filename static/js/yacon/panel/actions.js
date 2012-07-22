@@ -14,7 +14,7 @@ function edit_path(translation_id, lang_code, name, path) {
     $('#edit_path_form input#edit_path_lang').val(lang_code);
     $('#edit_path_form input#edit_path_name').val(name);
     $('#edit_path_form input#edit_path_slug').val(slug);
-    $('#edit_path_dialog_warn').load("/yacon/nexus/edit_path_warn/" 
+    $('#edit_path_dialog_warn').load("/yacon/nexus/control/edit_path_warn/" 
         + translation_id + "/");
 
     $('#edit_path_dialog').dialog('open');
@@ -26,7 +26,8 @@ var remove_path_translation_id = null;
 function remove_path(translation_id) {
     remove_path_translation_id = translation_id;
     var dialog = $('#remove_path_dialog');
-    dialog.load("/yacon/nexus/remove_path_warn/" + translation_id + "/");
+    dialog.load("/yacon/nexus/control/remove_path_warn/" + translation_id 
+        + "/");
     dialog.dialog("open");
 }
 
@@ -42,7 +43,8 @@ function remove_page_translation(page_id, title, has_alias) {
 
     if( action ) {
         $.ajax({
-            url: "/yacon/nexus/remove_page_translation/" + page_id + "/",
+            url: "/yacon/nexus/control/remove_page_translation/" + page_id 
+                + "/",
             dataType: "json",
             success: function(data) {
                 refresh_tree();
@@ -63,8 +65,8 @@ function remove_menuitem_translation(menuitem_id, title) {
     action = confirm('Remove translation \"' + title + '"?');
     if( action ) {
         $.ajax({
-            url: "/yacon/nexus/remove_menuitem_translation/" + menuitem_id 
-                + "/",
+            url: "/yacon/nexus/control/remove_menuitem_translation/" 
+                + menuitem_id + "/",
             dataType: "json",
             success: function(data) {
                 refresh_tree();

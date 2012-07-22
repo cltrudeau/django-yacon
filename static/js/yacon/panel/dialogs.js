@@ -3,7 +3,7 @@ function load_folder_dialogs() {
     create_dialog_using_tree('#remove_folder_dialog', 'Remove Folder', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
-            return "/yacon/nexus/remove_folder/" + node_id + "/";
+            return "/yacon/nexus/control/remove_folder/" + node_id + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -14,8 +14,8 @@ function load_folder_dialogs() {
             var node_id = active_node_id();
             var title = $('#add_folder_form input#add_folder_title').val();
             var slug = $('#add_folder_form input#add_folder_slug').val();
-            return "/yacon/nexus/add_folder/" + node_id + "/" + title + "/"
-                + slug + "/";
+            return "/yacon/nexus/control/add_folder/" + node_id + "/" + title 
+                + "/" + slug + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -34,8 +34,8 @@ function load_folder_dialogs() {
             var pagetype = $('#add_page_form #add_page_pagetype').val();
             var title = $('#add_page_form input#add_page_title').val();
             var slug = $('#add_page_form input#add_page_slug').val();
-            return "/yacon/nexus/add_page/" + node_id + "/" + pagetype + "/" 
-                + title + "/" + slug + "/";
+            return "/yacon/nexus/control/add_page/" + node_id + "/" + pagetype 
+                + "/" + title + "/" + slug + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -51,7 +51,7 @@ function load_folder_dialogs() {
     $('#add_page_dialog').bind('dialogopen.yacon', function(event, ui) {
         // ajax load the page type listing when we pop the dialog
         $.ajax({
-            url: "/yacon/nexus/page_types/",
+            url: "/yacon/nexus/control/page_types/",
             dataType: "json",
             success: function(data) {
                 // remove old sites, replace with what server sent
@@ -65,7 +65,7 @@ function load_folder_dialogs() {
             var lang = $('#add_path_form #add_path_lang').val();
             var name = $('#add_path_form input#add_path_name').val();
             var slug = $('#add_path_form input#add_path_slug').val();
-            return "/yacon/nexus/add_path/" + node_id + "/" + lang 
+            return "/yacon/nexus/control/add_path/" + node_id + "/" + lang 
                 + "/" + name + "/" + slug + "/";
         },
         function(data) { // on success of ajax call
@@ -83,7 +83,8 @@ function load_folder_dialogs() {
         // ajax load the language listing when we pop the dialog
         var node_id = active_node_id();
         $.ajax({
-            url: "/yacon/nexus/missing_node_translations/" + node_id + "/",
+            url: "/yacon/nexus/control/missing_node_translations/" + node_id 
+                + "/",
             dataType: "json",
             success: function(data) {
                 // remove old translations, replace with what server sent
@@ -99,8 +100,8 @@ function load_metapage_dialogs() {
             var node_id = active_node_id();
             var menu = $('#add_menuitem_menu').val();
             var name = $('#add_menuitem_name').val();
-            return "/yacon/nexus/add_menuitem/" + menu + "/" + node_id + "/"
-                + name + "/";
+            return "/yacon/nexus/control/add_menuitem/" + menu + "/" + node_id 
+                + "/" + name + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -117,7 +118,7 @@ function load_metapage_dialogs() {
         // ajax load the menu listing when we pop the dialog
         var node_id = active_node_id();
         $.ajax({
-            url: "/yacon/nexus/menu_listing/" + node_id + "/",
+            url: "/yacon/nexus/control/menu_listing/" + node_id + "/",
             dataType: "json",
             success: function(data) {
                 // remove old menus, replace with what server sent
@@ -129,7 +130,7 @@ function load_metapage_dialogs() {
     create_dialog_using_tree('#remove_page_dialog', 'Remove MetaPage', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
-            return "/yacon/nexus/remove_page/" + node_id + "/";
+            return "/yacon/nexus/control/remove_page/" + node_id + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -144,8 +145,8 @@ function load_metapage_dialogs() {
                 $('#add_translation_form input#add_translation_title').val();
             var slug = 
                 $('#add_translation_form input#add_translation_slug').val();
-            return "/yacon/nexus/add_translation/" + node_id + "/" + lang 
-                + "/" + title + "/" + slug + "/";
+            return "/yacon/nexus/control/add_translation/" + node_id + "/" 
+                + lang + "/" + title + "/" + slug + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -162,7 +163,8 @@ function load_metapage_dialogs() {
         // ajax load the language listing when we pop the dialog
         var node_id = active_node_id();
         $.ajax({
-            url: "/yacon/nexus/missing_metapage_translations/" + node_id + "/",
+            url: "/yacon/nexus/control/missing_metapage_translations/" 
+                + node_id + "/",
             dataType: "json",
             success: function(data) {
                 // remove old translations, replace with what server sent
@@ -176,8 +178,8 @@ function load_inline_dialogs() {
     // *** Node Dialogs
     create_dialog_using_tree('#remove_path_dialog', 'Remove Path', 'Remove',
         function() { // url generator
-            return "/yacon/nexus/remove_path/" + remove_path_translation_id 
-                + "/";
+            return "/yacon/nexus/control/remove_path/" 
+                + remove_path_translation_id + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -187,8 +189,8 @@ function load_inline_dialogs() {
         function() { // url generator
             var slug = $('#edit_path_form input#edit_path_slug').val();
             var name = $('#edit_path_form input#edit_path_name').val();
-            return "/yacon/nexus/edit_path/" + edit_translation_id + "/" 
-                + name + "/" + slug + "/";
+            return "/yacon/nexus/control/edit_path/" + edit_translation_id 
+                + "/" + name + "/" + slug + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -201,7 +203,8 @@ function load_site_dialogs() {
         function() { // url generator
             var site_id = $('#site_select').val();
             var lang = $('#add_site_lang_form #add_site_lang_lang').val();
-            return "/yacon/nexus/add_site_lang/" + site_id + "/" + lang + "/";
+            return "/yacon/nexus/control/add_site_lang/" + site_id + "/" 
+                + lang + "/";
         },
         function(data) { // on success of ajax call
                 refresh_tree();
@@ -211,7 +214,7 @@ function load_site_dialogs() {
         // ajax load the language listing when we pop the dialog
         var site_id = $('#site_select').val();
         $.ajax({
-            url: "/yacon/nexus/missing_site_languages/" + site_id + "/",
+            url: "/yacon/nexus/control/missing_site_languages/" + site_id + "/",
             dataType: "json",
             success: function(data) {
                 // remove old languages, replace with what server sent
@@ -225,8 +228,8 @@ function load_site_dialogs() {
             var name = $('#edit_site_form #edit_site_name').val();
             var domain = $('#edit_site_form #edit_site_domain').val();
             var lang = $('#edit_site_form #edit_site_lang').val();
-            return "/yacon/nexus/edit_site/" + site_id + "/" + name + "/"
-                + domain + "/" + lang + "/";
+            return "/yacon/nexus/control/edit_site/" + site_id + "/" + name 
+                + "/" + domain + "/" + lang + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -242,7 +245,7 @@ function load_site_dialogs() {
         // ajax load the language listing when we pop the dialog
         var site_id = $('#site_select').val();
         $.ajax({
-            url: "/yacon/nexus/site_languages/" + site_id + "/",
+            url: "/yacon/nexus/control/site_languages/" + site_id + "/",
             dataType: "json",
             success: function(data) {
                 // remove old languages, replace with what server sent
@@ -255,14 +258,14 @@ function load_site_dialogs() {
             var name = $('#add_new_site_form #add_new_site_name').val();
             var domain = $('#add_new_site_form #add_new_site_domain').val();
             var lang = $('#add_new_site_form #add_new_site_lang').val();
-            return "/yacon/nexus/add_site/" + name + "/" + domain + "/" 
+            return "/yacon/nexus/control/add_site/" + name + "/" + domain + "/" 
                 + lang + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
                 // re-load list of sites
                 $.ajax({
-                    url: "/yacon/nexus/get_sites/",
+                    url: "/yacon/nexus/control/get_sites/",
                     dataType: "json",
                     success: function(data) {
                         repopulate_select('#site_select', data);
@@ -287,7 +290,7 @@ function load_site_dialogs() {
     $('#add_new_site_dialog').bind('dialogopen.yacon', function(event, ui) {
         // ajax load the language listing when we pop the dialog
         $.ajax({
-            url: "/yacon/nexus/all_languages/",
+            url: "/yacon/nexus/control/all_languages/",
             dataType: "json",
             success: function(data) {
                 // remove old languages, replace with what server sent
@@ -305,7 +308,7 @@ function load_menu_dialogs() {
     create_dialog_using_tree('#remove_menu_dialog', 'Remove Menu', 'Remove',
         function() { // url generator
             var node_id = active_node_id();
-            return "/yacon/nexus/remove_menu/" + node_id + "/";
+            return "/yacon/nexus/control/remove_menu/" + node_id + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -316,7 +319,7 @@ function load_menu_dialogs() {
             'Remove',
         function() { // url generator
             var node_id = active_node_id();
-            return "/yacon/nexus/remove_menuitem/" + node_id + "/";
+            return "/yacon/nexus/control/remove_menuitem/" + node_id + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -329,8 +332,8 @@ function load_menu_dialogs() {
             var node_id = active_node_id();
             var lang = $('#add_menuitem_translation_lang').val();
             var name = $('#add_menuitem_translation_name').val();
-            return "/yacon/nexus/add_menuitem_translation/" + node_id + "/" 
-                + lang + "/" + name + "/";
+            return "/yacon/nexus/control/add_menuitem_translation/" + node_id 
+                + "/" + lang + "/" + name + "/";
         },
         function(data) { // on success of ajax call
             if( data['error'] == null ) {
@@ -348,7 +351,8 @@ function load_menu_dialogs() {
         // ajax load the language listing when we pop the dialog
         var node_id = active_node_id();
         $.ajax({
-            url: "/yacon/nexus/missing_menuitem_translations/" + node_id + "/",
+            url: "/yacon/nexus/control/missing_menuitem_translations/" 
+                + node_id + "/",
             dataType: "json",
             success: function(data) {
                 // remove old translations, replace with what server sent
@@ -361,7 +365,8 @@ function load_menu_dialogs() {
         function() { // url generator
             var site_id = $('#site_select').val();
             var name = $('#add_menu_name').val();
-            return "/yacon/nexus/add_menu/" + site_id + "/" + name + "/";
+            return "/yacon/nexus/control/add_menu/" + site_id + "/" + name 
+                + "/";
         },
         function(data) { // on success of ajax call
             refresh_tree();
@@ -377,11 +382,11 @@ function load_menu_dialogs() {
             var lang = $('#rename_menuitem_translation_lang').val();
 
             if( tx_id != '' ) {
-                return "/yacon/nexus/rename_menuitem_translation/" + tx_id 
-                    + "/" + name + "/";
+                return "/yacon/nexus/control/rename_menuitem_translation/" 
+                    + tx_id + "/" + name + "/";
             }
             else {
-                return "/yacon/nexus/create_menuitem_translation/" 
+                return "/yacon/nexus/control/create_menuitem_translation/" 
                     + menuitem_id + "/" + lang + "/" + name + "/";
             }
         },

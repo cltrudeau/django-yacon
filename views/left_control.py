@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # Tree Building Methods
 # ============================================================================
 
-def _pages_subtree(node, language, is_root, depth_limit):
+def _pages_subtree(node, language, is_root, depth_limit, expanded):
     """Returns a hash representation in dynatree format of the node passed in
     and its children."""
     name = '%s (%s)' % (node.name, node.slug)
@@ -36,7 +36,7 @@ def _pages_subtree(node, language, is_root, depth_limit):
     if is_root:
         node_hash['expand'] = True
 
-    if depth_limit == 0:
+    if depth_limit == 0 and node_hash['key'] not in expanded:
         # reached as far as we're going to go, just check for kids
         count = MetaPage.objects.filter(node=node).count()
         if count != 0 or node.has_children():
@@ -77,7 +77,7 @@ def _pages_subtree(node, language, is_root, depth_limit):
             dl = depth_limit
             if dl != -1:
                 dl = dl - 1
-            subtree = _pages_subtree(child, language, False, dl)
+            subtree = _pages_subtree(child, language, False, dl, expanded)
             children.append(subtree)
 
         if 'children' in node_hash:
@@ -88,7 +88,7 @@ def _pages_subtree(node, language, is_root, depth_limit):
     return node_hash
 
 
-def _menuitem_subtree(menuitem, language, is_root, depth_limit):
+def _menuitem_subtree(menuitem, language, is_root, depth_limit, expanded):
     """Returns a hash representation in dynatree format of the menuitem passed
     in and its children."""
     try:
@@ -105,7 +105,7 @@ def _menuitem_subtree(menuitem, language, is_root, depth_limit):
     if is_root:
         menuitem_node['expand'] = True
 
-    if depth_limit == 0:
+    if depth_limit == 0 and menuitem_node['key'] not in expanded:
         # reached as far as we're going to go, check for kids
         if menuitem.has_children():
             menuitem_node['isLazy'] = True
@@ -119,7 +119,7 @@ def _menuitem_subtree(menuitem, language, is_root, depth_limit):
             dl = depth_limit
             if depth_limit != -1:
                 dl -= 1
-            subtree = _menuitem_subtree(child, language, False, dl)
+            subtree = _menuitem_subtree(child, language, False, dl, expanded)
             children.append(subtree)
 
         menuitem_node['icon'] = 'fatcow/folder.png'
@@ -128,10 +128,11 @@ def _menuitem_subtree(menuitem, language, is_root, depth_limit):
     return menuitem_node
 
 
-def _build_dynatree(site):
+def _build_dynatree(site, expanded):
     """Returns a dynatree hash representation of our pages and menu
     hierarchy."""
-    subtree = _pages_subtree(site.doc_root, site.default_language, True, 1)
+    subtree = _pages_subtree(site.doc_root, site.default_language, True, 1,
+        expanded)
     subtree['activate'] = True
     pages_node = {
         'title': 'Pages',
@@ -146,7 +147,7 @@ def _build_dynatree(site):
     for menu in Menu.objects.filter(site=site):
         items = []
         for item in menu.first_level.all():
-            items.append(_menuitem_subtree(item, language, True, 1))
+            items.append(_menuitem_subtree(item, language, True, 1, expanded))
 
         menus.append({
             'title': menu.name,
@@ -185,22 +186,29 @@ def get_sites(request):
 # ============================================================================
 
 @superuser_required
-def full_tree(request, site_id):
+def tree_top(request, site_id):
     site = get_object_or_404(Site, id=site_id)
-    tree = _build_dynatree(site)
+    expanded = []
+    if 'expandedKeyList' in request.GET:
+        for key in request.GET['expandedKeyList'].split(','):
+            key = key.strip()
+            if key:
+                expanded.append(key)
 
-    print tree
+    print 'expanded: ', expanded
+    tree = _build_dynatree(site, expanded)
+
     return HttpResponse(json.dumps(tree), content_type='application/json')
 
 
 @superuser_required
-def full_tree_default_site(request):
+def tree_top_default_site(request):
     # pick the first site and return it
     sites = Site.objects.all()
     if len(sites) == 0:
         return HttpResponse(json.dumps([]), content_type='application/json')
 
-    return full_tree(request, sites[0].id)
+    return tree_top(request, sites[0].id)
 
 
 @superuser_required

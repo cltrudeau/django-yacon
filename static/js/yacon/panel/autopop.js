@@ -10,6 +10,17 @@ function load_autopopulate_fields() {
         }
     });
 
+    // *** Add Path 
+    $('#add_path_slug').bind('change.yacon', function() {
+        $(this).data('changed', true);
+    });
+    $('#add_path_name').bind('keyup.yacon', function() {
+        var e = $('#add_path_slug');
+        if( !e.data('changed') ) {
+            e.val(URLify($('#add_path_name').val(), 50));
+        }
+    });
+
     // *** Add Page 
     $('#add_page_slug').bind('change.yacon', function() {
         $(this).data('changed', true);

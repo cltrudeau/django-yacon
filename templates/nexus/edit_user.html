@@ -9,7 +9,7 @@
             {% if clear_autocomplete %}
                 // don't want to disable autocomplete, but don't want the
                 // fields pre-filled either
-                $('form input:not(:button):not(:submit)').val('');
+                $('form input:not(:button):not(:submit):not(:hidden)').val('');
             {% endif %}
         });
     </script>
@@ -25,7 +25,7 @@
             <td> <br/> </td>
             <td align="right"> 
                 <input type="button"
-                    onClick="self.location='/yacon/nexus/list_users'" 
+                    onClick="self.location='/yacon/nexus/users/list_users/'" 
                     value="Cancel"/>
                 &nbsp; &nbsp;
                 <input type="submit" value="Save"/> 

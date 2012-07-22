@@ -1,7 +1,7 @@
 # yacon.helpers.py
 import logging
 
-from yacon.constants import PAGE_CONTEXT
+from yacon.conf import custom
 from yacon.models.site import Site
 from yacon.models.pages import PageType, BlockType
 
@@ -50,8 +50,8 @@ def create_block_type(name, key, module_name, content_handler_name,
 # ============================================================================
 
 def prepare_context(request, uri=None):
-    """Creates the base context for rendering a page.  Includes calling the 
-    settings.YACON_PAGE_CONTEXT method if defined.
+    """Creates the base context for rendering a page, calls the custom page
+    context function if defined.
     """
     site = Site.get_site(request)
     if not uri:
@@ -63,7 +63,7 @@ def prepare_context(request, uri=None):
         'uri':uri,
     }
 
-    if PAGE_CONTEXT:
-        PAGE_CONTEXT(request, uri, data)
+    page_context = custom('page_context')
+    page_context(request, uri, data)
 
     return data
