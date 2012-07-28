@@ -1,0 +1,14 @@
+<p>
+    Please confirm you would like to delete the following files and
+    directories:
+    <br/>
+    <br/>
+    {% for file in files %}
+        {{file.0}} {{file.1}}<br/>
+    {% endfor %}
+
+    <br/>
+    {% for dir in dirs %}
+        {{dir}}/<br/>
+    {% endfor %}
+</p>

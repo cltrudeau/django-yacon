@@ -1,4 +1,6 @@
 function setup() {
+    load_toolbars();
+    load_dialogs();
     create_tree(activate, init_ajax_url, lazy_read);
 }
 
@@ -7,11 +9,31 @@ function activate(node) {
 
     // load contents of node
     var pieces = node.data.key.split(":");
-    var node_type = pieces[0];
-    var node_id = pieces[1];
+    var file_type = pieces[0];
+    var path = pieces[1];
 
-    $("div#node_container").load('/yacon/nexus/uploads/' + node_type 
-            + '_info/' + node_id + "/");
+    if( file_type == 'system') {
+        // system node, show a blank page
+        if( path == 'public' ) {
+            $("div#node_container").html('<p>Directories and files contained '
+            + 'in the Public area are accessible by everyone.  These files '
+            + ' should be configured to be served directly by the web server.'
+            + '</p>');
+        }
+        else if( path == 'private' ) {
+            $("div#node_container").html('<p>Directories and files contained '
+            + 'in the Private area are accessible only by those with '
+            + 'permission.  These files either need to be served by the '
+            + 'application server or using the X-Sendfile method.</p>');
+        }
+        else {
+            $("div#node_container").html('<p>Error in tree</p>');
+        }
+    }
+    else {
+        $("div#node_container").load('/yacon/nexus/uploads/folder_info/' 
+            + node.data.key + '/');
+    }
 }
 
 

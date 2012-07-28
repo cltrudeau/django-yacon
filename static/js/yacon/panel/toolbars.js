@@ -1,3 +1,12 @@
+function hide_all_toolbars() {
+    $('#folder_toolbar').hide();
+    $('#metapage_toolbar').hide();
+    $('#menu_toolbar').hide();
+    $('#menucontrol_toolbar').hide();
+    $('#menuitem_toolbar').hide();
+    $('#site_toolbar').hide();
+}
+
 function load_folder_toolbar() {
     $('#add_folder').button().click(function() {
         var node_id = active_node_id();

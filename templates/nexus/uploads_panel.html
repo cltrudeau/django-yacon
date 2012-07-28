@@ -22,6 +22,7 @@
     <script type="text/JavaScript">
         $(document).ready(function(){
             $('#navbar').tabnav('select', 3);
+            setup();
         });
     </script>
 {% endblock scripts %}
@@ -41,9 +42,6 @@
             <button id="add_folder">Add Child Folder</button>
             <button id="remove_folder_warn">Remove Folder</button>
         </div>
-        <div id="file_toolbar">
-            <button id="remove_file_warn">Remove Folder</button>
-        </div>
     </div>
     <div id="node_container">
     </div>
@@ -53,8 +51,10 @@
 <div id="remove_folder_dialog">
 </div>
 
+{% comment %}
 <div id="remove_file_dialog">
 </div>
+{% endcomment %}
 
 <div id="add_folder_dialog">
     <p>

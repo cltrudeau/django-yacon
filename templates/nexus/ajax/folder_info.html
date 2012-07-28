@@ -1,0 +1,53 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#folder_toolbar').show();
+    });
+
+    function add_to_database(filename){
+        var node = encodeURIComponent('{{node}}/' + filename);
+        $.ajax({
+            url: "/yacon/nexus/uploads/add_to_database/" + node + '/',
+            dataType: "json",
+            success: function(data) {
+                var tree = $('#tree').dynatree("getTree");
+                tree.reactivate();
+            }
+        });
+    }
+</script>
+
+<div class="node">
+    <h2> Files in: {{path}} </h2>
+
+    {% for file in files %}
+        {% if forloop.first %}
+        <table>
+            <tbody>
+        {% endif %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                {% if file.1 %}
+                <td>
+                    {{file.0}} 
+                </td>
+                <td>
+                    {{file.1}} 
+                </td>
+                {% else %}
+                <td>
+                    {{file.0}}
+                </td>
+                <td>
+                    <a href="#" onclick="add_to_database('{{file.0}}');">
+                        Add To Database</a>
+                </td>
+                {% endif %}
+            </tr>
+        {% if forloop.last %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% empty %}
+        <p>There were no files.</p>
+    {% endfor %}
+
+</div>

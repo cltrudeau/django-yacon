@@ -163,8 +163,10 @@ if nexus('enabled'):
         (r'^nexus/uploads/sub_tree/$', 'sub_tree'),
 
         # right pane
-        (r'^nexus/uploads/folder_info/(\d+)/$', 'folder_info'),
-        (r'^nexus/uploads/file_info/(\d+)/$', 'file_info'),
+        (r'^nexus/uploads/folder_info/(.*)/$', 'folder_info'),
+        (r'^nexus/uploads/add_to_database/(.*)/$', 'add_to_database'),
+        (r'^nexus/uploads/add_folder/(.*)/(.*)/$', 'add_folder'),
+        (r'^nexus/uploads/remove_folder_warn/(.*)/$', 'remove_folder_warn'),
 
         # upload 
         (r'^nexus/uploads/upload_file/$', 'upload_file'),

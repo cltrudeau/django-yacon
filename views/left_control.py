@@ -195,7 +195,6 @@ def tree_top(request, site_id):
             if key:
                 expanded.append(key)
 
-    print 'expanded: ', expanded
     tree = _build_dynatree(site, expanded)
 
     return HttpResponse(json.dumps(tree), content_type='application/json')

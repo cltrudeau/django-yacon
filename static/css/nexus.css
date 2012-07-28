@@ -58,10 +58,12 @@ body {
 }
 .left {
     min-width: 24%;
+    max-width: 24%;
     padding-right: 1%;
 }
 .right {
     min-width: 50%;
+    max-width: 70%;
 }
 
 #node_container {
