@@ -163,22 +163,23 @@ if nexus('enabled'):
         (r'^nexus/uploads/sub_tree/$', 'sub_tree'),
 
         # right pane
+        (r'^nexus/uploads/root_control/(.*)/$', 'root_control'),
         (r'^nexus/uploads/folder_info/(.*)/$', 'folder_info'),
         (r'^nexus/uploads/add_to_database/(.*)/$', 'add_to_database'),
         (r'^nexus/uploads/add_folder/(.*)/(.*)/$', 'add_folder'),
         (r'^nexus/uploads/remove_folder_warn/(.*)/$', 'remove_folder_warn'),
+        (r'^nexus/uploads/remove_folder/(.*)/$', 'remove_folder'),
+        (r'^nexus/uploads/list_owners/$', 'list_owners'),
+        (r'^nexus/uploads/change_owner/(.*)/(\d+)/$', 'change_owner'),
+        (r'^nexus/uploads/remove_file/(.*)/$', 'remove_file'),
 
         # upload 
         (r'^nexus/uploads/upload_file/$', 'upload_file'),
-    )
-
-if site('tests_enabled'):
-    urlpatterns += patterns('',
-        (r'^tests/$', direct_to_template, {'template':'tests/index.html'}),
+        (r'^nexus/uploads/user_upload_file/$', 'user_upload_file'),
+        (r'^nexus/uploads/upload_image/$', 'upload_image'),
     )
 
 if site('examples_enabled'):
-#    urlpatterns += patterns('',
-#        (r'^content_listing/$', 'yacon.views.user.content_listing'),
-#    )
-    pass
+    urlpatterns += patterns('',
+        (r'^(examples/uploads/.+\.html)$', direct_to_template),
+    )

@@ -1,0 +1,106 @@
+{% load yacon_tags %}
+
+{% block scripts %}
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            $('#folder_toolbar').show();
+        });
+
+        function add_to_database(filename) {
+            var node = encodeURIComponent('{{node}}/' + filename);
+            $.ajax({
+                url: "/yacon/nexus/uploads/add_to_database/" + node + '/',
+                dataType: "json",
+                success: function(data) {
+                    var tree = $('#tree').dynatree("getTree");
+                    tree.reactivate();
+                }
+            });
+        }
+
+        function change_owner(filename) {
+            // set the hidden value of what file was chosen, then open the
+            // dialog 
+            var node = encodeURIComponent('{{node}}/' + filename);
+            $('#change_owner_form #change_owner_node').val(node);
+            $('#change_owner_dialog').dialog("open");
+        }
+
+        function remove_file(filename) {
+            var action = confirm('Remove \"' + filename + '"?  This cannot be '
+                + 'undone.');
+            if( action ) {
+                var node = encodeURIComponent('{{node}}/' + filename);
+                $.ajax({
+                    url: "/yacon/nexus/uploads/remove_file/" + node + "/",
+                    dataType: "json",
+                    success: function(data) {
+                        var tree = $('#tree').dynatree("getTree");
+                        tree.reactivate();
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock scripts %}
+
+<div class="node">
+    <h2> Folder: {{spec.relative_dir}}/ </h2>
+    <p>
+        Click the button to choose one or more files to upload to this
+        directory.  If your browser supports drag-and-drop you can also
+        simply drag files to the button.  Files with the same name will be
+        overwritten.
+    </p>
+    {% upload_widget node %}
+
+    <h2> Files in: {{spec.relative_dir}}/ </h2>
+
+    {% for file in files %}
+        {% if forloop.first %}
+        <table>
+            <tbody>
+        {% endif %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <td width="1%">
+                    <a href="#" onclick="remove_file('{{file.name}}');"
+                        style="color:#FF0000; background-color:#FFFFFF;">X</a> 
+                </td>
+                <td>
+                    <a target="_blank" href="{{file.url}}">{{file.name}}</a>
+                </td>
+                {% if file.stored %}
+                    <td>
+                        <div style="float:left;">
+                            {{file.stored.owner.first_name}}
+                            {{file.stored.owner.last_name}}
+                            ({{file.stored.owner.username}})
+                        </div>
+                        <div style="float:right;">
+                            <a href="#" 
+                                onclick="change_owner('{{file.name}}');">
+                                Change</a>
+                        </div>
+                    </td>
+                    <td>
+                        {{file.stored}} 
+                    </td>
+                {% else %}
+                    <td>
+                        <br/>
+                    </td>
+                    <td>
+                        <a href="#" onclick="add_to_database('{{file.name}}');">
+                            Add To Database</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% if forloop.last %}
+            </tbody>
+        </table>
+        {% endif %}
+    {% empty %}
+        <p>There were no files.</p>
+    {% endfor %}
+
+</div>

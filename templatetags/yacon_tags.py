@@ -111,6 +111,37 @@ def _render_menuitem(menuitem, language, selected, last, separator, indent):
 
     return '\n'.join(results)
 
+
+def _valum_widget(url, node, extensions=None):
+    allowed_ext = ''
+    if extensions:
+        allowed_ext = 'allowedExtensions: %s,' % extensions
+
+    return \
+"""
+    <script src="/static/js/valum_uploader/fileuploader.js" ></script>
+
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            var uploader = new qq.FileUploader({
+                action: "%s",
+                element: $('#file-uploader')[0],
+                multiple: true,
+                %s
+                params: {
+                    'node':'%s'
+                }
+              }) ;
+        });
+    </script>
+
+    <link href="/static/js/valum_uploader/fileuploader.css" media="screen" 
+        rel="stylesheet" type="text/css" />
+
+    <div id="file-uploader">       
+    </div>
+""" % (url, allowed_ext, node)
+
 # ============================================================================
 # Template Tags
 # ============================================================================
@@ -257,80 +288,34 @@ def tsort(context, name):
 
 
 @register.simple_tag()
-def jquery_uploader_template():
-    """jQuery Template mechanism uses the same syntax as the django template
-    mechanism, this tag is print out the literal jquery template.  Once Django
-    1.5 is released this should be put back in a template file with the
-    "verbatim" tag.
+def upload_widget(node):
+    """Returns a Valum Uploader widget wired to the general purpose uploading
+    URL.
+
+    :param node: storage type (public or private) and path indicator, e.g.
+        "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
     """
-    return \
-"""
-<!-- The template to display files available for upload -->
-<script id="template-upload" type="text/x-tmpl">
-{% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-upload fade">
-        <td class="delete"><br/></td>
-        <td class="preview"><span class="fade"></span></td>
-        <td class="name"><span>{%=file.name%}</span></td>
-        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
-        {% if (file.error) { %}
-            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-        {% } else if (o.files.valid && !i) { %}
-            <td>
-                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar" style="width:0%;"></div></div>
-            </td>
-            <td class="start">{% if (!o.options.autoUpload) { %}
-                <button class="btn btn-primary">
-                    <i class="icon-upload icon-white"></i>
-                    <span>{%=locale.fileupload.start%}</span>
-                </button>
-            {% } %}</td>
-        {% } else { %}
-            <td colspan="2"></td>
-        {% } %}
-        <td class="cancel">{% if (!i) { %}
-            <button class="btn btn-warning">
-                <i class="icon-ban-circle icon-white"></i>
-                <span>{%=locale.fileupload.cancel%}</span>
-            </button>
-        {% } %}</td>
-    </tr>
-{% } %}
-</script>
-<!-- The template to display files available for download -->
-<script id="template-download" type="text/x-tmpl">
-{% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-download fade">
-        <td class="delete">
-            <input type="checkbox" name="delete" value="1">
-            <button class="btn btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
-                <i class="icon-trash icon-white"></i>
-            </button>
-        </td>
-        {% if (file.error) { %}
-            <td></td>
-            <td class="name"><span>{%=file.name%}</span></td>
-            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
-            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-        {% } else { %}
-            <td class="preview">
-                {% if (file.thumbnail_url) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" 
-                        rel="gallery">
-                        <img src="{%=file.thumbnail_url%}">
-                    </a>
-                {% } else { %}
-                    <div style="width:80px"></div>
-                {% } %}
-            </td>
-            <td class="name">
-                <a target="_blank" href="{%=file.url%}" title="{%=file.name%}" 
-                    rel="{%=file.thumbnail_url&&'gallery'%}">{%=file.name%}</a>
-            </td>
-            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
-            <td colspan="2"></td>
-        {% } %}
-    </tr>
-{% } %}
-</script>
-"""
+    return _valum_widget('/yacon/nexus/uploads/upload_file/', node)
+
+
+@register.simple_tag()
+def user_upload_widget(node):
+    """Returns a Valum Uploader widget that uploads files based on the user's
+    home directory.
+
+    :param node: storage type (public or private) and path indicator, e.g.
+        "public:foo/bar" to have the uploaded file go in 
+        MEDIA_ROOT/$USERNAME/foo/bar.
+    """
+    return _valum_widget('/yacon/nexus/uploads/user_upload_file/', node)
+
+
+@register.simple_tag()
+def image_upload_widget(node):
+    """Returns a Valum Uploader widget that uploads images.
+
+    :param node: storage type (public or private) and path indicator, e.g.
+        "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
+    """
+    return _valum_widget('/yacon/nexus/uploads/upload_image/', node, 
+        extensions="['jpg', 'jpeg', 'png', 'gif']")

@@ -24,4 +24,5 @@ function load_toolbars() {
 
 function hide_all_toolbars() {
     $('#folder_toolbar').hide();
+    $('#remove_folder_warn').show();
 }

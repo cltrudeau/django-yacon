@@ -17,6 +17,7 @@ SITE = {
     'local_jquery':False,
     'custom_enabled':True,
     'private_upload':None,
+    'auto_thumbnails':{},
 }
 
 NEXUS = {

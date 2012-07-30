@@ -1,0 +1,23 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#folder_toolbar').show();
+        $('#remove_folder_warn').hide();
+    });
+</script>
+
+<div class="node">
+
+{% if tree_type == 'public' %}
+<p>
+    Directories and files contained in the Public area are accessible by 
+    everyone.  These files should be configured to be served directly by the 
+    web server.
+</p>
+{% else %}
+<p>
+    Directories and files contained in the Private area are accessible only by 
+    those with permission.  These files either need to be served by the 
+    application server or using the X-Sendfile method.
+</p>
+{% endif %}
+</div>

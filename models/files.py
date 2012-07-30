@@ -1,6 +1,7 @@
 # yacon.models.files.py
 import logging
 
+from django.contrib.auth.models import User
 from django.db import models
 
 from yacon.models.common import TimeTrackedModel
@@ -33,6 +34,7 @@ class StoredFile(TimeTrackedModel):
     #handler = models.CharField(choices=HANDLERS_DICT)
     #file_field = models.FileField(upload_to=File.content_file_name)
     file_field = models.FileField(upload_to='files')
+    owner = models.ForeignKey(User)
 
     @classmethod
     def content_file_name(cls, instance, filename):

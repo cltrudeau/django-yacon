@@ -13,22 +13,8 @@ function activate(node) {
     var path = pieces[1];
 
     if( file_type == 'system') {
-        // system node, show a blank page
-        if( path == 'public' ) {
-            $("div#node_container").html('<p>Directories and files contained '
-            + 'in the Public area are accessible by everyone.  These files '
-            + ' should be configured to be served directly by the web server.'
-            + '</p>');
-        }
-        else if( path == 'private' ) {
-            $("div#node_container").html('<p>Directories and files contained '
-            + 'in the Private area are accessible only by those with '
-            + 'permission.  These files either need to be served by the '
-            + 'application server or using the X-Sendfile method.</p>');
-        }
-        else {
-            $("div#node_container").html('<p>Error in tree</p>');
-        }
+        $("div#node_container").load('/yacon/nexus/uploads/root_control/' 
+            + file_type + '/');
     }
     else {
         $("div#node_container").load('/yacon/nexus/uploads/folder_info/' 

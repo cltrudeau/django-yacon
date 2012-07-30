@@ -11,7 +11,7 @@ function load_dialogs() {
         function(data) { // on success of ajax call
             var tree = $('#tree').dynatree("getTree");
             var node = tree.getActiveNode();
-            if( node == null ) {
+            if( node == null || node.data.key.substring(0, 6) == 'system' ) {
                 refresh_tree();
                 return
             }
@@ -31,6 +31,30 @@ function load_dialogs() {
             refresh_tree();
         }
     );
+
+    create_dialog('#change_owner_dialog', 'Change Owner', 'Change',
+        function() { // url generator
+            var node = $('#change_owner_form #change_owner_node').val();
+            var owner_id = $('#change_owner_form #change_owner_owner').val();
+            return "/yacon/nexus/uploads/change_owner/" + node + "/" 
+                + owner_id + "/";
+        },
+        function(data) { // on success of ajax call
+            var tree = $('#tree').dynatree("getTree");
+            tree.reactivate();
+        }
+    );
+    $('#change_owner_dialog').bind('dialogopen.yacon', function(event, ui) {
+        // ajax load the listing of owners
+        $.ajax({
+            url: "/yacon/nexus/uploads/list_owners/",
+            dataType: "json",
+            success: function(data) {
+                // remove old languages, replace with what server sent
+                repopulate_select('#change_owner_owner', data);
+            }
+        });
+    });
 
 /*
     create_dialog_using_tree('#add_page_dialog', 'Add Page', 'Add',
