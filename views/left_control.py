@@ -168,6 +168,17 @@ def _build_dynatree(site, expanded):
     tree = [pages_node, menus_node]
     return tree
 
+
+def _get_expanded(request):
+    expanded = []
+    if 'expandedKeyList' in request.GET:
+        for key in request.GET['expandedKeyList'].split(','):
+            key = key.strip()
+            if key:
+                expanded.append(key)
+
+    return expanded
+
 # ============================================================================
 # Control Panel: Site Methods
 # ============================================================================
@@ -188,13 +199,7 @@ def get_sites(request):
 @superuser_required
 def tree_top(request, site_id):
     site = get_object_or_404(Site, id=site_id)
-    expanded = []
-    if 'expandedKeyList' in request.GET:
-        for key in request.GET['expandedKeyList'].split(','):
-            key = key.strip()
-            if key:
-                expanded.append(key)
-
+    expanded = _get_expanded(request)
     tree = _build_dynatree(site, expanded)
 
     return HttpResponse(json.dumps(tree), content_type='application/json')
@@ -220,14 +225,16 @@ def sub_tree(request):
     if not node_type or not node_id:
         raise Http404('bad key sent: "%s"' % key)
 
+    expanded = _get_expanded(request)
     if node_type == 'node':
         node = get_object_or_404(Node, id=node_id)
-        tree = _pages_subtree(node, node.site.default_language, False, 1)
+        tree = _pages_subtree(node, node.site.default_language, False, 1,
+            expanded)
         subtree = tree['children']
     elif node_type == 'menuitem':
         menuitem = get_object_or_404(MenuItem, id=node_id)
         tree = _menuitem_subtree(menuitem, menuitem.menu.site.default_language, 
-            False, 1)
+            False, 1, expanded)
         subtree = tree['children']
     else:
         raise Http404('bad node_type sent: "%s"' % node_type)

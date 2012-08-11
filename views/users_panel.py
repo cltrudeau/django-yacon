@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 
-from yacon.constants import USER_CURATOR
+from yacon.conf import custom
 from yacon.decorators import superuser_required
 from yacon.models.common import Language
 from yacon.models.users import UsernameError
@@ -29,7 +29,8 @@ def list_users(request):
     if direction == 'rev':
         sort_args = ['-%s' % arg for arg in sort_args]
 
-    profiles = USER_CURATOR.profile_class.objects.all().order_by(*sort_args)
+    curator = custom('user_curator')
+    profiles = curator.profile_class.objects.all().order_by(*sort_args)
     data = {
         'title':'User Listing',
         'profiles':profiles,
