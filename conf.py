@@ -61,18 +61,18 @@ def _fetch_setting(group, key):
     return None
 
 
-def site(key):
+def _site(key):
     return _fetch_setting('site', key)
 
 
-def nexus(key):
+def _nexus(key):
     return _fetch_setting('nexus', key)
 
 
 _PAGE_CONTEXT = None
 _USER_CURATOR = None
 
-def custom(key):
+def _custom(key):
     global _PAGE_CONTEXT, _USER_CURATOR
 
     custom_enabled = _fetch_setting('site', 'custom_enabled')
@@ -104,3 +104,18 @@ def custom(key):
 
     # else:
     return value
+
+# ============================================================================
+# Conf 
+
+class Conf(object):
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __getattr__(self, key):
+        value = self.fn(key)
+        return value
+
+site = Conf(_site)
+nexus = Conf(_nexus)
+custom = Conf(_custom)

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.defaults import patterns
 from django.views.generic.simple import redirect_to, direct_to_template
 
-from yacon.conf import site, nexus
+from yacon import conf
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -13,7 +13,8 @@ urlpatterns = patterns('',
     # (r'^admin/', include(admin.site.urls)),
 )
 
-if site('static_serve') and (nexus('enabled') or site('examples_enabled')):
+if conf.site.static_serve and \
+        (conf.nexus.enabled or conf.site.examples_enabled):
     # enable static serving of pages for nexus and examples
     import os
     cur_dir = os.path.dirname(__file__)
@@ -24,7 +25,7 @@ if site('static_serve') and (nexus('enabled') or site('examples_enabled')):
             {'document_root':static_root}),
     )
 
-if nexus('enabled'):
+if conf.nexus.enabled:
     # nexus tabs
     urlpatterns += patterns('yacon.views.nexus',
         (r'^$', redirect_to, {'url':'/yacon/nexus/control_panel/'}),
@@ -179,7 +180,7 @@ if nexus('enabled'):
         (r'^nexus/uploads/upload_image/$', 'upload_image'),
     )
 
-if site('examples_enabled'):
+if conf.site.examples_enabled:
     urlpatterns += patterns('',
         (r'^(examples/uploads/.+\.html)$', direct_to_template),
     )

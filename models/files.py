@@ -30,11 +30,17 @@ class StoredFile(TimeTrackedModel):
     )
     HANDLERS_DICT = dict(HANDLERS)
 
-    #is_private = models.BooleanField(default=False)
+    is_private = models.BooleanField(default=False)
     #handler = models.CharField(choices=HANDLERS_DICT)
     #file_field = models.FileField(upload_to=File.content_file_name)
     file_field = models.FileField(upload_to='files')
     owner = models.ForeignKey(User)
+
+    def __unicode__(self):
+        prefix = 'public'
+        if self.is_private:
+            prefix = 'private'
+        return '%s:%s' % (prefix, self.file_field)
 
     @classmethod
     def content_file_name(cls, instance, filename):

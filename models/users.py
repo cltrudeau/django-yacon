@@ -7,7 +7,6 @@ from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from yacon.conf import custom
 from yacon.models.common import TimeTrackedModel
 
 logger = logging.getLogger(__name__)

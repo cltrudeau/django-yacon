@@ -6,8 +6,8 @@
             {% if admin_enabled %}
             <li> <a href="/admin/">Admin</a> </li>
             {% endif %}
-            {% if settings.YACON_EXTRA_ADMIN_NAV %}
-                {% for tuple in settings.YACON_EXTRA_ADMIN_NAV %}
+            {% if conf.custom.extra_admin_nav %}
+                {% for tuple in conf.custom.extra_admin_nav %}
                     <li> <a href="{{tuple.0}}">{{tuple.1}}</a> </li>
                 {% endfor %}
             {% endif %}

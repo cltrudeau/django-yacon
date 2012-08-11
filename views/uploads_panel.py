@@ -12,7 +12,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 
-from yacon.conf import site
+from yacon import conf
 from yacon.decorators import superuser_required
 from yacon.models import StoredFile
 
@@ -49,29 +49,37 @@ class FileSpec(object):
             if self.file_type == 'public':
                 self.full_dir = os.path.join(settings.MEDIA_ROOT,
                     self.relative_dir)
-            elif self.file_type == 'private' and site('private_upload'):
-                self.full_dir = os.path.join(site('private_upload'), 
+            elif self.file_type == 'private' and conf.site.private_upload:
+                self.full_dir = os.path.join(conf.site.private_upload, 
                     self.relative_dir)
             elif self.file_type == 'system':
                 # special case for creating root level folders in the admin
                 if self.relative_dir == 'public':
                     self.full_dir = settings.MEDIA_ROOT
                 elif self.relative_dir == 'private':
-                    self.full_dir = site('private_upload')
+                    self.full_dir = conf.site.private_upload
                 else:
                     raise Http404('bad path for system type')
             else:
                 raise Http404('bad tree type')
 
             if self.node_is_file:
-                self.set_filename(x)
+                self.set_filename(os.path.basename(x))
         except IndexError:
             raise Http404('bad node key')
 
     def set_filename(self, filename):
-        self.relative_filename = filename
-        self.basename = os.path.basename(filename)
+        self.basename = filename
+        self.relative_filename = os.path.join(self.relative_dir, filename)
         self.full_filename = os.path.join(self.full_dir, self.basename)
+        if os.path.isdir(self.full_filename):
+            self.node_is_file = False
+        else:
+            self.node_is_file = True
+
+    @property
+    def is_private(self):
+        return self.file_type == 'private'
 
     @property
     def title(self):
@@ -198,6 +206,7 @@ def _build_filetree(expanded):
 def _upload_save(request, spec):
     """Handles the uploading of a file from the Valum Uploader widget."""
     try:
+        #import pudb; pudb.set_trace()
         if request.is_ajax():
             # using AJAX upload, get the filename out of the query string
             filename = request.GET['qqfile']
@@ -225,7 +234,7 @@ def _upload_save(request, spec):
                 chunk = request.read(BUFFER_SIZE)
 
             spec.stored = StoredFile.objects.create(owner=request.user,
-                file_field=spec.relative_filename)
+                file_field=spec.relative_filename, is_private=spec.is_private)
         else:
             # not an AJAX request, using iframe method which means there will
             # only be one file at a time, use the first one
@@ -268,7 +277,7 @@ def _handle_upload_image(request, prefix=None):
     spec = _handle_upload(request, prefix=prefix)
 
     # create thumbnails for the image if configured
-    for key, value in site('auto_thumbnails').items():
+    for key, value in conf.site.auto_thumbnails.items():
         image_dir = os.path.realpath(os.path.join(spec.full_dir, key))
         image_name = os.path.join(image_dir, spec.basename)
         try:
@@ -374,7 +383,7 @@ def folder_info(request, node):
         except StoredFile.DoesNotExist:
             stored = None
             if spec.file_type == 'private':
-                stub.url = site('private_upload') + filename
+                stub.url = conf.site.private_upload + filename
             else:
                 stub.url = settings.MEDIA_URL + filename
 
@@ -405,7 +414,7 @@ def add_to_database(request, node):
         # file already exists, do nothing
     except StoredFile.DoesNotExist:
         StoredFile.objects.create(file_field=spec.relative_filename, 
-            owner=request.user)
+            owner=request.user, is_private=spec.is_private)
 
     return HttpResponse()
 

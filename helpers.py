@@ -1,7 +1,7 @@
 # yacon.helpers.py
 import logging
 
-from yacon.conf import custom
+from yacon import conf
 from yacon.models.site import Site
 from yacon.models.pages import PageType, BlockType
 
@@ -63,7 +63,8 @@ def prepare_context(request, uri=None):
         'uri':uri,
     }
 
-    page_context = custom('page_context')
+    page_context = conf.custom.page_context
+    logger.debug('got context: %s', page_context)
     page_context(request, uri, data)
 
     return data
