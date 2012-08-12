@@ -64,7 +64,8 @@ class UserProfileBase(TimeTrackedModel):
 
     def update_profile(self, data):
         """Updates the UserProfile and corresponding User object based on the
-        has passed in.  Note: do NOT attempt a password change this way."""
+        data that was passed in.  Note: do NOT attempt a password change this
+        way."""
         user_changed = False
         profile_changed = False
 

@@ -131,7 +131,7 @@ def _upload_save(request, spec):
 
             try:
                 os.makedirs(spec.full_dir)
-            except:
+            except OSError:
                 pass
 
             files = StoredFile.objects.filter(owner=request.user,
