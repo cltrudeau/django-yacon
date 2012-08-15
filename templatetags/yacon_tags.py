@@ -203,7 +203,12 @@ def menu(context, name, separator=''):
     so that you can add content in the templates."""
     results = []
 
-    menu = Menu.objects.get(site=context['site'], name=name)
+    try:
+        menu = Menu.objects.get(site=context['site'], name=name)
+    except Menu.DoesNotExist:
+        logger.error('no menu matching name "%s"', name)
+        return ''
+
     if 'page' in context:
         language = context['page'].language
         select = context['page'].metapage
