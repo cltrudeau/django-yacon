@@ -24,8 +24,13 @@ def create_page_type(name, template):
     return pt
 
 
-def create_block_type(name, key, module_name, content_handler_name,
-        content_handler_parms={}):
+def create_dynamic_page_type(name, module):
+    pt = PageType.objects.create(name=name, dynamic=module)
+    return pt
+
+
+def create_block_type(name, key, module_name='yacon.models.content', 
+        content_handler_name='FlatContent', content_handler_parms={}):
     """Creates and saves a new BlockType object
 
     @param name -- name of the BlockType

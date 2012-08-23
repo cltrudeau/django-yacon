@@ -51,7 +51,11 @@
             Page Type: {{metapage.page_type.name}}
         </li>
         <li>
-            Template: {{metapage.page_type.template}}
+            {% if metapage.page_type.template %}
+                Template: {{metapage.page_type.template}}
+            {% else %}
+                Dynamic Module: {{metapage.page_type.dynamic}}
+            {% endif %}
         </li>
         <li>
             In Menu: 

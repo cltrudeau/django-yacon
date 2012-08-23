@@ -36,5 +36,4 @@ def display_page(request, uri=''):
         'translations':page.other_translations(),
     })
 
-    return render_to_response(page.metapage.page_type.template, data, 
-        context_instance=RequestContext(request))
+    return page.metapage.page_type.render(request, data)

@@ -2,8 +2,11 @@
 import exceptions, logging
 from django.db import models
 from django.utils import simplejson as json
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from yacon.definitions import SLUG_LENGTH
+from yacon.loaders import dynamic_load
 from yacon.models.common import Language, TimeTrackedModel
 
 logger = logging.getLogger(__name__)
@@ -16,10 +19,23 @@ class PageType(TimeTrackedModel):
     """Defines how a page is constructed, tied to a template for rendering."""
 
     name = models.CharField(max_length=25, unique=True)
-    template = models.CharField(max_length=50)
+    template = models.CharField(max_length=50, blank=True)
+    dynamic = models.CharField(max_length=100, blank=True)
 
     class Meta:
         app_label = 'yacon'
+
+    def render(self, request, data):
+        # if there is something in template, do a static render
+        if self.template:
+            return render_to_response(self.template, data, 
+                context_instance=RequestContext(request))
+
+        # dynamic content render, call the function that is registered to
+        # return a response
+        fn = dynamic_load(self.dynamic.encode('ascii', 'ignore'))
+        response = fn(request, data)
+        return response
 
 
 class BadContentHandler(exceptions.Exception):
@@ -384,7 +400,7 @@ class DoubleAliasException(Exception):
 
 class MetaPage(TimeTrackedModel):
     """This class represents a collection of translated pages in the CMS along
-    with its placement in the doucment hierarchy.  All pages, even if they
+    with its placement in the document hierarchy.  All pages, even if they
     only have one translation, have a MetaPage.
     """
     node = models.ForeignKey('yacon.Node')
