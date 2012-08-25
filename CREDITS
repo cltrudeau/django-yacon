@@ -31,6 +31,9 @@ Snippets
             http://stackoverflow.com/users/515491/jakob-simon-gaarde
         - original posting:
             http://stackoverflow.com/questions/4241171/
+    Enum
+        - snippet based on blog posting by Tom Forb
+            http://tomforb.es/using-python-metaclasses-to-make-awesome-django-model-field-choices
 
 Inspiration
 ~~~~~~~~~~~

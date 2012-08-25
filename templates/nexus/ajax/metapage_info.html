@@ -94,6 +94,9 @@ onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|esca
                 <li>
                     Last Updated: {{default_page.updated}}
                 </li>
+                <li>
+                    Owner: {{default_page.owner}}
+                </li>
                 {% if default_page.all_blocks %}
                 <li>
                     Blocks:
@@ -152,6 +155,9 @@ onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|esca
                 </li>
                 <li>
                     Last Updated: {{page.updated}}
+                </li>
+                <li>
+                    Owner: {{default_page.owner}}
                 </li>
                 {% if page.all_blocks %}
                 <li>

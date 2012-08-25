@@ -17,6 +17,7 @@ from yacon.models.common import Language
 from yacon.models.users import UsernameError
 
 logger = logging.getLogger(__name__)
+USER_CURATOR = conf.custom.user_curator
 
 # ============================================================================
 
@@ -29,8 +30,7 @@ def list_users(request):
     if direction == 'rev':
         sort_args = ['-%s' % arg for arg in sort_args]
 
-    curator = conf.custom.user_curator
-    profiles = curator.profile_class.objects.all().order_by(*sort_args)
+    profiles = USER_CURATOR.profile_class.objects.all().order_by(*sort_args)
     data = {
         'title':'User Listing',
         'profiles':profiles,
@@ -70,6 +70,10 @@ def edit_user(request, profile_id):
 
 @superuser_required
 def add_user(request):
+    data = {
+        'title':'Add User',
+        'clear_autocomplete':True,
+    }
     if request.method == 'POST':
         form = USER_CURATOR.add_form_class(request.POST)
         if form.is_valid():
@@ -79,15 +83,13 @@ def add_user(request):
             except UsernameError:
                 errors = form._errors.setdefault('username', ErrorList())
                 errors.append('Username already exists')
+
+        # form didn't validate, turn off clear
+        data['clear_autocomplete'] = False
     else: # GET
         form = USER_CURATOR.add_form_class()
 
-    data = {
-        'title':'Add User',
-        'form':form,
-        'clear_autocomplete':True,
-    }
-
+    data['form'] = form
     return render_to_response('nexus/edit_user.html', data, 
         context_instance=RequestContext(request))
 

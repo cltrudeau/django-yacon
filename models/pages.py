@@ -1,5 +1,7 @@
 # yacon.models.pages.py
 import exceptions, logging
+
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import simplejson as json
 from django.shortcuts import render_to_response
@@ -219,6 +221,7 @@ class Page(TimeTrackedModel):
     language = models.ForeignKey(Language, related_name='+')
     slug = models.CharField(max_length=SLUG_LENGTH)
     title = models.CharField(max_length=25, blank=True, null=True)
+    owner = models.ForeignKey(User, null=True)
 
     metapage = models.ForeignKey('yacon.MetaPage')
 
@@ -441,7 +444,7 @@ class MetaPage(TimeTrackedModel):
     # MetaPage Factories
 
     @classmethod
-    def create_page(cls, node, page_type, title, slug, block_hash):
+    def create_page(cls, node, page_type, title, slug, block_hash, owner=None):
         """Creates, saves and returns a MetaPage object with a corresponding 
         Page object in the Site default language.
 
@@ -450,21 +453,24 @@ class MetaPage(TimeTrackedModel):
         :param title: title for the page
         :param slug: slug for the page
         :param block_hash: hash of content mapping block_type to content
+        :param owner: [optional] owner of the page being created
 
         :returns: MetaPage object
         """
         translation = Translation(language=node.site.default_language,
             title=title, slug=slug, block_hash=block_hash)
-        return cls.create_translated_page(node, page_type, [translation])
+        return cls.create_translated_page(node, page_type, [translation],
+            owner)
 
     @classmethod
-    def create_translated_page(cls, node, page_type, translations):
+    def create_translated_page(cls, node, page_type, translations, owner=None):
         """Creates, saves and returns a MetaPage object with multiple
         Page object translations.
 
         :param node: node in Site hierarchy where the page lives
         :param page_type: PageType for this Page
         :param translations: a list of Translation objects
+        :param owner: [optional] owner of the pages being created
 
         :returns: MetaPage object
 
@@ -477,7 +483,7 @@ class MetaPage(TimeTrackedModel):
         for tx in translations:
             node.validate_slug(tx.slug)
             page = Page(metapage=metapage, title=tx.title, slug=tx.slug, 
-                language=tx.language)
+                language=tx.language, owner=owner)
             page.save()
 
             # add the content to the translation

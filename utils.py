@@ -1,5 +1,5 @@
 # yacon.utils.py
-import logging, json
+import logging, json, inspect
 
 from django.http import HttpResponse
 
@@ -35,3 +35,48 @@ def get_user_attributes(obj, exclude_methods=True):
             pass
 
     return results
+
+
+# Enum
+#
+# borrowed and modified from:
+#  http://tomforb.es/using-python-metaclasses-to-make-awesome-django-model-field-choices
+
+class Enum(object):
+    """A tuple of tuples pattern of (id, string) is common in django for
+    choices fields, etc.  This object inspects its own members (i.e. the
+    inheritors) and produces the corresponding tuples.
+
+    Example:
+
+    class Colours(Enum):
+        RED = 'r'
+        BLUE = 'b', 'Blueish'
+
+    >> Colours.RED
+    'r'
+    >> list(Colours)
+    [('r', 'Red'), ('b', 'Blueish')]
+    """
+    class __metaclass__(type):
+        def __init__(self, *args, **kwargs):
+            self._data = []
+            for name, value in inspect.getmembers(self):
+                if not name.startswith('_') and not inspect.ismethod(value):
+                    if isinstance(value, tuple) and len(value) > 1:
+                        data = value
+                    else:
+                        pieces = [x.capitalize() for x in name.split('_')]
+                        data = (value, ' '.join(pieces))
+                    self._data.append(data)
+                    setattr(self, name, data[0])
+
+            self._hash = dict(self._data)
+
+        def __iter__(self):
+            for value, data in self._data:
+                yield (value, data)
+
+    @classmethod
+    def get_value(self, key):
+        return self._hash[key]
