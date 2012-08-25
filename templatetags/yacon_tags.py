@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 # templates for blocks
 templates = {
     'editable': loader.get_template('blocks/editable.html'),
+    'title_editable': loader.get_template('blocks/title_editable.html'),
 
     # errors
     'no_such_block_type': 
@@ -193,6 +194,20 @@ def editable_block_by_key(context, key):
         context['content'] = content
         content = templates['editable'].render(context)
 
+    return content
+
+
+@register.simple_tag(takes_context=True)
+def editable_page_title(context, page):
+    """Prints the title of the page for the given page, wrapping the 
+    title in a widget that allows editing via ajax.  
+    
+    The template for wrapping the content is found in 
+    "blocks/title_editable.html" and is loaded using the django template 
+    loader so it can be overloaded.
+    """
+    context['page'] = page
+    content = templates['title_editable'].render(context)
     return content
 
 
