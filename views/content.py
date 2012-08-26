@@ -1,13 +1,18 @@
 # yacon.views.user.py
 # blame ctrudeau chr(64) arsensa.com
 
-import logging
+import logging, urllib
 
-from django.template import RequestContext
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
-from django.http import Http404
+from django.template import RequestContext
 
+from django.views.decorators.csrf import csrf_exempt
+
+from yacon.decorators import post_required
 from yacon.helpers import prepare_context
+from yacon.models.pages import Block, Page
 
 logger = logging.getLogger(__name__)
 
@@ -37,3 +42,72 @@ def display_page(request, uri=''):
     })
 
     return page.metapage.page_type.render(request, data)
+
+# ============================================================================
+# Ajax Views
+# ============================================================================
+
+@login_required
+@post_required
+def replace_block(request):
+    """Ajax view for submitting edits to a block."""
+    if not request.REQUEST.has_key('block_id'):
+        raise Http404('replace_block requires "block_id" parameter')
+
+    if not request.REQUEST.has_key('content'):
+        raise Http404('replace_block requires "content" parameter')
+
+    try:
+        # block parameter is 'block_X' where X is the id we're after
+        block_id = request.POST['block_id'][6:]
+        block = Block.objects.get(id=block_id)
+    except Block.DoesNotExist:
+        raise Http404('no block with id "%s"' % block_id)
+
+    # check permissions
+    if not request.user.is_superuser:
+        # one of the pages associated with the block must belong to the user
+        # logged in 
+        pages = block.page_set.filter(owner=request.user)
+        if len(pages) == 0:
+            raise Http404('permission denied')
+
+    # set the new block content
+    block.content = urllib.unquote(request.POST['content'])
+    block.save()
+
+    response = HttpResponse('{"success":"true"}')
+    response['Cache-Control'] = 'no-cache'
+    return response
+
+
+@login_required
+@post_required
+def replace_title(request):
+    """Ajax view for submitting edits to a block."""
+    if not request.REQUEST.has_key('page_id'):
+        raise Http404('replace_title requires "page_id" parameter')
+
+    if not request.REQUEST.has_key('content'):
+        raise Http404('replace_title requires "content" parameter')
+
+    try:
+        # page parameter is 'page_X' where X is the id we're after
+        page_id = request.POST['page_id'][5:]
+        page = Page.objects.get(id=page_id)
+    except Page.DoesNotExist:
+        raise Http404('no page with id "%s"' % page_id)
+
+    # check permissions
+    if not request.user.is_superuser:
+        # page must belong to logged in user
+        if page.owner != request.user:
+            raise Http404('permission denied')
+
+    # set the new block content
+    page.title = urllib.unquote(request.POST['content'])
+    page.save()
+
+    response = HttpResponse('{"success":"true"}')
+    response['Cache-Control'] = 'no-cache'
+    return response

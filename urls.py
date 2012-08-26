@@ -4,14 +4,16 @@ from django.views.generic.simple import redirect_to, direct_to_template
 
 from yacon import conf
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
-
 urlpatterns = patterns('',
-    # Uncomment the next line to enable the admin:
-    # (r'^admin/', include(admin.site.urls)),
+    # need empty pattern block to start with as code below does conditional
+    # adding of more patterns
 )
+
+if conf.site.ajax_edit_enabled:
+    urlpatterns += patterns('yacon.views.content',
+        (r'^replace_block/$', 'replace_block'),
+        (r'^replace_title/$', 'replace_title'),
+    )
 
 if conf.site.static_serve and \
         (conf.nexus.enabled or conf.site.examples_enabled):

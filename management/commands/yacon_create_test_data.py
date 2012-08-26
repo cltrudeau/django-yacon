@@ -197,7 +197,7 @@ class Command(BaseCommand):
 
         # create an admin
         profile = UserProfile.create('admin', 'A', 'Admin', 'admin@admin.com', 
-            'shady!Eggs')
+            'admin')
         profile.user.is_staff = True
         profile.user.is_superuser = True
         profile.user.save()

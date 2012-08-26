@@ -220,7 +220,7 @@ class Translation(object):
 class Page(TimeTrackedModel):
     language = models.ForeignKey(Language, related_name='+')
     slug = models.CharField(max_length=SLUG_LENGTH)
-    title = models.CharField(max_length=25, blank=True, null=True)
+    title = models.CharField(max_length=50, blank=True, null=True)
     owner = models.ForeignKey(User, null=True)
 
     metapage = models.ForeignKey('yacon.MetaPage')
