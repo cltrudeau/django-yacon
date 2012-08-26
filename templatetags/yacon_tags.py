@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 templates = {
     'editable': loader.get_template('blocks/editable.html'),
     'title_editable': loader.get_template('blocks/title_editable.html'),
+    'page_last_updated': loader.get_template('blocks/page_last_updated.html'),
 
     # errors
     'no_such_block_type': 
@@ -208,6 +209,22 @@ def editable_page_title(context, page):
     """
     context['page'] = page
     content = templates['title_editable'].render(context)
+    return content
+
+
+@register.simple_tag(takes_context=True)
+def page_last_updated(context, page):
+    """Returns the most recent timestamp of the given page or all of its
+    blocks.  Content is wrapped in a template with divs that yacon/editable.js
+    is aware of to change the value via ajax when something on the page is
+    edited.
+    
+    The template for wrapping the content is found in 
+    "blocks/page_last_updated.html" and is loaded using the django template 
+    loader so it can be overloaded.
+    """
+    context['page'] = page
+    content = templates['page_last_updated'].render(context)
     return content
 
 

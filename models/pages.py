@@ -167,7 +167,7 @@ Instantiation errors are usually caused by problems in the constructor.
         return self.content_handler_instance
 
 
-class Block(models.Model):
+class Block(TimeTrackedModel):
     """Defines a block of content for the CMS"""
     block_type = models.ForeignKey(BlockType)
 
@@ -396,6 +396,17 @@ class Page(TimeTrackedModel):
         """Shortcut property method for "blocks.all()" so it can be called
         inside of a template."""
         return self.blocks.all()
+
+    @property
+    def last_updated(self):
+        """Returns the most recent time stamp of this Page and all of its
+        associated blocks."""
+        latest = self.updated
+        for block in self.blocks.all():
+            if block.updated > latest:
+                latest = block.updated
+
+        return latest
 
 
 class DoubleAliasException(Exception):

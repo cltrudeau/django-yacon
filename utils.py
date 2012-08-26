@@ -80,3 +80,13 @@ class Enum(object):
     @classmethod
     def get_value(self, key):
         return self._hash[key]
+
+
+class JSONResponse(HttpResponse):
+    def __init__(self, obj, **kwargs):
+        extra_headers = kwargs.pop('extra_headers', {})
+        kwargs['mimetype'] = 'application/json'
+        super(JSONResponse, self).__init__(json.dumps(obj), **kwargs)
+
+        for key, value in extra_headers.items():
+            self[key] = value

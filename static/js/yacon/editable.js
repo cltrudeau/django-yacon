@@ -5,10 +5,20 @@ function buttons_edit_mode(div, name) {
     $(name + '_cancel').show();
     $(name + '_done').show();
 }
+
 function buttons_save_mode(div, name) {
     $(name + '_edit').show();
     $(name + '_cancel').hide();
     $(name + '_done').hide();
+}
+
+function page_last_updated(page_set) {
+    for(var i=0; i < page_set.length; i++) {
+        var id = '#page_updated_' + page_set[i][0];
+        $(id).each(function() {
+            $(this).html(page_set[i][1]);
+        });
+    }
 }
 
 $(document).ready(function() {
@@ -75,10 +85,18 @@ $(document).ready(function() {
         var editor = div.children('.yacon_editable_content').ckeditorGet();
         $.ajax({
             url:'/yacon/replace_block/',
-            success: function() {
-                buttons_save_mode(div, '.yacon_editable');
-                div.children('.yacon_ajax_error').hide();
-                editor.destroy();
+            success: function(data) {
+                if(data == null || data['success'] != true ) {
+                    div.children('.yacon_ajax_error').html('<p>An error ' 
+                        + 'occurred submitting, please try again.</p>');
+
+                } 
+                else {
+                    buttons_save_mode(div, '.yacon_editable');
+                    div.children('.yacon_ajax_error').hide();
+                    page_last_updated(data['last_updated_list']);
+                    editor.destroy();
+                }
             },
             error: function() {
                 div.children('.yacon_ajax_error').html(
@@ -130,10 +148,20 @@ $(document).ready(function() {
         content = content.replace(/^\s+|\s+$/g, '');
         $.ajax({
             url:'/yacon/replace_title/',
-            success: function() {
-                buttons_save_mode(div, '.yacon_title_editable');
-                div.children('.yacon_editable_content').html(content);
-                div.children('.yacon_ajax_error').hide();
+            success: function(data) {
+                if(data == null || data['success'] != true ) {
+                    div.children('.yacon_ajax_error').html('<p>An error ' 
+                        + 'occurred submitting, please try again.</p>');
+
+                } 
+                else {
+                    var page_set = [[data['page_id'], data['last_updated']]];
+                    page_last_updated(page_set);
+
+                    buttons_save_mode(div, '.yacon_title_editable');
+                    div.children('.yacon_editable_content').html(content);
+                    div.children('.yacon_ajax_error').hide();
+                }
             },
             error: function() {
                 div.children('.yacon_ajax_error').html(

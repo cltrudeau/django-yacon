@@ -4,15 +4,17 @@
 import logging, urllib
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.utils import formats
 
 from django.views.decorators.csrf import csrf_exempt
 
 from yacon.decorators import post_required
 from yacon.helpers import prepare_context
 from yacon.models.pages import Block, Page
+from yacon.utils import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +78,18 @@ def replace_block(request):
     block.content = urllib.unquote(request.POST['content'])
     block.save()
 
-    response = HttpResponse('{"success":"true"}')
-    response['Cache-Control'] = 'no-cache'
+    last_updated_list = []
+    for page in block.page_set.all():
+        when = formats.date_format(page.last_updated, 'DATETIME_FORMAT')
+        last_updated_list.append((page.id, when))
+    result = {
+        'success':True,
+        'block_id':block.id,
+        'last_updated_list':last_updated_list,
+    }
+    print '*** result: ', result
+    response = JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    print '*** response: ', response
     return response
 
 
@@ -108,6 +120,11 @@ def replace_title(request):
     page.title = urllib.unquote(request.POST['content'])
     page.save()
 
-    response = HttpResponse('{"success":"true"}')
-    response['Cache-Control'] = 'no-cache'
+    result = {
+        'success':True,
+        'last_updated':formats.date_format(page.last_updated, 
+            'DATETIME_FORMAT'),
+        'page_id':page.id,
+    }
+    response = JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
     return response
