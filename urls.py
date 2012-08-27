@@ -4,9 +4,25 @@ from django.views.generic.simple import redirect_to, direct_to_template
 
 from yacon import conf
 
-urlpatterns = patterns('',
-    # need empty pattern block to start with as code below does conditional
-    # adding of more patterns
+urlpatterns = patterns('yacon.views.browser',
+    (r'^ckeditor_browser/$', 'ckeditor_browser'),
+
+    # left pane
+    (r'^browser/tree_top/$', 'tree_top'),
+    (r'^browser/sub_tree/$', 'sub_tree'),
+
+    # right pane
+    (r'^browser/root_control/(.*)/$', 'root_control'),
+    (r'^browser/show_folder/(.*)/$', 'show_folder'),
+    (r'^browser/add_folder/(.*)/(.*)/$', 'add_folder'),
+    (r'^browser/remove_folder_warn/(.*)/$', 'remove_folder_warn'),
+    (r'^browser/remove_folder/(.*)/$', 'remove_folder'),
+    (r'^browser/remove_file/(.*)/$', 'remove_file'),
+
+    # upload 
+    (r'^browser/upload_file/$', 'upload_file'),
+    (r'^browser/user_upload_file/$', 'user_upload_file'),
+    (r'^browser/upload_image/$', 'upload_image'),
 )
 
 if conf.site.ajax_edit_enabled:
@@ -158,28 +174,6 @@ if conf.nexus.enabled:
     # Uploads Panel
     urlpatterns += patterns('yacon.views.nexus',
         (r'^nexus/uploads_panel/$', 'uploads_panel'),
-    )
-
-    urlpatterns += patterns('yacon.views.uploads_panel',
-        # left pane
-        (r'^nexus/uploads/tree_top/$', 'tree_top'),
-        (r'^nexus/uploads/sub_tree/$', 'sub_tree'),
-
-        # right pane
-        (r'^nexus/uploads/root_control/(.*)/$', 'root_control'),
-        (r'^nexus/uploads/folder_info/(.*)/$', 'folder_info'),
-        (r'^nexus/uploads/add_to_database/(.*)/$', 'add_to_database'),
-        (r'^nexus/uploads/add_folder/(.*)/(.*)/$', 'add_folder'),
-        (r'^nexus/uploads/remove_folder_warn/(.*)/$', 'remove_folder_warn'),
-        (r'^nexus/uploads/remove_folder/(.*)/$', 'remove_folder'),
-        (r'^nexus/uploads/list_owners/$', 'list_owners'),
-        (r'^nexus/uploads/change_owner/(.*)/(\d+)/$', 'change_owner'),
-        (r'^nexus/uploads/remove_file/(.*)/$', 'remove_file'),
-
-        # upload 
-        (r'^nexus/uploads/upload_file/$', 'upload_file'),
-        (r'^nexus/uploads/user_upload_file/$', 'user_upload_file'),
-        (r'^nexus/uploads/upload_image/$', 'upload_image'),
     )
 
 if conf.site.examples_enabled:

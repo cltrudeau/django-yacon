@@ -3,11 +3,13 @@
 #
 # Defines specialized template tags for the rendering of content from the CMS
 
-import logging, traceback
+import logging, traceback, json
+
 from django import template
 from django.template import loader
 from django.template.base import Node
 
+from yacon import conf
 from yacon.models.pages import BlockType
 from yacon.models.hierarchy import Menu
 
@@ -332,7 +334,7 @@ def upload_widget(node):
     :param node: storage type (public or private) and path indicator, e.g.
         "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
     """
-    return _valum_widget('/yacon/nexus/uploads/upload_file/', node)
+    return _valum_widget('/yacon/browser/upload_file/', node)
 
 
 @register.simple_tag()
@@ -344,7 +346,7 @@ def user_upload_widget(node):
         "public:foo/bar" to have the uploaded file go in 
         MEDIA_ROOT/$USERNAME/foo/bar.
     """
-    return _valum_widget('/yacon/nexus/uploads/user_upload_file/', node)
+    return _valum_widget('/yacon/browser/user_upload_file/', node)
 
 
 @register.simple_tag()
@@ -354,5 +356,32 @@ def image_upload_widget(node):
     :param node: storage type (public or private) and path indicator, e.g.
         "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
     """
-    return _valum_widget('/yacon/nexus/uploads/upload_image/', node, 
-        extensions="['jpg', 'jpeg', 'png', 'gif']")
+    extensions = json.dumps(conf.site.image_extensions)
+
+    return _valum_widget('/yacon/browser/upload_image/', node, 
+        extensions=extensions)
+
+
+@register.simple_tag(takes_context=True)
+def regroup(context, listing, size):
+    """Takes a list and creates a new list of lists that are "size" long and
+    puts it in a variable named "grouped".  This is done in a tag so that it
+    can be done after pagination for performance reasons."""
+
+    grouped = []
+    subgroup = []
+    count = 0
+    for item in listing:
+        if count == size:
+            grouped.append(subgroup)
+            subgroup = []
+            count = 0
+
+        subgroup.append(item)
+        count += 1
+
+    if subgroup:
+        grouped.append(subgroup)
+
+    context['grouped'] = grouped
+    return ''

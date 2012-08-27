@@ -1,0 +1,25 @@
+<p>
+    Please confirm you would like to delete the following folder:
+    <br/>
+    <br/>
+    {{spec.relative_dir}}/
+</p>
+<p>
+    {% for dir in dirs %}
+        {% if forloop.first %}
+            This will also remove the following directories:<br/>
+            <br/>
+        {% endif %}
+        {{dir}}/<br/>
+    {% endfor %}
+</p>
+<p>
+    {% for file in files %}
+        {% if forloop.first %}
+            This will also remove the following files:<br/>
+            <br/>
+        {% endif %}
+        {{file}}<br/>
+    {% endfor %}
+</p>
+<h2>This action cannot be undone!</h2>

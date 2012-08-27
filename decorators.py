@@ -5,6 +5,8 @@ from functools import wraps
 from django.contrib.auth.views import redirect_to_login
 from django.http import Http404
 
+from yacon.utils import FileSpec
+
 # ============================================================================
 
 def superuser_required(target):
@@ -34,3 +36,36 @@ def post_required(target):
 
         return target(*args, **kwargs)
     return wrapper
+
+
+def verify_node(is_file):
+    """Decorator to check user's permissions against a file node (arg1) passed 
+    into the view.  A FileSpec is created based on the node, if the permission
+    check passes then this spec is put into the request (arg0).  
+
+    If the user is a superuser then the permissions are granted.  If not, the
+    node is checked against the user in the request.  A user is only granted
+    permission if the node is in under one of "public:users/X" or 
+    "private:users/X", where X is the username found in the request.
+    
+    The "is_file" parameter is a boolean, True indicates the node is a file.
+    """
+    def decorator(target):
+        @wraps(target)
+        def wrapper(*args, **kwargs):
+            # process options
+            request = args[0]
+            node = args[1]
+            spec = FileSpec(node, node_is_file=is_file)
+
+            if spec.allowed_for_user(request.user):
+                request.spec = spec
+                return target(*args, **kwargs)
+
+            logger.error('user %s attempted to access node %s',
+                request.user.username, node)
+
+            raise Http404('permission denied')
+
+        return wrapper
+    return decorator

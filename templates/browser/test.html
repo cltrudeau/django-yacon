@@ -1,0 +1,15 @@
+<script type='text/javascript'>
+    function choose_url(url) {
+        window.opener.CKEDITOR.tools.callFunction({{CKEditorFuncNum}}, url);
+    }
+</script>
+
+<html>
+<head>
+    <title>File Browser</title>
+</head>
+<body>
+    <a href="javascript:void(0);" 
+        onclick="choose_url('/media/users/tom58/profile.png')">Choose Me</a>
+</body>
+</html>

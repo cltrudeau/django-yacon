@@ -34,51 +34,42 @@ $(document).ready(function() {
 
     // register click handler for all edit buttons
     $('.yacon_editable_edit').click(function(event) {
+        if( typeof edit_preconditions == 'function' ) {
+            edit_preconditions();
+        }
         var div = $(this).parent();
         buttons_edit_mode(div, '.yacon_editable');
+        var config_file = '/static/js/yacon/ckeditor_config.js';
+        if( typeof config_file_overwrite == 'string' ) {
+            config_file = config_file_overwrite;
+        }
         var config = {
-            toolbar: [
-                {   name: 'clipboard', 
-                    items : ['Cut', 'Copy', 'Paste', 'PasteText', 
-                        'PasteFromWord', '-', 'Undo', 'Redo' ] 
-                },
-                {   name: 'editing', 
-                    items : ['Find', 'Replace', '-', 'SelectAll'] 
-                },
-                {   name: 'basicstyles', 
-                    items : ['Bold', 'Italic', 'Underline', 'Strike', 
-                        'Subscript', 'Superscript', '-', 'RemoveFormat' ]
-                },
-                {   name: 'paragraph', 
-                    items : ['NumberedList', 'BulletedList', '-', 'Outdent', 
-                        'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 
-                        'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-                },
-                {   name: 'links', 
-                    items : ['Link', 'Unlink', 'Anchor']
-                },
-                {   name: 'insert', 
-                    items : ['Image', 'Table', 'HorizontalRule', 'Smiley', 
-                        'SpecialChar']
-                },
-                {   name: 'styles', 
-                    items : ['Styles', 'Format', 'Font', 'FontSize']
-                },
-                {   name: 'colors', 
-                    items : ['TextColor', 'BGColor']
-                },
-                {   name: 'tools', 
-                    items : ['ShowBlocks']
-                }
-            ]
+            //customConfig: config_file,
+            height: div.height(),
+            width: div.width(),
+            filebrowserBrowseUrl:'/yacon/browser/',
+            filebrowserImageBrowseUrl:'/yacon/browser/',
         };
+        if( typeof extra_config == 'object') {
+            for(var name in extra_config) {
+                if( extra_config.hasOwnProperty(name)) {
+                    config[name] = extra_config[name];
+                }
+            }
+        }
 
         old_html[div.id] = div.children('.yacon_editable_content').html();
         div.children('.yacon_editable_content').ckeditor(config);
+        if( typeof edit_postconditions == 'function' ) {
+            edit_postconditions();
+        }
     });
 
     // register click handler for all done buttons
     $('.yacon_editable_done').click(function(event) {
+        if( typeof done_preconditions == 'function' ) {
+            done_preconditions();
+        }
         var div = $(this).parent();
         var block_id = div.attr('id');
         var csrf = div.children('.yacon_ajax_csrf').html();
@@ -96,6 +87,10 @@ $(document).ready(function() {
                     div.children('.yacon_ajax_error').hide();
                     page_last_updated(data['last_updated_list']);
                     editor.destroy();
+
+                    if( typeof done_postconditions == 'function' ) {
+                        done_postconditions();
+                    }
                 }
             },
             error: function() {
@@ -113,12 +108,18 @@ $(document).ready(function() {
 
     // register click handler for all cancel buttons
     $('.yacon_editable_cancel').click(function(event) {
+        if( typeof cancel_preconditions == 'function' ) {
+            cancel_preconditions();
+        }
         var div = $(this).parent();
         buttons_save_mode(div, '.yacon_editable');
         div.children('.yacon_ajax_error').hide();
         var editor = div.children('.yacon_editable_content').ckeditorGet();
         editor.destroy();
         div.children('.yacon_editable_content').html(old_html[div.id]);
+        if( typeof cancel_postconditions == 'function' ) {
+            cancel_postconditions();
+        }
     });
 
     // ======================================================================

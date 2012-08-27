@@ -49,7 +49,8 @@ def config_panel(request):
 def uploads_panel(request):
     data = {
         'title':'Uploads',
+        'base_template':'nexus_base.html',
     }
 
-    return render_to_response('nexus/uploads_panel.html', data, 
+    return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))

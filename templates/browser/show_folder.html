@@ -1,0 +1,99 @@
+{% load yacon_tags %}
+
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#folder_toolbar').show();
+    });
+
+    function remove_file(filename) {
+        var action = confirm('Remove \"' + filename + '"?  This cannot be '
+            + 'undone.');
+        if( action ) {
+            var node = encodeURIComponent('{{node}}/' + filename);
+            $.ajax({
+                url: "/yacon/browser/remove_file/" + node + "/",
+                dataType: "json",
+                success: function(data) {
+                    var tree = $('#tree').dynatree("getTree");
+                    tree.reactivate();
+                }
+            });
+        }
+    }
+</script>
+
+<link type="text/css" rel="stylesheet" href="/static/css/browser.css" />	
+
+<div class="node">
+    <h2> Folder: {{spec.relative_dir}}/ </h2>
+    <p>
+        Click the "Upload a file" button to choose one or more files to upload 
+        to this directory.  If your browser supports drag-and-drop you can also
+        simply drag files to the button.  Files with the same name will be
+        overwritten.
+    </p>
+    {% upload_widget node %}
+
+    {% if images %}
+    <div id="images">
+        <h3> Images </h3>
+
+        {% regroup images 3 %}
+        {% for triple in grouped %}
+            <div class="image_listing">
+                {% for item in triple %}
+                    <div class="{% cycle 'image_left' 'image_mid' 'image_right' %}">
+                        {% if item %}
+                            <div class="image_photo">
+                                <img width="{{stub.width}}" 
+                                    height="{{stub.height}}" 
+                                    src="{{item.url}}"/>
+                            </div>
+                            <div class="image_box">
+                                <a href="#" class="image_delete"
+                                    onclick="remove_file('{{item.name}}');">
+                                    X</a> 
+                                <a target="_blank" href="{{item.url}}">
+                                    {{item.name}}</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if files %}
+    <div id="files">
+    <h3> Files </h3>
+
+    {% regroup files 3 %}
+
+        {% for triple in grouped %}
+            <div class="file_listing">
+                {% for item in triple %}
+                    <div 
+                        class="{% cycle 'file_left' 'file_mid' 'file_right' %}">
+                        {% if item %}
+                            <div class="file_box">
+                                <a href="#" class="file_delete"
+                                    onclick="remove_file('{{item.name}}');">
+                                    X</a> 
+                                <a target="_blank" href="{{item.url}}">
+                                    {{item.name}}</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not images and not files %}
+        <p>
+            <i>Empty folder</i>
+        </p>
+    {% endif %}
+</div>

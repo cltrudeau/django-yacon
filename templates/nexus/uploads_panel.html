@@ -1,4 +1,4 @@
-{% extends "nexus/nexus_base.html" %}
+{% extends "nexus_base.html" %}
 
 {% block scripts %}
     {{ block.super }}
@@ -51,11 +51,6 @@
 <div id="remove_folder_dialog">
 </div>
 
-{% comment %}
-<div id="remove_file_dialog">
-</div>
-{% endcomment %}
-
 <div id="add_folder_dialog">
     <p>
         Enter name of folder:
@@ -69,24 +64,6 @@
                 </td>
             </tr>
         </table>
-    </form>
-</div>
-
-<div id="change_owner_dialog">
-    <p>
-        Choose a new owner:
-    </p>
-    <form id="change_owner_form">
-        <table class="dialog_form_table">
-            <tr>
-                <th> <label for="change_owner_owner">Owner</label> </th>
-                <td> 
-                    <select id="change_owner_owner">
-                    </select>
-                </td>
-            </tr>
-        </table>
-        <input type="hidden" id="change_owner_node" /> 
     </form>
 </div>
 {% endblock content %}

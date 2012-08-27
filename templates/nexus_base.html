@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>Admin: {{title}}</title>
+    <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
+    {% if settings.YACON_USE_LOCAL_JQUERY %}
+        <script type="text/JavaScript" src="/static/js/jquery-1.7.2.min.js">
+        </script>
+    {% else %}
+        <script type="text/JavaScript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+        </script>
+    {% endif %}
+    <script type="text/JavaScript" 
+        src="/static/js/jquery-ui-1.8.19.custom.min.js">
+    </script>
+    <link type="text/css" rel="stylesheet" 
+        href="/static/css/smoothness/jquery-ui-1.8.19.custom.css" />	
+
+    <script type="text/JavaScript" src="/static/js/yacon/utils.js"></script>
+
+    <!-- tab nav -->
+    <script type="text/JavaScript" src="/static/js/jquery-tab-nav.js">
+    </script>
+    <link type="text/css" rel="stylesheet" 
+        href="/static/css/jquery-tab-nav.css" />	
+
+    <!-- nav bar -->
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            $('#navbar').tabnav();
+        });
+    </script>
+
+    {% block css %}
+    {% endblock css %}
+    {% block scripts %}
+    {% endblock scripts %}
+
+    <!-- yacon style and scripts -->
+    <link rel="stylesheet" type="text/css" href="/static/css/nexus.css"/>
+</head>
+<body>
+    <div id="menu">
+        <ul>
+            <li><a href="{{settings.LOGOUT_URL}}">Logout</a></li>
+        </ul>
+    </div>
+    <div id="container">
+        <div id="navbar">
+            {% block navbar %}
+                {% include "nexus/includes/nav.html" %}
+            {% endblock navbar %}
+        </div>
+        <div id="content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+</body>
+</html>

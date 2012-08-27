@@ -1,0 +1,35 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#folder_toolbar').show();
+        $('#remove_folder_warn').hide();
+    });
+</script>
+
+<div class="node">
+<p>
+    Choose a folder on the left hand side to see your files.
+</p>
+
+{% if tree_type == 'public' %}
+<p>
+    Everything under the "Public" folder is visible to anyone on the web.  
+</p>
+    {% if is_superuser %}
+    <p>
+        These files should be configured to be served directly by the 
+        web server.
+    </p>
+    {% endif %}
+{% else %}
+<p>
+    Files and folders under the "Private" folder are only visible to people
+    to which you have granted permission.
+</p>
+    {% if is_superuser %}
+    <p>
+        These files either need to be served by the 
+        application server or using the X-Sendfile method.
+    </p>
+    {% endif %}
+{% endif %}
+</div>

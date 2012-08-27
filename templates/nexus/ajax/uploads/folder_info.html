@@ -6,26 +6,6 @@
             $('#folder_toolbar').show();
         });
 
-        function add_to_database(filename) {
-            var node = encodeURIComponent('{{node}}/' + filename);
-            $.ajax({
-                url: "/yacon/nexus/uploads/add_to_database/" + node + '/',
-                dataType: "json",
-                success: function(data) {
-                    var tree = $('#tree').dynatree("getTree");
-                    tree.reactivate();
-                }
-            });
-        }
-
-        function change_owner(filename) {
-            // set the hidden value of what file was chosen, then open the
-            // dialog 
-            var node = encodeURIComponent('{{node}}/' + filename);
-            $('#change_owner_form #change_owner_node').val(node);
-            $('#change_owner_dialog').dialog("open");
-        }
-
         function remove_file(filename) {
             var action = confirm('Remove \"' + filename + '"?  This cannot be '
                 + 'undone.');
@@ -69,31 +49,6 @@
                 <td>
                     <a target="_blank" href="{{file.url}}">{{file.name}}</a>
                 </td>
-                {% if file.stored %}
-                    <td>
-                        <div style="float:left;">
-                            {{file.stored.owner.first_name}}
-                            {{file.stored.owner.last_name}}
-                            ({{file.stored.owner.username}})
-                        </div>
-                        <div style="float:right;">
-                            <a href="#" 
-                                onclick="change_owner('{{file.name}}');">
-                                Change</a>
-                        </div>
-                    </td>
-                    <td>
-                        {{file.stored}} 
-                    </td>
-                {% else %}
-                    <td>
-                        <br/>
-                    </td>
-                    <td>
-                        <a href="#" onclick="add_to_database('{{file.name}}');">
-                            Add To Database</a>
-                    </td>
-                {% endif %}
             </tr>
         {% if forloop.last %}
             </tbody>

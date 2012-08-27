@@ -1,0 +1,68 @@
+{% extends base_template %}
+
+{% block scripts %}
+    {{ block.super }}
+    <!-- dynatree -->
+    <link type="text/css" rel="stylesheet" 
+        href="/static/js/dynatree/skin/ui.dynatree.css" />	
+    <script type="text/JavaScript" src="/static/js/dynatree/jquery.cookie.js">
+    </script>
+    <script type="text/JavaScript" 
+        src="/static/js/dynatree/jquery.dynatree.min.js"> </script>
+
+    <script type="text/JavaScript" src="/static/js/yacon/tree.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/browser/toolbars.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/browser/dialogs.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/browser/setup.js">
+    </script>
+
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            setup();
+        });
+    </script>
+{% endblock scripts %}
+
+{% block content %}
+<div class="left">
+    <div class="toolbar ui-widget-header ui-corner-all">
+    </div>
+    <div id="tree_container">
+        <div id="tree">
+        </div>
+    </div>
+</div>
+<div class="right">
+    <div class="toolbar ui-widget-header ui-corner-all">
+        <div id="folder_toolbar">
+            <button id="add_folder">Add Child Folder</button>
+            <button id="remove_folder_warn">Remove Folder</button>
+        </div>
+    </div>
+    <div id="node_container">
+    </div>
+</div>
+
+<!-- Dialog Boxes -->
+<div id="remove_folder_dialog">
+</div>
+
+<div id="add_folder_dialog">
+    <p>
+        Enter name of folder:
+    </p>
+    <form id="add_folder_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_folder_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_folder_name" /> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+{% endblock content %}

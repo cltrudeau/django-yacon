@@ -19,6 +19,7 @@ SITE = {
     'custom_enabled':True,
     'private_upload':None,
     'auto_thumbnails':{},
+    'image_extensions':['jpg', 'jpeg', 'png', 'gif'],
 }
 
 NEXUS = {
