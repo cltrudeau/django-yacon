@@ -61,7 +61,7 @@ class Enum(object):
 class JSONResponse(HttpResponse):
     def __init__(self, obj, **kwargs):
         extra_headers = kwargs.pop('extra_headers', {})
-        kwargs['mimetype'] = 'application/json'
+        kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(json.dumps(obj), **kwargs)
 
         for key, value in extra_headers.items():
