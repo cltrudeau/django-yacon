@@ -44,11 +44,11 @@ $(document).ready(function() {
             config_file = config_file_overwrite;
         }
         var config = {
-            //customConfig: config_file,
+            customConfig: config_file,
             height: div.height(),
             width: div.width(),
-            filebrowserBrowseUrl:'/yacon/browser/',
-            filebrowserImageBrowseUrl:'/yacon/browser/',
+            filebrowserBrowseUrl:'/yacon/ckeditor_browser/',
+            filebrowserImageBrowseUrl:'/yacon/ckeditor_browser/?image_only=1',
         };
         if( typeof extra_config == 'object') {
             for(var name in extra_config) {

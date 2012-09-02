@@ -1,0 +1,22 @@
+/* Two-Column Views */
+.right, .left {
+    height:100%;
+    float: left;
+}
+.left {
+    min-width: 14%;
+    max-width: 14%;
+    padding-right: 1%;
+}
+.right {
+    min-width: 50%;
+    max-width: 70%;
+    margin-bottom:40px;
+}
+
+#fake_toolbar {
+    height:46px;
+}
+#tree_container {
+    margin-top:10px;
+}

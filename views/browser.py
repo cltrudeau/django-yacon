@@ -134,8 +134,16 @@ def ckeditor_browser(request):
     if not func_num:
         raise Http404('CKEditorFuncNum must be provided')
 
+    image_only = request.GET.get('image_only', False)
+    if image_only == "1":
+        image_only = True
+
+    request.session['func_num'] = func_num
+    request.session['choose_mode'] = 'select'
+    request.session['image_only'] = image_only
     data = {
-        'CKEditorFuncNum':func_num,
+        'title':'Uploads',
+        'base_template':'browser_base.html',
     }
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
@@ -220,6 +228,7 @@ class StubFile(object):
 @verify_node(False)
 def show_folder(request, node):
     spec = request.spec    # verify_node puts this in the request
+    image_only = request.session['image_only']
 
     files = []
     images = []
@@ -242,21 +251,22 @@ def show_folder(request, node):
             stub.url = settings.MEDIA_URL + filename
 
         if stub.ext in conf.site.image_extensions:
-
-
-
             images.append(stub)
         else:
-            files.append(stub)
+            if not image_only:
+                files.append(stub)
 
     images.sort(key=operator.attrgetter('lower_name'))
     files.sort(key=operator.attrgetter('lower_name'))
+
     data = {
         'title':'Folder Info',
         'node':node,
         'spec':spec,
         'files':files,
         'images':images,
+        'func_num':request.session['func_num'],
+        'choose_mode':request.session['choose_mode'],
     }
 
     return render_to_response('browser/show_folder.html', data, 

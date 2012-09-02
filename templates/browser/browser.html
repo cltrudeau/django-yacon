@@ -21,6 +21,9 @@
 
     <script type="text/JavaScript">
         $(document).ready(function(){
+            if( "{{select_mode}}" == "view" ) {
+                $('#navbar').tabnav('select', 3);
+            }
             setup();
         });
     </script>
@@ -29,6 +32,7 @@
 {% block content %}
 <div class="left">
     <div class="toolbar ui-widget-header ui-corner-all">
+        <div id="fake_toolbar"></div>
     </div>
     <div id="tree_container">
         <div id="tree">

@@ -50,6 +50,7 @@ def uploads_panel(request):
     data = {
         'title':'Uploads',
         'base_template':'nexus_base.html',
+        'choose_mode':'view',
     }
 
     return render_to_response('browser/browser.html', data, 
