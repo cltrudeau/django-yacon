@@ -3,6 +3,36 @@
 <script type="text/JavaScript">
     $(document).ready(function(){
         $('#folder_toolbar').show();
+        $('#testit').click(function() {
+            $('.image_box').first().each(function() {
+            });
+        });
+
+        $('.hover_box').hover(
+            function() {
+                $(this).css({
+                    'overflow':'visible',
+                    'background-color':'#fff',
+                    'border':'1px solid #999',
+                    'z-index':1000,
+                    'width':'auto',
+                    'position':'relative',
+                });
+                var width = $(this).find('.filename').width() + 30;
+                $(this).css({
+                'width':width
+                });
+            },
+            function() {
+                $(this).css({
+                    'border':'1px solid #fff',
+                    'overflow':'hidden',
+                    'z-index':1,
+                    'width':'auto',
+                });
+            }
+        );
+
     });
 
     function remove_file(filename) {
@@ -35,6 +65,7 @@
     {% upload_widget node %}
 
     {% if images %}
+    <button id='testit'>Test it</button>
     <div id="images">
         <h3> Images </h3>
 
@@ -49,12 +80,12 @@
                                     height="{{stub.height}}" 
                                     src="{{item.url}}"/>
                             </div>
-                            <div class="image_box">
+                            <div class="image_box hover_box">
                                 <a href="#" class="image_delete"
                                     onclick="remove_file('{{item.name}}');">
                                     X</a> 
-                                <a target="_blank" href="{{item.url}}">
-                                    {{item.name}}</a>
+                                <a target="_blank" class="filename" 
+                                    href="{{item.url}}">{{item.name}}</a>
                             </div>
                         {% endif %}
                     </div>
@@ -76,12 +107,12 @@
                     <div 
                         class="{% cycle 'file_left' 'file_mid' 'file_right' %}">
                         {% if item %}
-                            <div class="file_box">
+                            <div class="file_box hover_box">
                                 <a href="#" class="file_delete"
                                     onclick="remove_file('{{item.name}}');">
                                     X</a> 
-                                <a target="_blank" href="{{item.url}}">
-                                    {{item.name}}</a>
+                                <a target="_blank" class="filename"
+                                    href="{{item.url}}">{{item.name}}</a>
                             </div>
                         {% endif %}
                     </div>

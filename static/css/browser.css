@@ -12,11 +12,11 @@
     float:left;
     width:180px;
     margin:10px;
-    overflow:hidden;
 }
 .image_photo{
     width:180px;
     height:180px;
+    overflow:hidden;
 }
 .image_photo img {
     max-height:100%;
@@ -26,6 +26,7 @@
     margin-top:5px;
     overflow:hidden;
     white-space:nowrap;
+    border:1px solid #fff;
 }
 .image_delete {
     text-decoration:none;
@@ -50,7 +51,6 @@
 .file_right {
     float:left;
     width:198px;
-    overflow:hidden;
     border-top:1px solid #000;
     border-bottom:1px solid #000;
 }
@@ -68,6 +68,7 @@
     margin-left:5px;
     overflow:hidden;
     white-space:nowrap;
+    border:1px solid #fff;
 }
 .file_delete {
     text-decoration:none;
