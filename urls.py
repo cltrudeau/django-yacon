@@ -168,6 +168,7 @@ if conf.nexus.enabled:
         (r'^nexus/users/edit_user/(\d+)/$', 'edit_user'),
         (r'^nexus/users/add_user/$', 'add_user'),
         (r'^nexus/users/user_password/(\d+)/$', 'user_password'),
+        (r'^nexus/users/su/(\d+)/$', 'switch_to_user'),
     )
 
     # -------------------

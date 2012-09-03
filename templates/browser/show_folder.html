@@ -27,13 +27,10 @@
                 });
             }
         );
-        console.debug('choose mode:' + "{{choose_mode}}");
         if( "{{choose_mode}}" == "select" ) {
-            console.debug('got the right choose mode');
             // we're in pop-up ckeditor select mode, re-assign what clicking
             // on a link does
             $('.filename').click(function() {
-                console.debug('inside filename click');
                 window.opener.CKEDITOR.tools.callFunction({{func_num}},
                     $(this).attr('href'));
                 window.close()

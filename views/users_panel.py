@@ -5,6 +5,7 @@
 
 import logging
 
+from django.contrib.auth import login
 from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.forms.util import ErrorList
 from django.http import HttpResponseRedirect
@@ -115,3 +116,13 @@ def user_password(request, profile_id):
 
     return render_to_response('nexus/edit_user.html', data, 
         context_instance=RequestContext(request))
+
+
+@superuser_required
+def switch_to_user(request, profile_id):
+    profile = get_object_or_404(USER_CURATOR.profile_class, id=profile_id)
+    user = profile.user
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+
+    return HttpResponseRedirect('/')
