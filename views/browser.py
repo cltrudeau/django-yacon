@@ -228,7 +228,7 @@ class StubFile(object):
 @verify_node(False)
 def show_folder(request, node):
     spec = request.spec    # verify_node puts this in the request
-    image_only = request.session['image_only']
+    image_only = request.session.get('image_only', False)
 
     files = []
     images = []
@@ -265,8 +265,8 @@ def show_folder(request, node):
         'spec':spec,
         'files':files,
         'images':images,
-        'func_num':request.session['func_num'],
-        'choose_mode':request.session['choose_mode'],
+        'func_num':request.session.get('func_num', None),
+        'choose_mode':request.session.get('choose_mode', 'view'),
     }
 
     return render_to_response('browser/show_folder.html', data, 
