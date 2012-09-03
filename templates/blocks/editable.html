@@ -5,6 +5,10 @@
     <button class="yacon_editable_done">Save</button>
     <button class="yacon_editable_cancel">Cancel</button>
     <div class="yacon_editable_content">
-        {{content}}
+        {% if content %}
+            {{content}}
+        {% else %}
+            <br/>
+        {% endif %}
     </div>
 </div>

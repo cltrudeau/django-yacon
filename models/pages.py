@@ -2,7 +2,7 @@
 import exceptions, logging
 
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, IntegrityError, transaction
 from django.utils import simplejson as json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -235,9 +235,25 @@ class Page(TimeTrackedModel):
 
     class Meta:
         app_label = 'yacon'
+        unique_together = ('slug', 'metapage')
 
     def __unicode__(self):
         return 'Page(id=%s, path=%s)' % (self.id, self.uri)
+
+    def save(self, *args, **kwargs):
+        # ensure slug is unique at all times
+        suffix = ''
+        i = 2
+        while(True):
+            try:
+                save_id = transaction.savepoint()
+                self.slug += suffix
+                super(Page, self).save(*args, **kwargs)
+                break
+            except IntegrityError:
+                transaction.savepoint_rollback(save_id)
+                suffix = '-%d' % i
+                i += 1
 
     # ---------------------------
     # Search
@@ -456,7 +472,8 @@ class MetaPage(TimeTrackedModel):
     # MetaPage Factories
 
     @classmethod
-    def create_page(cls, node, page_type, title, slug, block_hash, owner=None):
+    def create_page(cls, node, page_type, title, slug, block_hash, owner=None,
+            auto_slug=False):
         """Creates, saves and returns a MetaPage object with a corresponding 
         Page object in the Site default language.
 
@@ -466,16 +483,20 @@ class MetaPage(TimeTrackedModel):
         :param slug: slug for the page
         :param block_hash: hash of content mapping block_type to content
         :param owner: [optional] owner of the page being created
+        :param auto_slug: [optional, default=False] True will automatically
+            fix a slug that does not match the uniqueness property.  False
+            raises an exception
 
         :returns: MetaPage object
         """
         translation = Translation(language=node.site.default_language,
             title=title, slug=slug, block_hash=block_hash)
         return cls.create_translated_page(node, page_type, [translation],
-            owner)
+            owner, auto_slug)
 
     @classmethod
-    def create_translated_page(cls, node, page_type, translations, owner=None):
+    def create_translated_page(cls, node, page_type, translations, owner=None,
+            auto_slug=False):
         """Creates, saves and returns a MetaPage object with multiple
         Page object translations.
 
@@ -483,6 +504,9 @@ class MetaPage(TimeTrackedModel):
         :param page_type: PageType for this Page
         :param translations: a list of Translation objects
         :param owner: [optional] owner of the pages being created
+        :param auto_slug: [optional, default=False] True will automatically
+            fix a slug that does not match the uniqueness property.  False
+            raises an exception
 
         :returns: MetaPage object
 
@@ -493,8 +517,8 @@ class MetaPage(TimeTrackedModel):
         metapage.save()
 
         for tx in translations:
-            node.validate_slug(tx.slug)
-            page = Page(metapage=metapage, title=tx.title, slug=tx.slug, 
+            slug = node.validate_slug(tx.slug, auto_slug)
+            page = Page(metapage=metapage, title=tx.title, slug=slug, 
                 language=tx.language, owner=owner)
             page.save()
 

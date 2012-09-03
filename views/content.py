@@ -12,7 +12,7 @@ from django.utils import formats
 from django.views.decorators.csrf import csrf_exempt
 
 from yacon.decorators import post_required
-from yacon.helpers import prepare_context
+from yacon.helpers import prepare_context, has_edit_permissions
 from yacon.models.pages import Block, Page
 from yacon.models.files import StoredFile, FileSpec
 from yacon.utils import JSONResponse
@@ -39,14 +39,10 @@ def display_page(request, uri=''):
         # no such page found for uri
         raise Http404('CMS did not contain a page for uri: %s' % uri)
 
-    edit_permission = False
-    if hasattr(request, 'user'):
-        if request.user.is_superuser or request.user == page.owner:
-            edit_permission = True
     data.update({
         'page':page,
         'translations':page.other_translations(),
-        'edit_permission':edit_permission,
+        'edit_permission':has_edit_permissions(request, page),
     })
 
     return page.metapage.page_type.render(request, data)

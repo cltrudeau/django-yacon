@@ -58,7 +58,7 @@ $(document).ready(function() {
             }
         }
 
-        old_html[div.id] = div.children('.yacon_editable_content').html();
+        old_html[div[0].id] = div.children('.yacon_editable_content').html();
         div.children('.yacon_editable_content').ckeditor(config);
         if( typeof edit_postconditions == 'function' ) {
             edit_postconditions();
@@ -116,7 +116,7 @@ $(document).ready(function() {
         div.children('.yacon_ajax_error').hide();
         var editor = div.children('.yacon_editable_content').ckeditorGet();
         editor.destroy();
-        div.children('.yacon_editable_content').html(old_html[div.id]);
+        div.children('.yacon_editable_content').html(old_html[div[0].id]);
         if( typeof cancel_postconditions == 'function' ) {
             cancel_postconditions();
         }
@@ -129,12 +129,12 @@ $(document).ready(function() {
         // hide buttons and store existing content
         var div = $(this).parent();
         buttons_edit_mode(div, '.yacon_title_editable');
-        old_html[div.id] = div.children('.yacon_editable_content').html();
+        old_html[div[0].id] = div.children('.yacon_editable_content').html();
 
         // replace existing content with a form for editing
         div.children('.yacon_editable_content').html(
             '<input type="text" name="title_edit" maxlength="25" value="' 
-            + old_html[div.id].replace(/^\s+|\s+$/g, '') + '">'
+            + old_html[div[0].id].replace(/^\s+|\s+$/g, '') + '">'
         );
     });
 
@@ -182,7 +182,7 @@ $(document).ready(function() {
         var div = $(this).parent();
         buttons_save_mode(div, '.yacon_title_editable');
         div.children('.yacon_ajax_error').hide();
-        div.children('.yacon_editable_content').html(old_html[div.id]);
+        div.children('.yacon_editable_content').html(old_html[div[0].id]);
     });
 
 });

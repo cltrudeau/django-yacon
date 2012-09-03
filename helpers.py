@@ -73,3 +73,11 @@ def prepare_context(request, uri=None):
     page_context(request, uri, data)
 
     return data
+
+
+def has_edit_permissions(request, page):
+    if hasattr(request, 'user'):
+        if request.user.is_superuser or request.user == page.owner:
+            return True
+
+    return False

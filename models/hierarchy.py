@@ -2,9 +2,12 @@
 import re, exceptions, logging
 
 from django.db import models
+from django.template.defaultfilters import slugify
+
 from treebeard.mp_tree import MP_Node
+
 from yacon.models.common import Language, TimeTrackedModel
-from yacon.models.pages import Page
+from yacon.models.pages import Page, MetaPage
 from yacon.definitions import SLUG_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -61,24 +64,56 @@ class Node(BaseNode):
 
     # -----------------------------------------------------------------------
     # Utility Methods
-    def validate_slug(self, slug):
+    def validate_slug(self, slug, auto_fix=False):
         """Raises a BadSlug exception if "slug" is not valid."""
         if len(slug) > SLUG_LENGTH:
-            raise BadSlug('Maximum slug length is %d characters' % SLUG_LENGTH)
+            if not auto_fix:
+                raise BadSlug('Max slug length is %d characters' % SLUG_LENGTH)
+
+            # strip the slug to max length
+            slug = slug[:SLUG_LENGTH]
 
         if not MATCH_WORD.search(slug):
-            raise BadSlug('Slug must be of form [0-9a-zA-Z_-]*')
+            if not auto_fix:
+                raise BadSlug('Slug must be of form [0-9a-zA-Z_-]*')
 
-        # find all children of this node and search their slugs
-        slugmatches = NodeTranslation.objects.filter(slug=slug,
-            node__in=self.get_children())
-        if len(slugmatches) != 0:
+            # slugify the slug
+            slug = slugify(slug)
+
+        # find the slugs of all the children of this node as well as all the
+        # pages in the node
+        existing = NodeTranslation.objects.filter(
+            node__in=self.get_children()).values_list('slug', flat=True)
+        if slug in existing and not auto_fix:
             raise BadSlug('A child node already has the given slug')
 
-        # now search for pages in this node with the same slug
-        page = Page.find(self, [slug, ])
-        if page != None:
+        existing = list(existing)
+        metapages = MetaPage.objects.filter(node=self)
+        slugs = Page.objects.filter(metapage__in=metapages).values_list(
+            'slug', flat=True)
+        existing.extend(slugs)
+
+        aliased_metapages = MetaPage.objects.filter(alias=self)
+        slugs = Page.objects.filter(metapage__in=aliased_metapages).values_list(
+            'slug', flat=True)
+        existing.extend(slugs)
+
+        if slug in existing and not auto_fix:
             raise BadSlug('A page in this node already has the given slug.')
+
+        if slug not in existing:
+            return slug
+
+        # attempt to auto_fix the slug
+        suffix = ''
+        i = 2
+        while(True):
+            new_slug = slug + suffix
+            if new_slug not in existing:
+                return new_slug
+
+            suffix = '-%d' % i
+            i += 1
 
     # -----------------------------------------------------------------------
     # Factory/Fetch Methods
