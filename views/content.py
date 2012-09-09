@@ -18,7 +18,6 @@ from yacon.helpers import prepare_context, has_edit_permissions
 from yacon.models.site import Site
 from yacon.models.hierarchy import BadSlug
 from yacon.models.pages import Block, Page, PageType, Translation, MetaPage
-from yacon.models.files import StoredFile, FileSpec
 from yacon.utils import JSONResponse
 
 logger = logging.getLogger(__name__)

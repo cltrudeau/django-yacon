@@ -82,11 +82,35 @@ class FileSpec(object):
         self.relative_filename = None
         self._parse_node()
 
+    @classmethod
+    def factory_from_path(cls, path, ensure_file=False):
+        """Takes a path and attempts to build a FileSpec object out of it.
+        Raises AttributeError if path does not conform or isn't in either the
+        public or private filespace."""
+        if not os.path.exists(path):
+            raise AttributeError('no such path')
+        if ensure_file and not os.path.isfile(path):
+            raise AttributeError('path was not a file')
+
+        is_file = not os.path.isdir(path)
+        if path.startswith(settings.MEDIA_ROOT):
+            root_len = len(settings.MEDIA_ROOT)
+            return FileSpec('public:%s' % path[root_len:], node_is_file=is_file)
+        elif path.startswith(conf.site.private_upload):
+            root_len = len(conf.site.private_upload)
+            return FileSpec('private:%s' % path[root_len:], 
+                node_is_file=is_file)
+
+        raise AttributeError('path was not in public or private file space')
+
     def _parse_node(self):
         pieces = self.node.split(':')
         try:
             self.file_type = pieces[0]
             x = urllib.unquote(pieces[1])
+            if x and x[0] == '/':
+                x = x[1:]
+
             if self.node_is_file:
                 self.relative_dir = os.path.dirname(x)
             else:
