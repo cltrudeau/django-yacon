@@ -54,10 +54,11 @@ def display_page(request, uri=''):
 
 
 @login_required
-def create_page(request, site_id, page_type_id, language_code, auto_slug, uri):
+def create_page(request, page_type_id, language_code, auto_slug, uri):
+    data = prepare_context(request, uri)
+    site = data['site']
     auto_slug = bool(auto_slug)
     page_type = get_object_or_404(PageType, id=page_type_id)
-    site = get_object_or_404(Site, id=site_id)
     langs = site.get_languages(language_code)
     if len(langs) == 0:
         lang = site.default_language
@@ -114,7 +115,6 @@ def create_page(request, site_id, page_type_id, language_code, auto_slug, uri):
     else: # GET
         form = CreatePageForm(initial={'auto_slug':auto_slug})
 
-    data = prepare_context(request, uri)
     data.update({
         'create_mode':True,
         'page_type':page_type,
