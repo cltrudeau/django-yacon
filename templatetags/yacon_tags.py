@@ -117,10 +117,13 @@ def _render_menuitem(menuitem, language, selected, last, separator, indent):
     return '\n'.join(results)
 
 
-def _valum_widget(url, node, extensions=None):
+def _valum_widget(url, node, extensions=None, on_complete=''):
     allowed_ext = ''
     if extensions:
         allowed_ext = 'allowedExtensions: %s,' % extensions
+
+    if on_complete:
+        on_complete = 'onComplete: %s,' % on_complete
 
     return \
 """
@@ -132,6 +135,7 @@ def _valum_widget(url, node, extensions=None):
                 action: "%s",
                 element: $('#file-uploader')[0],
                 multiple: true,
+                %s
                 %s
                 params: {
                     'node':'%s'
@@ -145,7 +149,7 @@ def _valum_widget(url, node, extensions=None):
 
     <div id="file-uploader">       
     </div>
-""" % (url, allowed_ext, node)
+""" % (url, allowed_ext, on_complete, node)
 
 # ============================================================================
 # Template Tags
@@ -354,39 +358,50 @@ def tsort(context, name):
 
 
 @register.simple_tag()
-def upload_widget(node):
+def upload_widget(node, on_complete=''):
     """Returns a Valum Uploader widget wired to the general purpose uploading
     URL.
 
     :param node: storage type (public or private) and path indicator, e.g.
         "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
+    :param on_complete: name of Javascript function to call when an upload has
+        complete, will be called with signature:
+        function(String id, String fileName, Object responseJSON)
     """
-    return _valum_widget('/yacon/browser/upload_file/', node)
+    return _valum_widget('/yacon/browser/upload_file/', node,
+        on_complete=on_complete)
 
 
 @register.simple_tag()
-def user_upload_widget(node):
+def user_upload_widget(node, on_complete=''):
     """Returns a Valum Uploader widget that uploads files based on the user's
     home directory.
 
     :param node: storage type (public or private) and path indicator, e.g.
         "public:foo/bar" to have the uploaded file go in 
         MEDIA_ROOT/$USERNAME/foo/bar.
+    :param on_complete: name of Javascript function to call when an upload has
+        complete, will be called with signature:
+        function(String id, String fileName, Object responseJSON)
     """
-    return _valum_widget('/yacon/browser/user_upload_file/', node)
+    return _valum_widget('/yacon/browser/user_upload_file/', node,
+        on_complete=on_complete)
 
 
 @register.simple_tag()
-def image_upload_widget(node):
+def image_upload_widget(node, on_complete=''):
     """Returns a Valum Uploader widget that uploads images.
 
     :param node: storage type (public or private) and path indicator, e.g.
         "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
+    :param on_complete: name of Javascript function to call when an upload has
+        complete, will be called with signature:
+        function(String id, String fileName, Object responseJSON)
     """
     extensions = json.dumps(conf.site.image_extensions)
 
     return _valum_widget('/yacon/browser/upload_image/', node, 
-        extensions=extensions)
+        extensions=extensions, on_complete=on_complete)
 
 
 @register.simple_tag(takes_context=True)

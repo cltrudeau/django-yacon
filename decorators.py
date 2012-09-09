@@ -38,6 +38,22 @@ def post_required(target):
     return wrapper
 
 
+def profile_required(target):
+    """Ensures request.user has a profile, returns it in the request object.
+    Otherwise, raises 404."""
+    @wraps(target)
+    def wrapper(*args, **kwargs):
+        request = args[0]
+        try:
+            request.profile = request.user.get_profile()
+            return target(*args, **kwargs)
+        except:
+            pass
+
+        raise Http404('no profile for user')
+    return wrapper
+
+
 def verify_node(is_file):
     """Decorator to check user's permissions against a file node (arg1) passed 
     into the view.  A FileSpec is created based on the node, if the permission

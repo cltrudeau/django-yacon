@@ -139,7 +139,7 @@ def ckeditor_browser(request):
         image_only = True
 
     request.session['func_num'] = func_num
-    request.session['choose_mode'] = 'select'
+    request.session['choose_mode'] = 'ckeditor'
     request.session['image_only'] = image_only
     data = {
         'title':'Uploads',
@@ -224,11 +224,17 @@ def sub_tree(request):
 class StubFile(object):
     pass
 
+
 @login_required
 @verify_node(False)
 def show_folder(request, node):
     spec = request.spec    # verify_node puts this in the request
     image_only = request.session.get('image_only', False)
+    base_url = settings.MEDIA_URL
+    if spec.file_type == 'private':
+        base_url = conf.site.private_upload
+
+    relative_url = base_url + spec.relative_dir + '/'
 
     files = []
     images = []
@@ -245,10 +251,7 @@ def show_folder(request, node):
             stub.ext = pieces[-1]
 
         filename = os.path.join(spec.relative_dir, x)
-        if spec.file_type == 'private':
-            stub.url = conf.site.private_upload + filename
-        else:
-            stub.url = settings.MEDIA_URL + filename
+        stub.url = base_url + filename
 
         if stub.ext in conf.site.image_extensions:
             images.append(stub)
@@ -263,8 +266,10 @@ def show_folder(request, node):
         'title':'Folder Info',
         'node':node,
         'spec':spec,
+        'relative_url':relative_url,
         'files':files,
         'images':images,
+        'image_extensions':json.dumps(conf.site.image_extensions),
         'func_num':request.session.get('func_num', None),
         'choose_mode':request.session.get('choose_mode', 'view'),
     }

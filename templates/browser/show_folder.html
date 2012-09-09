@@ -1,43 +1,97 @@
 {% load yacon_tags %}
 
 <script type="text/JavaScript">
-    $(document).ready(function(){
+    var image_extensions = $.parseJSON('{{image_extensions|safe}}');
+
+    function hover_on() {
+        $(this).css({
+            'overflow':'visible',
+            'background-color':'#fff',
+            'border':'1px solid #999',
+            'z-index':1000,
+            'width':'auto',
+            'position':'relative',
+        });
+        var width = $(this).find('.filename').width() + 30;
+        $(this).css({
+        'width':width
+        });
+    }
+    function hover_off() {
+        $(this).css({
+            'border':'1px solid #fff',
+            'overflow':'hidden',
+            'z-index':1,
+            'width':'auto',
+        });
+    }
+
+    function ckeditor_select() {
+        console.debug('and here');
+        window.opener.CKEDITOR.tools.callFunction({{func_num}},
+            $(this).attr('href'));
+        window.close()
+        return false;
+    }
+
+    function prepare_page() {
         $('#folder_toolbar').show();
-        $('.hover_box').hover(
-            function() {
-                $(this).css({
-                    'overflow':'visible',
-                    'background-color':'#fff',
-                    'border':'1px solid #999',
-                    'z-index':1000,
-                    'width':'auto',
-                    'position':'relative',
-                });
-                var width = $(this).find('.filename').width() + 30;
-                $(this).css({
-                'width':width
-                });
-            },
-            function() {
-                $(this).css({
-                    'border':'1px solid #fff',
-                    'overflow':'hidden',
-                    'z-index':1,
-                    'width':'auto',
-                });
-            }
-        );
-        if( "{{choose_mode}}" == "select" ) {
+
+        // loop through and populate our listing of images and files
+        {% if images %}
+            {% for image in images %}
+                add_image('{{image.name}}', '{{image.url}}');
+            {% endfor %}
+        {% endif %}
+        {% if files %}
+            {% for file in files %}
+                add_file('{{file.name}}', '{{file.url}}');
+            {% endfor %}
+        {% endif %}
+
+        // file names are in a bounding box, have mouse over show the whole
+        // thing
+        $('.hover_box').hover(hover_on, hover_off);
+
+        // browser can be started in different modes that change what happens
+        // when you click on an file name
+        if( "{{choose_mode}}" == "ckeditor" ) {
+            $('#multi_select_files').hide();
+            console.debug('got here');
+
             // we're in pop-up ckeditor select mode, re-assign what clicking
             // on a link does
-            $('.filename').click(function() {
-                window.opener.CKEDITOR.tools.callFunction({{func_num}},
-                    $(this).attr('href'));
-                window.close()
-                return false;
-            });
+            $('.filename').click(ckeditor_select);
         }
-    });
+        else if( "{{choose_mode}}" == "multiselect" ) {
+        }
+        else {
+            $('#multi_select_files').hide();
+        }
+
+        // handle remove and select buttons
+        $('#remove_files').click(function() {
+            var action = confirm('Remove selected files?  This cannot be '
+                + 'undone.');
+            if( !action ) {
+                return;
+            }
+
+            // remove the file or image
+            $(':checked').each(function() {
+                var holder = $(this).parent().parent();
+                var filename = $(this).val();
+                var node = encodeURIComponent('{{node}}/' + filename);
+                $.ajax({
+                    url: "/yacon/browser/remove_file/" + node + "/",
+                    dataType: "json",
+                    success: function(data) {
+                        holder.remove();
+                    }
+                });
+            });
+        });
+    }
 
     function remove_file(filename) {
         var action = confirm('Remove \"' + filename + '"?  This cannot be '
@@ -54,6 +108,50 @@
             });
         }
     }
+
+    function upload_complete(id, fileName, responseJSON) {
+        var ext = fileName.split('.').pop();
+        if( $.inArray(ext, image_extensions) != -1 ) {
+            // file was an image
+            add_image(fileName, '{{relative_url}}' + fileName);
+        }
+        else {
+            // file was not an image
+            add_file(fileName, '{{relative_url}}' + fileName);
+        }
+    }
+
+    function add_image(name, url) {
+        var div = $('#image_listing');
+        var html = 
+            '<div class="image_holder">' +
+                '<div class="image_photo">' +
+                    '<img src="' + url + '"/>' +
+                '</div>' +
+                '<div class="image_box hover_box">' +
+                    '<input type="checkbox" name="item" value="' + name + '">' +
+                    '<a target="_blank" class="filename" ' +
+                        'href="' + url + '">' + name + '</a>' +
+                '</div>' +
+            '</div>';
+        div.append(html);
+    }
+
+    function add_file(name, url) {
+        var div = $('#file_listing');
+        var html = 
+            '<div class="file_holder">' +
+                '<div class="file_box hover_box">' +
+                    '<input type="checkbox" name="item" value="' + name + '">' +
+                    '<a target="_blank" class="filename" ' +
+                        'href="' + url + '">' + name + '</a>' +
+                '</div>' +
+            '</div>';
+        div.append(html);
+
+    }
+
+    $(document).ready(prepare_page);
 </script>
 
 <link type="text/css" rel="stylesheet" href="/static/css/browser.css" />	
@@ -66,63 +164,19 @@
         simply drag files to the button.  Files with the same name will be
         overwritten.
     </p>
-    {% upload_widget node %}
+    {% upload_widget node 'upload_complete' %}
 
     {% if images %}
-    <button id='testit'>Test it</button>
     <div id="images">
-        <h3> Images </h3>
-
-        {% regroup images 3 %}
-        {% for triple in grouped %}
-            <div class="image_listing">
-                {% for item in triple %}
-                    <div class="{% cycle 'image_left' 'image_mid' 'image_right' %}">
-                        {% if item %}
-                            <div class="image_photo">
-                                <img width="{{stub.width}}" 
-                                    height="{{stub.height}}" 
-                                    src="{{item.url}}"/>
-                            </div>
-                            <div class="image_box hover_box">
-                                <a href="#" class="image_delete"
-                                    onclick="remove_file('{{item.name}}');">
-                                    X</a> 
-                                <a target="_blank" class="filename" 
-                                    href="{{item.url}}">{{item.name}}</a>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
+        <div id="image_listing">
+        </div>
     </div>
     {% endif %}
 
     {% if files %}
     <div id="files">
-    <h3> Files </h3>
-
-    {% regroup files 3 %}
-
-        {% for triple in grouped %}
-            <div class="file_listing">
-                {% for item in triple %}
-                    <div 
-                        class="{% cycle 'file_left' 'file_mid' 'file_right' %}">
-                        {% if item %}
-                            <div class="file_box hover_box">
-                                <a href="#" class="file_delete"
-                                    onclick="remove_file('{{item.name}}');">
-                                    X</a> 
-                                <a target="_blank" class="filename"
-                                    href="{{item.url}}">{{item.name}}</a>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
+        <div id="file_listing">
+        </div>
     </div>
     {% endif %}
 
@@ -130,5 +184,10 @@
         <p>
             <i>Empty folder</i>
         </p>
+    {% else %}
+        <div id="actions">
+            <button id="multi_select_files">Choose Selected</button>
+            <button id="remove_files">Delete Selected</button>
+        </div>
     {% endif %}
 </div>

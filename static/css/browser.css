@@ -4,11 +4,9 @@
 }
 .image_listing {
     float:left;
-    width:600px;
+    width:95%;
 }
-.image_left,
-.image_mid,
-.image_right {
+.image_holder {
     float:left;
     width:180px;
     margin:10px;
@@ -42,25 +40,13 @@
     clear:both;
     float:left;
 }
-.file_listing {
+#file_listing {
     float:left;
-    width:600px;
+    width:95%;
 }
-.file_left,
-.file_mid,
-.file_right {
+.file_holder {
     float:left;
     width:198px;
-    border-top:1px solid #000;
-    border-bottom:1px solid #000;
-}
-.file_left {
-    border-left:1px solid #000;
-}
-.file_left,
-.file_mid,
-.file_right {
-    border-right:1px solid #000;
 }
 .file_box {
     width:190px;
@@ -78,4 +64,12 @@
     padding-left:2px;
     padding-right:1px;
     line-height:1.5em;
+}
+#actions {
+    clear:both;
+}
+#remove_files {
+    font-size:18px;
+    margin-top:20px;
+    margin-bottom:15px;
 }
