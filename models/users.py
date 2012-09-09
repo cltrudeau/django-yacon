@@ -91,6 +91,20 @@ class UserProfileBase(TimeTrackedModel):
         if profile_changed:
             self.save()
 
+    def permission_to_create_page(self, page_type, node):
+        """Returns True if this user is allowed to create the page of the
+        given type at the given uri.  Base implementation only returns True if
+        the user is a superuser.
+
+        :param page_type: PageType object of the page about to be created
+        :param node: Node object where the page is being placed
+
+        :returns: Boolean indicating if the user has permission to create a
+            page of that type in that location
+        """
+        return True
+        return self.user.is_superuser
+
 
 class UserProfile(UserProfileBase):
     

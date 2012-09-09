@@ -29,6 +29,7 @@ if conf.site.ajax_edit_enabled:
     urlpatterns += patterns('yacon.views.content',
         (r'^replace_block/$', 'replace_block'),
         (r'^replace_title/$', 'replace_title'),
+        (r'^create_page/(\d+)/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
     )
 
 if conf.site.static_serve and \

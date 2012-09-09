@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 templates = {
     'editable': loader.get_template('blocks/editable.html'),
     'title_editable': loader.get_template('blocks/title_editable.html'),
+    'createable': loader.get_template('blocks/createable.html'),
     'page_last_updated': loader.get_template('blocks/page_last_updated.html'),
 
     # errors
@@ -184,18 +185,38 @@ def block_by_key(context, key):
 
 @register.simple_tag(takes_context=True)
 def editable_block_by_key(context, key):
-    """Performs same actions as :func:`block_by_key` except the resulting
-    content is wrapped in order to be used by the ajax editing functions.
+    """If the tag is rendering in a page being created then this renders the
+    appropriate wrappers for content for the given block key.  If it is in
+    display/edit more then this function performs same actions as
+    :func:`block_by_key` except the resulting content is wrapped in order to
+    be used by the ajax editing functions.
 
-    The template for wrapping the content is found in "blocks/editable.html"
-    and is loaded using the django template loader so it can be overloaded.
+    The template for wrapping blocks in create mode is found in
+    "blocks/createable.html", for display and edit the content is found in
+    "blocks/editable.html".  Wrapper content is loaded using the django
+    template loader so it can be overloaded.
     """
-    (success, content) = _render_block_by_key(context, 'block_by_key', key)
+    create_mode = context.get('create_mode', False)
+    if create_mode:
+        page_type = context['page_type']
+        block_type = None
+        for bt in page_type.block_types.all():
+            if bt.key == key:
+                block_type = bt
+                break
 
-    if success:
-        # didn't get an error, wrap the content using the editable template 
-        context['content'] = content
-        content = templates['editable'].render(context)
+        if not block_type:
+            return templates['no_such_block_type'].render(context)
+
+        context['key'] = key
+        context['block_type_id'] = block_type.id
+        content = templates['createable'].render(context)
+    else:
+        (success, content) = _render_block_by_key(context, 'block_by_key', key)
+        if success:
+            # didn't get an error, wrap the content using the editable template 
+            context['content'] = content
+            content = templates['editable'].render(context)
 
     return content
 
@@ -209,6 +230,11 @@ def editable_page_title(context, page):
     "blocks/title_editable.html" and is loaded using the django template 
     loader so it can be overloaded.
     """
+    create_mode = context.get('create_mode', False)
+    if create_mode:
+        # don't show this tag when in create mode, handled by create form
+        return ''
+
     context['page'] = page
     content = templates['title_editable'].render(context)
     return content
@@ -243,9 +269,10 @@ def menu(context, name, separator=''):
         logger.error('no menu matching name "%s"', name)
         return ''
 
-    if 'page' in context:
-        language = context['page'].language
-        select = context['page'].metapage
+    page = context.get('page', None)
+    if page:
+        language = page.language
+        select = page.metapage
     else:
         language = context['site'].default_language
         select = None

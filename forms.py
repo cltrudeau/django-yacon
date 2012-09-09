@@ -3,6 +3,8 @@
 import logging
 
 from django import forms
+
+from yacon.definitions import TITLE_LENGTH, SLUG_LENGTH
 from yacon.utils import get_user_attributes
 
 logger = logging.getLogger(__name__)
@@ -62,3 +64,36 @@ class AddUserForm(UpdateUserForm):
             raise forms.ValidationError('Password mismatch')
 
         return cleaned_data
+
+
+class CreatePageForm(forms.Form):
+    title = forms.CharField(max_length=TITLE_LENGTH)
+    slug = forms.CharField(max_length=SLUG_LENGTH, required=False)
+    auto_slug = forms.BooleanField(required=False)
+
+    EXPECTED_FIELDS = ('title', 'slug', 'auto_slug', 'csrfmiddlewaretoken')
+
+    def __init__(self, *args, **kwargs):
+        super(CreatePageForm, self).__init__(*args, **kwargs)
+
+        self.fields['auto_slug'].widget = forms.widgets.HiddenInput()
+        auto_slug = self.initial.get('auto_slug', False)
+        if auto_slug:
+            self.fields['slug'].widget = forms.widgets.HiddenInput()
+
+        # populate the extra fields passed in, args0=POST
+        if args and args[0]:
+            for key, value in args[0].items():
+                if key in self.EXPECTED_FIELDS:
+                    continue
+
+                self.fields[key] = forms.CharField(required=False)
+
+
+    def clean(self):
+        data = super(CreatePageForm, self).clean()
+        if not data['auto_slug'] and not data['slug']:
+            # auto slug not specified but slug not given
+            raise ValidationError('slug field cannot be empty')
+
+        return data

@@ -54,9 +54,6 @@ class Command(BaseCommand):
         tx.delete()
 
         # create templates for our content
-        pt_article = create_page_type('Article Type', 'examples/article.html' )
-        pt_blog = create_page_type('Blog Type', 'examples/blog.html' )
-
         bt_user = create_block_type('User Content', 'blurb', 
             'yacon.models.content', 'FlatContent')
         bt_poll = create_block_type('Poll Content', 'poll', 
@@ -66,6 +63,10 @@ class Command(BaseCommand):
         create_block_type('Right Now Content', 'right_now', 
             'yacon.models.content', 'DynamicContent', 
             {'module':'yacon.examples.dynamic', 'function':'right_now'})
+
+        pt_article = create_page_type('Article Type', 'examples/article.html',
+            [bt_user, bt_poll])
+        pt_blog = create_page_type('Blog Type', 'examples/blog.html', [bt_blog])
 
         # create a couple of menus
         menu1 = Menu.objects.create(name='Menu 1', site=site)

@@ -1,0 +1,17 @@
+    {% comment %}
+        To be included in the "scripts" area of a template that is used to
+        display, create or edit content
+    {% endcomment %}
+
+    <script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>
+    <script type="text/javascript" src="/static/ckeditor/adapters/jquery.js">
+    </script>
+    <script type="text/javascript" src="/static/js/yacon/content_utils.js">
+    </script>
+    {% if create_mode %}
+        <script type="text/javascript" src="/static/js/yacon/createable.js">
+        </script>
+    {% else %}
+        <script type="text/javascript" src="/static/js/yacon/editable.js">
+        </script>
+    {% endif %}

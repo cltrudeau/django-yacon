@@ -1,0 +1,16 @@
+    {% comment %}
+        To be included in the "create_controls" area of a template that is 
+        used to display, create or edit content
+    {% endcomment %}
+
+    {% if create_mode %}
+        <form id="new_page_form" method="post" action="">
+            {% csrf_token %}
+            <table>
+                {{create_form.as_table}}
+                <tr>
+                    <input type="submit" value="Save"/>
+                </tr>
+            </table>
+        </form>
+    {% endif %}

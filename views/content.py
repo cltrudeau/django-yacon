@@ -4,16 +4,20 @@
 import logging, urllib
 
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
-from django.shortcuts import render_to_response
+from django.forms.util import ErrorList
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils import formats
 
 from django.views.decorators.csrf import csrf_exempt
 
 from yacon.decorators import post_required
+from yacon.forms import CreatePageForm
 from yacon.helpers import prepare_context, has_edit_permissions
-from yacon.models.pages import Block, Page
+from yacon.models.site import Site
+from yacon.models.hierarchy import BadSlug
+from yacon.models.pages import Block, Page, PageType, Translation, MetaPage
 from yacon.models.files import StoredFile, FileSpec
 from yacon.utils import JSONResponse
 
@@ -41,11 +45,85 @@ def display_page(request, uri=''):
 
     data.update({
         'page':page,
+        'create_mode':False,
         'translations':page.other_translations(),
         'edit_permission':has_edit_permissions(request, page),
     })
 
     return page.metapage.page_type.render(request, data)
+
+
+@login_required
+def create_page(request, site_id, page_type_id, language_code, auto_slug, uri):
+    auto_slug = bool(auto_slug)
+    page_type = get_object_or_404(PageType, id=page_type_id)
+    site = get_object_or_404(Site, id=site_id)
+    langs = site.get_languages(language_code)
+    if len(langs) == 0:
+        lang = site.default_language
+    else:
+        lang = langs[0]
+
+    try:
+        profile = request.user.get_profile()
+    except:
+        raise Http404('user had no profile')
+
+    parsed_path = site.parse_path(uri)
+    node = parsed_path.node
+    if not parsed_path.node:
+        raise Http404('uri "%s" did not lead to valid node' % uri)
+
+    if not profile.permission_to_create_page(page_type, node):
+        raise Http404('permission to create was denied')
+
+    if request.method == 'POST':
+        form = CreatePageForm(request.POST)
+        if form.is_valid():
+            clean = form.cleaned_data
+            title = clean.pop('title', '')
+            slug = clean.pop('slug', '')
+            auto_slug = clean.pop('auto_slug', '')
+            if auto_slug:
+                slug = title
+
+            block_types = {}
+            for block_type in page_type.block_types.all():
+                block_types[block_type.key] = block_type
+
+            block_hash = {}
+            for key, value in clean.items():
+                block_type = block_types.get(key, None)
+                if not block_type:
+                    raise Http404(('block type key "%s" ' % key +\
+                        'not registered with PageType %s' % page_type))
+
+                block_hash[block_type] = urllib.unquote_plus(value)
+
+            # create the MetaPage and Page, then redirect to the page just 
+            # created
+            try:
+                metapage = MetaPage.create_page(node, page_type, title, slug,
+                    block_hash, owner=request.user, auto_slug=auto_slug)
+                page = metapage.get_translation(lang)
+                return HttpResponseRedirect(page.uri)
+            except BadSlug:
+                errors = form._errors.setdefault('slug', ErrorList())
+                errors.append(('Slug did not validate, either malformed or '
+                    'duplicate'))
+    else: # GET
+        form = CreatePageForm(initial={'auto_slug':auto_slug})
+
+    data = prepare_context(request, uri)
+    data.update({
+        'create_mode':True,
+        'page_type':page_type,
+        'create_form':form,
+        'edit_permission':True,
+        'page':None,
+    })
+
+    return page_type.render(request, data)
 
 # ============================================================================
 # Ajax Views

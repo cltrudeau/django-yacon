@@ -5,3 +5,6 @@
 
 # max length of slugs
 SLUG_LENGTH = 25
+
+# max length of title
+TITLE_LENGTH = 50

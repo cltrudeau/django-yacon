@@ -7,7 +7,7 @@ from django.utils import simplejson as json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from yacon.definitions import SLUG_LENGTH
+from yacon.definitions import SLUG_LENGTH, TITLE_LENGTH
 from yacon.loaders import dynamic_load
 from yacon.models.common import Language, TimeTrackedModel
 
@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 
 class PageType(TimeTrackedModel):
     """Defines how a page is constructed, tied to a template for rendering."""
-
     name = models.CharField(max_length=25, unique=True)
     template = models.CharField(max_length=50, blank=True)
     dynamic = models.CharField(max_length=100, blank=True)
+    block_types = models.ManyToManyField('yacon.BlockType')
 
     class Meta:
         app_label = 'yacon'
@@ -220,7 +220,7 @@ class Translation(object):
 class Page(TimeTrackedModel):
     language = models.ForeignKey(Language, related_name='+')
     slug = models.CharField(max_length=SLUG_LENGTH)
-    title = models.CharField(max_length=50, blank=True, null=True)
+    title = models.CharField(max_length=TITLE_LENGTH, blank=True, null=True)
     owner = models.ForeignKey(User, null=True)
 
     metapage = models.ForeignKey('yacon.MetaPage')
@@ -512,7 +512,7 @@ class MetaPage(TimeTrackedModel):
 
         :raises: BadSlug, if any of the slugs are not valid
         """
-        # create the Page
+        # create the MetaPage
         metapage = MetaPage(node=node, _page_type=page_type)
         metapage.save()
 

@@ -11,21 +11,34 @@ logger = logging.getLogger(__name__)
 # Page and Block Creation Helpers
 # ============================================================================
 
-def create_page_type(name, template):
+def create_page_type(name, template, block_types=[]):
     """Creates and saves a new PageType object
 
-    @param name -- name of the PageType
-    @param template -- template to associate with the PageType
+    :param name: name of the PageType
+    :param template: template to associate with the PageType
+    :param block_types: list of BlockType objects used in the template
 
-    @returns -- the created PageType object
+    :returns: the created PageType object
     """
     pt = PageType(name=name, template=template)
     pt.save()
+    for block_type in block_types:
+        pt.block_types.add(block_type)
     return pt
 
 
-def create_dynamic_page_type(name, module):
-    pt = PageType.objects.create(name=name, dynamic=module)
+def create_dynamic_page_type(name, function_name):
+    """Creates and saves a new PageType using a dynamic rendering function
+
+    :param name: name of the PageType
+    :param function_name: name of function and the module it is in to call to
+        dynamically generate content for this page. Uses dot notation, example
+        "module.sub.function" would do "from module.sub import function" and 
+        then call "function()"
+
+    :returns: the created PageType object
+    """
+    pt = PageType.objects.create(name=name, dynamic=function_name)
     return pt
 
 
@@ -33,16 +46,15 @@ def create_block_type(name, key, module_name='yacon.models.content',
         content_handler_name='FlatContent', content_handler_parms={}):
     """Creates and saves a new BlockType object
 
-    @param name -- name of the BlockType
-    @param key -- identifying key of the BlockType
-    @param mod -- string specifying the module the ContentHandler class is
-        found in 
-    @param content_handler -- string specifying the name of the ContentHandler
+    :param name: name of the BlockType
+    :param key: identifying key of the BlockType
+    :param mod: string specifying the module the ContentHandler class is in 
+    :param content_handler: string specifying the name of the ContentHandler
         class for this BlockType
-    @param content_handler_parms -- optional dictionary of parameters to
+    :param content_handler_parms: optional dictionary of parameters to
         initialize the ContentHandler with
 
-    @returns -- the created BlockType object
+    :returns: the created BlockType object
     """
     bt = BlockType(name=name, key=key, module_name=module_name, 
         content_handler_name=content_handler_name, 
