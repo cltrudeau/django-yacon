@@ -148,6 +148,27 @@ def ckeditor_browser(request):
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
 
+
+@login_required
+def popup_browser(request, callback):
+    image_only = request.GET.get('image_only', False)
+    if image_only == "1":
+        image_only = True
+
+    choose_mode = request.GET.get('choose_mode', 'singleselect')
+
+    print 'callback: ', callback
+    request.session['callback'] = callback
+    request.session['choose_mode'] = choose_mode
+    request.session['image_only'] = image_only
+    data = {
+        'title':'File Browser',
+        'base_template':'browser_base.html',
+    }
+    return render_to_response('browser/browser.html', data, 
+        context_instance=RequestContext(request))
+
+
 # ============================================================================
 # Browser Ajax Views
 # ============================================================================
@@ -272,6 +293,7 @@ def show_folder(request, node):
         'image_extensions':json.dumps(conf.site.image_extensions),
         'func_num':request.session.get('func_num', None),
         'choose_mode':request.session.get('choose_mode', 'view'),
+        'callback':request.session.get('callback', ''),
     }
 
     return render_to_response('browser/show_folder.html', data, 

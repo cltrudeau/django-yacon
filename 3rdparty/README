@@ -25,3 +25,12 @@ into the running packages.
 
 Copyright 2010 Andrew Valums
 http://valums.com/ajax-upload/
+
+JCrop
+~~~~~
+JCrop is redistributed with Yacon under the MIT license.  The entire package
+is included in this sub-directory with a subset of files mixed into the
+running packages.
+
+Copyright (c) 2011 Tapmodo Interactive LLC
+  http://github.com/tapmodo/Jcrop

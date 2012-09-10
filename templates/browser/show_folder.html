@@ -27,7 +27,6 @@
     }
 
     function ckeditor_select() {
-        console.debug('and here');
         window.opener.CKEDITOR.tools.callFunction({{func_num}},
             $(this).attr('href'));
         window.close()
@@ -57,13 +56,21 @@
         // when you click on an file name
         if( "{{choose_mode}}" == "ckeditor" ) {
             $('#multi_select_files').hide();
-            console.debug('got here');
 
             // we're in pop-up ckeditor select mode, re-assign what clicking
             // on a link does
             $('.filename').click(ckeditor_select);
         }
         else if( "{{choose_mode}}" == "multiselect" ) {
+        }
+        else if( "{{choose_mode}}" == "singleselect" ) {
+            $('#multi_select_files').hide();
+            $('.filename').click(function() {
+                console.debug('got here: ' + '{{callback}}');
+                window.opener['{{callback}}']($(this).attr('href'));
+                window.close()
+                return false;
+            });
         }
         else {
             $('#multi_select_files').hide();

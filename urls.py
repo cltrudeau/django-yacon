@@ -6,6 +6,7 @@ from yacon import conf
 
 urlpatterns = patterns('yacon.views.browser',
     (r'^ckeditor_browser/$', 'ckeditor_browser'),
+    (r'^popup_browser/(.*)/$', 'popup_browser'),
 
     # left pane
     (r'^browser/tree_top/$', 'tree_top'),

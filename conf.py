@@ -18,6 +18,7 @@ SITE = {
     'local_jquery':False,
     'custom_enabled':True,
     'private_upload':None,
+    'private_upload_url':None,
     'auto_thumbnails':{},
     'image_extensions':['jpg', 'jpeg', 'png', 'gif'],
 }

@@ -103,6 +103,24 @@ class FileSpec(object):
 
         raise AttributeError('path was not in public or private file space')
 
+    @classmethod
+    def factory_from_url(cls, url, ensure_file=False):
+        if url.startswith(settings.MEDIA_URL):
+            # url may be a public node
+            root_len = len(settings.MEDIA_URL)
+            node = 'public:%s' % url[root_len:]
+        elif conf.site.private_upload_url \
+                and url.startswith(conf.site.private_upload_url):
+            # url may be a private node
+            root_len = len(conf.site.private_upload_url)
+            node = 'private:%s' % url[root_len:]
+
+        spec = FileSpec(node, node_is_file=True)
+        if ensure_file and not os.path.exists(spec.full_filename):
+            raise AttributeError('no such path')
+
+        return spec
+
     def _parse_node(self):
         pieces = self.node.split(':')
         try:
@@ -134,7 +152,7 @@ class FileSpec(object):
                 else:
                     raise Http404('bad path for system type')
             else:
-                raise Http404('bad tree type')
+                raise Http404('bad node type')
 
             if self.node_is_file:
                 self.set_filename(os.path.basename(x))
