@@ -26,7 +26,7 @@ Widgets
 Snippets
 ~~~~~~~~
     util.get_user_attributes()
-        - snippet based on Stackoverflow posting, users:
+        - snippet based on StackOverFlow posting, users:
             http://stackoverflow.com/users/376728/aaronasterling
             http://stackoverflow.com/users/515491/jakob-simon-gaarde
         - original posting:
@@ -34,6 +34,11 @@ Snippets
     Enum
         - snippet based on blog posting by Tom Forb
             http://tomforb.es/using-python-metaclasses-to-make-awesome-django-model-field-choices
+    QuerySetChain
+        - snippet based on StackOverFlow posting, user:
+            http://stackoverflow.com/users/15770/akaihola
+        - original posting:
+            http://stackoverflow.com/questions/431628/
 
 Inspiration
 ~~~~~~~~~~~

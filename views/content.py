@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from yacon.decorators import post_required
 from yacon.forms import CreatePageForm
-from yacon.helpers import prepare_context, has_edit_permissions
+from yacon.helpers import prepare_context, permission_to_edit_page
 from yacon.models.site import Site
 from yacon.models.hierarchy import BadSlug
 from yacon.models.pages import Block, Page, PageType, Translation, MetaPage
@@ -46,7 +46,7 @@ def display_page(request, uri=''):
         'page':page,
         'create_mode':False,
         'translations':page.other_translations(),
-        'edit_permission':has_edit_permissions(request, page),
+        'edit_permission':permission_to_edit_page(request, page, data),
     })
 
     return page.metapage.page_type.render(request, data)

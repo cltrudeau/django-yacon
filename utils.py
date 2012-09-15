@@ -1,5 +1,6 @@
 # yacon.utils.py
 import logging, json, inspect, urllib, os
+from itertools import islice, chain
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -66,6 +67,53 @@ class JSONResponse(HttpResponse):
 
         for key, value in extra_headers.items():
             self[key] = value
+
+
+# QuerySetChain
+#
+# borrowed and modified from:
+#   http://stackoverflow.com/questions/431628/
+#   by: http://stackoverflow.com/users/15770/akaihola
+class QuerySetChain(object):
+    """
+    Chains multiple subquerysets (possibly of different models) and behaves as
+    one queryset.  Supports minimal methods needed for use with
+    django.core.paginator.
+
+    Usage:
+        q1 = Thing.objects.filter(foo)
+        q2 = Stuff.objects.filter(bar)
+        qsc = QuerySetChain(q1, q2)
+    """
+
+    def __init__(self, *subquerysets):
+        self.querysets = subquerysets
+
+    def count(self):
+        """
+        Performs a .count() for all subquerysets and returns the number of
+        records as an integer.
+        """
+        return sum(qs.count() for qs in self.querysets)
+
+    def _clone(self):
+        "Returns a clone of this queryset chain"
+        return self.__class__(*self.querysets)
+
+    def _all(self):
+        "Iterates records in all subquerysets"
+        return chain(*self.querysets)
+
+    def __getitem__(self, index):
+        """
+        Retrieves an item or slice from the chained set of results from all
+        subquerysets.
+        """
+        if type(index) is slice:
+            return list(islice(self._all(), index.start, index.stop, 
+                index.step or 1))
+        else:
+            return islice(self._all(), index, index+1).next()
 
 # ============================================================================
 # File Browser Tools

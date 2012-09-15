@@ -102,8 +102,16 @@ class UserProfileBase(TimeTrackedModel):
         :returns: Boolean indicating if the user has permission to create a
             page of that type in that location
         """
-        return True
         return self.user.is_superuser
+
+    def permission_to_edit_page(self, page, context={}):
+        """Returns True if this user is allowed to edit the given page.  Base
+        implementation returns True if the user is the owner or a superuser.
+        """
+        if self.user.is_superuser or self.user == page.owner:
+            return True
+
+        return False
 
 
 class UserProfile(UserProfileBase):
