@@ -2,6 +2,7 @@
 
 <script type="text/JavaScript">
     var image_extensions = $.parseJSON('{{image_extensions|safe}}');
+    var holder_counter = 0;
 
     function hover_on() {
         $(this).css({
@@ -10,7 +11,7 @@
             'border':'1px solid #999',
             'z-index':1000,
             'width':'auto',
-            'position':'relative',
+            'position':'relative'
         });
         var width = $(this).find('.filename').width() + 30;
         $(this).css({
@@ -22,7 +23,7 @@
             'border':'1px solid #fff',
             'overflow':'hidden',
             'z-index':1,
-            'width':'auto',
+            'width':'auto'
         });
     }
 
@@ -31,6 +32,36 @@
             $(this).attr('href'));
         window.close()
         return false;
+    }
+
+    function register_selection_handlers() {
+        // remove any existing bindings, no easy way of dealing with the new
+        // elements otherwise
+        $('.filename').unbind('click');
+
+        // browser can be started in different modes that change what happens
+        // when you click on an file name
+        if( "{{choose_mode}}" == "ckeditor" ) {
+            // we're in pop-up ckeditor select mode, re-assign what clicking
+            // on a link does
+            $('.filename').click(ckeditor_select);
+        }
+        else if( "{{choose_mode}}" == "multiselect" ) {
+            $('.filename').click(function() {
+                console.debug('inside ms filename click');
+                var div = $(this).parent();
+                var checkbox = div.children('input');
+                checkbox.attr("checked", !checkbox.attr("checked"));
+                return false;
+            });
+        }
+        else if( "{{choose_mode}}" == "singleselect" ) {
+            $('.filename').click(function() {
+                window.opener['{{callback}}']($(this).attr('href'));
+                window.close()
+                return false;
+            });
+        }
     }
 
     function prepare_page() {
@@ -48,33 +79,26 @@
             {% endfor %}
         {% endif %}
 
-        // file names are in a bounding box, have mouse over show the whole
-        // thing
-        $('.hover_box').hover(hover_on, hover_off);
-
-        // browser can be started in different modes that change what happens
-        // when you click on an file name
-        if( "{{choose_mode}}" == "ckeditor" ) {
+        if( "{{choose_mode}}" != "multiselect" ) {
+            // not in multi select mode, hide the selection button
             $('#multi_select_files').hide();
-
-            // we're in pop-up ckeditor select mode, re-assign what clicking
-            // on a link does
-            $('.filename').click(ckeditor_select);
         }
-        else if( "{{choose_mode}}" == "multiselect" ) {
-        }
-        else if( "{{choose_mode}}" == "singleselect" ) {
-            $('#multi_select_files').hide();
-            $('.filename').click(function() {
-                console.debug('got here: ' + '{{callback}}');
-                window.opener['{{callback}}']($(this).attr('href'));
+        else {
+            $('#multi_select_files').click(function() {
+                $('body').css('cursor', 'progress');
+                $('.filename').each(function() {
+                    var div = $(this).parent();
+                    var checkbox = div.children('input').first();
+                    if( checkbox.attr("checked") ) {
+                        window.opener['{{callback}}']($(this).attr('href'));
+                    }
+                });
+                $('body').css('cursor', 'auto');
                 window.close()
                 return false;
             });
         }
-        else {
-            $('#multi_select_files').hide();
-        }
+        register_selection_handlers();
 
         // handle remove and select buttons
         $('#remove_files').click(function() {
@@ -96,6 +120,20 @@
                         holder.remove();
                     }
                 });
+            });
+        });
+
+        // de/select all
+        $('#flip_select_all').click(function() {
+            var any_selected = false;
+            $('input[type="checkbox"]').each(function() {
+                if( $(this).attr("checked") ) {
+                    any_selected = true;
+                }
+            });
+            var select_state = !any_selected;
+            $('input[type="checkbox"]').each(function() {
+                $(this).attr("checked", select_state);
             });
         });
     }
@@ -129,9 +167,16 @@
     }
 
     function add_image(name, url) {
+        // check for duplicates
+        var dupes = $('a[href="' + url + '"]');
+        if( dupes.length > 0 ) {
+            return;
+        }
+
         var div = $('#image_listing');
         var html = 
-            '<div class="image_holder">' +
+            '<div class="image_holder" id="image_holder_' + holder_counter +
+                    '">' +
                 '<div class="image_photo">' +
                     '<img src="' + url + '"/>' +
                 '</div>' +
@@ -142,12 +187,27 @@
                 '</div>' +
             '</div>';
         div.append(html);
+
+        // file names are in a bounding box, have mouse over show the whole
+        // thing
+        $('#image_holder_' + holder_counter + ' .hover_box').hover(hover_on, 
+            hover_off);
+        holder_counter++;
+        register_selection_handlers();
     }
 
     function add_file(name, url) {
+        // check for duplicates
+        var dupes = $('a[href="' + url + '"]');
+        console.debug('dupes: ' + dupes);
+        if( dupes.length > 0 ) {
+            return;
+        }
+
         var div = $('#file_listing');
         var html = 
-            '<div class="file_holder">' +
+            '<div class="file_holder" id="file_holder_' + holder_counter + 
+                    '">' +
                 '<div class="file_box hover_box">' +
                     '<input type="checkbox" name="item" value="' + name + '">' +
                     '<a target="_blank" class="filename" ' +
@@ -155,7 +215,12 @@
                 '</div>' +
             '</div>';
         div.append(html);
-
+        // file names are in a bounding box, have mouse over show the whole
+        // thing
+        $('#filee_holder_' + holder_counter + ' .hover_box').hover(hover_on, 
+            hover_off);
+        holder_counter++;
+        register_selection_handlers();
     }
 
     $(document).ready(prepare_page);
@@ -193,7 +258,9 @@
         </p>
     {% else %}
         <div id="actions">
+            <button id="flip_select_all">Select/Deselect All</button>
             <button id="multi_select_files">Choose Selected</button>
+            <div id="action_button_spacer">&nbsp;</div>
             <button id="remove_files">Delete Selected</button>
         </div>
     {% endif %}

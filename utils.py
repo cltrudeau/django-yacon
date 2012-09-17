@@ -128,6 +128,7 @@ class FileSpec(object):
         self.node_is_file = node_is_file
         self.basename = None
         self.relative_filename = None
+        self.extension = None
         self._parse_node()
 
     @classmethod
@@ -209,6 +210,9 @@ class FileSpec(object):
 
     def set_filename(self, filename):
         self.basename = filename
+        if '.' in filename:
+            pieces = filename.split('.')
+            self.extension = pieces[-1]
         self.relative_filename = os.path.join(self.relative_dir, filename)
         self.full_filename = os.path.join(self.full_dir, self.basename)
         if os.path.isdir(self.full_filename):
@@ -226,6 +230,28 @@ class FileSpec(object):
             return True
 
         return False
+
+    def get_thumbnail(self, config=None):
+        if not self.node_is_file:
+            return None
+
+        try:
+            if not config:
+                config = conf.site.auto_thumbnails['default']
+
+            thumb_path = os.path.abspath(os.path.join(self.full_dir, 
+                conf.site.auto_thumbnails['dir']))
+            thumb_path = os.path.abspath(os.path.join(thumb_path, config))
+            thumb_file = os.path.abspath(os.path.join(thumb_path,
+                self.basename))
+
+            return FileSpec.factory_from_path(thumb_file, ensure_file=True)
+        except KeyError:
+            logger.exception('thumbnail requested but not properly configured')
+            return None
+        except AttributeError:
+            logger.exception('thumbnail requested turned into bad path')
+            return None
 
     @property
     def is_private(self):
@@ -255,6 +281,21 @@ class FileSpec(object):
             return '%s:%s' % (self.file_type, self.relative_filename)
 
         return '%s:%s' % (self.file_type, self.relative_dir)
+
+    @property
+    def url(self):
+        if self.file_type == 'public':
+            if self.node_is_file:
+                return settings.MEDIA_URL + self.relative_filename
+            else:
+                return settings.MEDIA_URL + self.relative_dir
+        elif self.file_type == 'private' and conf.site.private_upload:
+            if self.node_is_file:
+                return conf.site.private_upload_url + self.relative_filename
+            else:
+                return conf.site.private_upload_url + self.relative_dir
+
+        return ''
 
 
 # -------------------

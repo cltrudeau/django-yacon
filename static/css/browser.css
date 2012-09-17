@@ -68,8 +68,15 @@
 #actions {
     clear:both;
 }
-#remove_files {
+#remove_files,
+#multi_select_files,
+#flip_select_all {
     font-size:18px;
     margin-top:20px;
     margin-bottom:15px;
+}
+#action_button_spacer {
+    display:inline-block;
+    height:1px;
+    width:250px;
 }

@@ -23,7 +23,6 @@ urlpatterns = patterns('yacon.views.browser',
     # upload 
     (r'^browser/upload_file/$', 'upload_file'),
     (r'^browser/user_upload_file/$', 'user_upload_file'),
-    (r'^browser/upload_image/$', 'upload_image'),
 )
 
 if conf.site.ajax_edit_enabled:

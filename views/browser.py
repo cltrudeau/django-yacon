@@ -91,36 +91,36 @@ def _handle_upload(request, prefix=None):
 
     _upload_save(request, spec)
 
-    return spec
+    # check if upload had an image extension
+    if not spec.extension:
+        return spec
 
-
-def _handle_upload_image(request, prefix=None):
-    spec = _handle_upload(request, prefix=prefix)
+    if spec.extension.lower() not in conf.site.image_extensions:
+        return spec
 
     # create thumbnails for the image if configured
     if len(conf.site.auto_thumbnails) == 0:
         return spec
 
     try:
-        pass
+        for key, value in conf.site.auto_thumbnails['config'].items():
+            image_dir = os.path.realpath(os.path.join(spec.full_dir,
+                conf.site.auto_thumbnails['dir'], key))
+            image_name = os.path.join(image_dir, spec.basename)
+            try:
+                os.makedirs(image_dir)
+            except:
+                # already exists, do nothing
+                pass
 
-    except KeyError:
-        logger.error(('auto_thumbnails missing key "%s" stopping thumbnail '
+            # use PIL to create the thumbnail
+            im = Image.open(spec.full_filename)
+            im.thumbnail(value, Image.ANTIALIAS)
+            im.save(image_name, 'png')
+
+    except KeyError, e:
+        logger.error(('auto_thumbnails missing conf key stopping thumbnail '
             'generation'), e.message)
-
-    for key, value in conf.site.auto_thumbnails.items():
-        image_dir = os.path.realpath(os.path.join(spec.full_dir, key))
-        image_name = os.path.join(image_dir, spec.basename)
-        try:
-            os.makedirs(image_dir)
-        except:
-            # already exists, do nothing
-            pass
-
-        # use PIL to create the thumbnail
-        im = Image.open(spec.full_filename)
-        im.thumbnail(value, Image.ANTIALIAS)
-        im.save(image_name, 'JPEG')
 
     return spec
 
@@ -144,6 +144,7 @@ def ckeditor_browser(request):
     data = {
         'title':'Uploads',
         'base_template':'browser_base.html',
+        'popup':'1',
     }
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
@@ -164,6 +165,7 @@ def popup_browser(request, callback):
     data = {
         'title':'File Browser',
         'base_template':'browser_base.html',
+        'popup':'1',
     }
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
@@ -195,21 +197,6 @@ def upload_file(request):
 def user_upload_file(request):
     prefix = 'users/%s' % request.user.username
     spec = _handle_upload(request, prefix=prefix)
-    return HttpResponse(spec.json_results)
-
-
-@login_required
-@csrf_exempt
-def upload_image(request):
-    spec = _handle_upload_image(request)
-    return HttpResponse(spec.json_results)
-
-
-@login_required
-@csrf_exempt
-def upload_user_image(request):
-    prefix = 'users/%s' % request.user.username
-    spec = _handle_upload_image(request, prefix=prefix)
     return HttpResponse(spec.json_results)
 
 
@@ -351,6 +338,30 @@ def remove_folder(request, node):
 @verify_node(True)
 def remove_file(request, node):
     spec = request.spec    # verify_node puts this in the request
+    if not os.path.exists(spec.full_filename):
+        logger.error('ignored request to remove non-existent %s',
+            spec.full_filename)
+        return HttpResponse()
+
     os.remove(spec.full_filename)
+
+    # search for any matching files with the same name in any thumbnails
+    # directories
+    if len(conf.site.auto_thumbnails) == 0:
+        return HttpResponse()
+
+    try:
+        thumb_path = os.path.abspath(os.path.join(spec.full_dir, 
+            conf.site.auto_thumbnails['dir']))
+        for path, dirs, files in os.walk(thumb_path):
+            for filename in files:
+                if os.path.basename(filename) == spec.basename:
+                    full_filename = os.path.abspath(os.path.join(path, 
+                        filename))
+                    os.remove(full_filename)
+
+    except KeyError, e:
+        logger.error(('auto_thumbnails missing conf key stopping thumbnail '
+            'removal'), e.message)
 
     return HttpResponse()

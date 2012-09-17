@@ -400,7 +400,24 @@ def image_upload_widget(node, on_complete=''):
     """
     extensions = json.dumps(conf.site.image_extensions)
 
-    return _valum_widget('/yacon/browser/upload_image/', node, 
+    return _valum_widget('/yacon/browser/upload_file/', node, 
+        extensions=extensions, on_complete=on_complete)
+
+
+@register.simple_tag()
+def user_image_upload_widget(node, on_complete=''):
+    """Returns a Valum Uploader widget that uploads images based on the user's
+    home directory.
+
+    :param node: storage type (public or private) and path indicator, e.g.
+        "public:foo/bar" to have the uploaded file go in MEDIA_ROOT/foo/bar.
+    :param on_complete: name of Javascript function to call when an upload has
+        complete, will be called with signature:
+        function(String id, String fileName, Object responseJSON)
+    """
+    extensions = json.dumps(conf.site.image_extensions)
+
+    return _valum_widget('/yacon/browser/user_upload_file/', node, 
         extensions=extensions, on_complete=on_complete)
 
 
