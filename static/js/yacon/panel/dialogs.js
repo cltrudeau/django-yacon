@@ -28,24 +28,14 @@ function load_folder_dialogs() {
             }
         }
     );
-    create_dialog_using_tree('#add_page_dialog', 'Add Page', 'Add',
-        function() { // url generator
+    create_dialog_full('#add_page_dialog', 'Add Page', 'Add',
+        function() { // on press of "ok"
             var node_id = active_node_id();
             var pagetype = $('#add_page_form #add_page_pagetype').val();
-            var title = $('#add_page_form input#add_page_title').val();
-            var slug = $('#add_page_form input#add_page_slug').val();
-            return "/yacon/nexus/control/add_page/" + node_id + "/" + pagetype 
-                + "/" + title + "/" + slug + "/";
-        },
-        function(data) { // on success of ajax call
-            if( data['error'] == null ) {
-                select_me = data['key'];
-                refresh_tree();
-            }
-            else {
-                // something was wrong with our slug, show the user
-                alert(data['error']);
-            }
+            var lang = $('#add_page_form #add_page_language').val();
+
+            window.location.href = '/yacon/create_page_from_node/' +
+                node_id + "/" + pagetype + "/" + lang + "/True/";
         }
     );
     $('#add_page_dialog').bind('dialogopen.yacon', function(event, ui) {
@@ -54,8 +44,17 @@ function load_folder_dialogs() {
             url: "/yacon/nexus/control/page_types/",
             dataType: "json",
             success: function(data) {
-                // remove old sites, replace with what server sent
+                // remove old page types, replace with what server sent
                 repopulate_select('#add_page_pagetype', data);
+            }
+        });
+        var site_id = $('#site_select').val();
+        $.ajax({
+            url: "/yacon/nexus/control/list_languages/" + site_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old translations, replace with what server sent
+                repopulate_select('#add_page_language', data);
             }
         });
     });

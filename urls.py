@@ -30,6 +30,8 @@ if conf.site.ajax_edit_enabled:
         (r'^replace_block/$', 'replace_block'),
         (r'^replace_title/$', 'replace_title'),
         (r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
+        (r'^create_page_from_node/(\d+)/(\d+)/([^/]*)/([^/]*)/$', 
+            'create_page_from_node'),
     )
 
 if conf.site.static_serve and \
@@ -76,6 +78,7 @@ if conf.nexus.enabled:
         (r'^nexus/control/site_info/(\d+)/$', 'site_info'),
         (r'^nexus/control/node_info/(\d+)/$', 'node_info'),
         (r'^nexus/control/metapage_info/(\d+)/$', 'metapage_info'),
+        (r'^nexus/control/list_languages/(\d+)/$', 'list_languages'),
         (r'^nexus/control/menus_control/$', 'menus_control'),
         (r'^nexus/control/menu_info/(\d+)/$', 'menu_info'),
         (r'^nexus/control/menuitem_info/(\d+)/$', 'menuitem_info'),

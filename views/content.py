@@ -16,7 +16,7 @@ from yacon.decorators import post_required
 from yacon.forms import CreatePageForm
 from yacon.helpers import prepare_context, permission_to_edit_page
 from yacon.models.site import Site
-from yacon.models.hierarchy import BadSlug
+from yacon.models.hierarchy import BadSlug, Node
 from yacon.models.pages import Block, Page, PageType, Translation, MetaPage
 from yacon.utils import JSONResponse
 
@@ -52,10 +52,11 @@ def display_page(request, uri=''):
     return page.metapage.page_type.render(request, data)
 
 
-@login_required
-def create_page(request, page_type_id, language_code, auto_slug, uri):
-    data = prepare_context(request, uri)
-    site = data['site']
+def _create_page_from_node(request, data, node, page_type_id, language_code, 
+        auto_slug):
+    """Helper for creating pages, used by page create methods that use a node
+    or a uri."""
+    site = node.site
     auto_slug = bool(auto_slug)
     page_type = get_object_or_404(PageType, id=page_type_id)
     langs = site.get_languages(language_code)
@@ -68,11 +69,6 @@ def create_page(request, page_type_id, language_code, auto_slug, uri):
         profile = request.user.get_profile()
     except:
         raise Http404('user had no profile')
-
-    parsed_path = site.parse_path(uri)
-    node = parsed_path.node
-    if not parsed_path.node:
-        raise Http404('uri "%s" did not lead to valid node' % uri)
 
     if not profile.permission_to_create_page(page_type, node):
         raise Http404('permission to create was denied')
@@ -123,6 +119,34 @@ def create_page(request, page_type_id, language_code, auto_slug, uri):
     })
 
     return page_type.render(request, data)
+
+
+@login_required
+def create_page(request, page_type_id, language_code, auto_slug, uri):
+    data = prepare_context(request, uri)
+    parsed_path = data['site'].parse_path(uri)
+    node = parsed_path.node
+    if not parsed_path.node:
+        raise Http404('uri "%s" did not lead to valid node' % uri)
+
+    return _create_page_from_node(request, data, node, page_type_id, 
+        language_code, auto_slug)
+
+
+@login_required
+def create_page_from_node(request, node_id, page_type_id, language_code, 
+        auto_slug):
+    node = get_object_or_404(Node, id=node_id)
+    langs = node.site.get_languages(language_code)
+    if len(langs) == 0:
+        lang = site.default_language
+    else:
+        lang = langs[0]
+    uri = node.node_to_path(language=lang)
+    data = prepare_context(request, uri)
+
+    return _create_page_from_node(request, data, node, page_type_id, 
+        language_code, auto_slug)
 
 # ============================================================================
 # Ajax Views

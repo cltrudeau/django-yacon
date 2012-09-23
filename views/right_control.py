@@ -15,6 +15,7 @@ from yacon.models.hierarchy import (Node, NodeTranslation, Menu,
     MenuItem, MenuItemTranslation)
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage
+from yacon.utils import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ def missing_node_translations(request, node_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return JSONResponse(data)
 
 
 # ============================================================================
@@ -148,7 +149,21 @@ def missing_metapage_translations(request, metapage_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return JSONResponse(data)
+
+
+@superuser_required
+def list_languages(request, site_id):
+    """Returns a JSON object hash of all languages in the site."""
+    site = get_object_or_404(Site, id=site_id)
+    langs = [site.default_language, ]
+    langs.extend(site.alternate_language.all())
+
+    data = {}
+    for lang in langs:
+        data[lang.identifier] = lang.name
+
+    return JSONResponse(data)
 
 
 # ============================================================================
@@ -248,4 +263,4 @@ def missing_menuitem_translations(request, menuitem_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return JSONResponse(data)
