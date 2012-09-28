@@ -3,7 +3,7 @@
 <head>
     <title>Admin: {{title}}</title>
     <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
-    {% if settings.YACON_USE_LOCAL_JQUERY %}
+    {% if conf.site.local_jquery %}
         <script type="text/JavaScript" src="/static/js/jquery-1.7.2.min.js">
         </script>
     {% else %}
