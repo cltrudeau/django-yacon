@@ -185,14 +185,13 @@ def replace_block(request):
     for page in block.page_set.all():
         when = formats.date_format(page.last_updated, 'DATETIME_FORMAT')
         last_updated_list.append((page.id, when))
+
     result = {
         'success':True,
         'block_id':block.id,
         'last_updated_list':last_updated_list,
     }
-    print '*** result: ', result
     response = JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
-    print '*** response: ', response
     return response
 
 

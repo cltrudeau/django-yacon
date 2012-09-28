@@ -7,7 +7,10 @@ from django.utils import simplejson as json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from yacon.definitions import SLUG_LENGTH, TITLE_LENGTH
+from sanitizer.models import SanitizedTextField
+
+from yacon.definitions import (SLUG_LENGTH, TITLE_LENGTH, ALLOWED_TAGS,
+    ALLOWED_ATTRIBUTES)
 from yacon.loaders import dynamic_load
 from yacon.models.common import Language, TimeTrackedModel
 
@@ -172,7 +175,8 @@ class Block(TimeTrackedModel):
     block_type = models.ForeignKey(BlockType)
 
     parameters = models.TextField(null=True, blank=True)
-    content = models.TextField()
+    content = SanitizedTextField(allowed_attributes=ALLOWED_ATTRIBUTES,
+        allowed_tags=ALLOWED_TAGS)
 
     # management of owner, groups, privileges etc. should go here (?)
 
@@ -518,14 +522,12 @@ class MetaPage(TimeTrackedModel):
 
         for tx in translations:
             slug = node.validate_slug(tx.slug, auto_slug)
-            page = Page(metapage=metapage, title=tx.title, slug=slug, 
-                language=tx.language, owner=owner)
-            page.save()
+            page = Page.objects.create(metapage=metapage, title=tx.title, 
+                slug=slug, language=tx.language, owner=owner)
 
             # add the content to the translation
             for key, value in tx.block_hash.items():
-                block = Block(block_type=key, content=value)
-                block.save()
+                block = Block.objects.create(block_type=key, content=value)
                 page.blocks.add(block)
 
         return metapage

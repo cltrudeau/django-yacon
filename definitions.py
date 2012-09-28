@@ -8,3 +8,25 @@ SLUG_LENGTH = 25
 
 # max length of title
 TITLE_LENGTH = 50
+
+# bleach constants
+ALLOWED_TAGS = [
+    'a',
+    'b',
+    'blockquote',
+    'code',
+    'em',
+    'img',
+    'li',
+    'ol',
+    'strong',
+    'ul',
+    'h1',
+    'h2',
+    'h3',
+    'p'
+]
+
+ALLOWED_ATTRIBUTES = {
+    'a' : ['href', 'title'],
+}
