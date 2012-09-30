@@ -153,6 +153,20 @@ def create_page_from_node(request, node_id, page_type_id, language_code,
 # ============================================================================
 
 @login_required
+def fetch_block(request, block_id):
+    """Ajax view for getting block contents."""
+    block = get_object_or_404(Block, id=block_id)
+    if not request.user.is_superuser:
+        # one of the pages associated with the block must belong to the user
+        # logged in 
+        pages = block.page_set.filter(owner=request.user)
+        if len(pages) == 0:
+            raise Http404('permission denied')
+
+    return JSONResponse(block.content)
+
+
+@login_required
 @post_required
 def replace_block(request):
     """Ajax view for submitting edits to a block."""

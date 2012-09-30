@@ -34,4 +34,5 @@ CKEDITOR.editorConfig = function(config)
             items : ['ShowBlocks']
         }
     ]
+    config.skin = 'v2';
 };

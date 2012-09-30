@@ -171,6 +171,26 @@ function load_metapage_dialogs() {
             }
         });
     });
+
+    create_dialog_full('#edit_block_dialog', 'Edit Block', 'Save',
+        function() { // on press of "ok"
+            var block_id = $('#block_id').html();
+            var editor = $('.yacon_editable_content').ckeditorGet();
+            var csrf = $('#csrf_token input').val();
+            $.ajax({
+                url:'/yacon/replace_block/',
+                success: function(data) {
+                    editor.destroy();
+                },
+                type:'POST',
+                data: {
+                    'block_id':"block_" + block_id,
+                    'content':editor.getData(),
+                    'csrfmiddlewaretoken':csrf,
+                }
+            });
+        }
+    );
 }
 
 function load_inline_dialogs() {

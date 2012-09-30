@@ -74,3 +74,19 @@ function remove_menuitem_translation(menuitem_id, title) {
         });
     }
 }
+
+function edit_block(block_id) {
+    $.ajax({
+        url: "/yacon/fetch_block/" + block_id + "/",
+        dataType: "json",
+        success: function(data) {
+            $('#block_id').html(block_id);
+            var div = $('.yacon_editable_content')
+            div.html(data);
+            $('#edit_block_dialog').dialog('open');
+
+            var config = get_ckeditor_config(div);
+            div.ckeditor(config);
+        }
+    });
+}

@@ -27,6 +27,7 @@ urlpatterns = patterns('yacon.views.browser',
 
 if conf.site.ajax_edit_enabled:
     urlpatterns += patterns('yacon.views.content',
+        (r'^fetch_block/(\d+)/$', 'fetch_block'),
         (r'^replace_block/$', 'replace_block'),
         (r'^replace_title/$', 'replace_title'),
         (r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
