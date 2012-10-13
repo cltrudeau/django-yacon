@@ -314,7 +314,7 @@ def files_subtree(spec, depth_limit, expanded):
     if depth_limit == 0 and file_hash['key'] not in expanded:
         # reached as far as we're going to go, check for kids
         has_child_directories = False
-        for x in os.listdir(spec.full_dir):
+        for x in sorted(os.listdir(spec.full_dir), key=str.lower):
             if os.path.isdir(x):
                 has_child_directories = True
                 break
@@ -326,7 +326,7 @@ def files_subtree(spec, depth_limit, expanded):
 
     # process any child directories
     children = []
-    for x in os.listdir(spec.full_dir):
+    for x in sorted(os.listdir(spec.full_dir), key=str.lower):
         dir_path = os.path.abspath(os.path.join(spec.full_dir, x))
         if os.path.isdir(dir_path):
             dl = depth_limit
@@ -378,31 +378,35 @@ def build_filetree(expanded, restricted=None):
             public_node['children'] = public['children']
             public['children'][0]['activate'] = True
 
-    spec = FileSpec('system:private')
-    spec.set_filename('private')
-    private_node = {
-        'title': 'Private',
-        'key': 'system:private',
-        'expand': True,
-        'icon': 'fatcow/folders_explorer.png',
-    }
+    tree = [public_node,]
 
-    if restricted:
-        # restricted to a single user's folders
-        spec = FileSpec('private:users/%s' % restricted)
-        private_node['children'] = {
-            'title': restricted,
-            'key': 'private:users/%s' % restricted,
-            'isLazy': True,
-            'icon':'fatcow/folder.png',
+    if conf.site.private_upload:
+        spec = FileSpec('system:private')
+        spec.set_filename('private')
+        private_node = {
+            'title': 'Private',
+            'key': 'system:private',
+            'expand': True,
+            'icon': 'fatcow/folders_explorer.png',
         }
-    else:
-        private = files_subtree(spec, 2, expanded)
-        if 'children' in private:
-            private_node['children'] = private['children']
-            private['children'][0]['activate'] = True
 
-    tree = [public_node, private_node]
+        if restricted:
+            # restricted to a single user's folders
+            spec = FileSpec('private:users/%s' % restricted)
+            private_node['children'] = {
+                'title': restricted,
+                'key': 'private:users/%s' % restricted,
+                'isLazy': True,
+                'icon':'fatcow/folder.png',
+            }
+        else:
+            private = files_subtree(spec, 2, expanded)
+            if 'children' in private:
+                private_node['children'] = private['children']
+                private['children'][0]['activate'] = True
+
+        tree.append(private_node)
+
     return tree
 
 # ============================================================================
