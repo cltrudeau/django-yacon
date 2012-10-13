@@ -17,6 +17,7 @@ ALLOWED_TAGS = [
     'code',
     'em',
     'img',
+    'i',
     'li',
     'ol',
     'strong',
@@ -29,4 +30,5 @@ ALLOWED_TAGS = [
 
 ALLOWED_ATTRIBUTES = {
     'a' : ['href', 'title'],
+    'img' : ['src', ],
 }
