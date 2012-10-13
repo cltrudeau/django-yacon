@@ -1,5 +1,5 @@
 # yacon.utils.py
-import logging, json, inspect, urllib, os
+import logging, json, inspect, urllib, os, locale
 from itertools import islice, chain
 
 from django.conf import settings
@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from yacon import conf
 
 logger = logging.getLogger(__name__)
+locale.setlocale(locale.LC_ALL, '')
 
 # ============================================================================
 # Utility Classes
@@ -225,7 +226,7 @@ class FileSpec(object):
             return True
 
         # user is normal user, verify spec against the user's username
-        name = 'users/%s/' % user.username
+        name = 'users/%s' % user.username
         if self.relative_dir.startswith(name):
             return True
 
@@ -314,7 +315,7 @@ def files_subtree(spec, depth_limit, expanded):
     if depth_limit == 0 and file_hash['key'] not in expanded:
         # reached as far as we're going to go, check for kids
         has_child_directories = False
-        for x in sorted(os.listdir(spec.full_dir), key=str.lower):
+        for x in sorted(os.listdir(spec.full_dir), cmp=locale.strcoll):
             if os.path.isdir(x):
                 has_child_directories = True
                 break
@@ -326,7 +327,7 @@ def files_subtree(spec, depth_limit, expanded):
 
     # process any child directories
     children = []
-    for x in sorted(os.listdir(spec.full_dir), key=str.lower):
+    for x in sorted(os.listdir(spec.full_dir), cmp=locale.strcoll):
         dir_path = os.path.abspath(os.path.join(spec.full_dir, x))
         if os.path.isdir(dir_path):
             dl = depth_limit

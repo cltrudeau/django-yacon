@@ -84,6 +84,7 @@
             $('#multi_select_files').hide();
         }
         else {
+            $('#single_select_instrutions').hide();
             $('#multi_select_files').click(function() {
                 $('body').css('cursor', 'progress');
                 $('.filename').each(function() {
@@ -237,6 +238,12 @@
         overwritten.
     </p>
     {% upload_widget node 'upload_complete' %}
+
+    {% if images or files %}
+    <p id="single_select_instructions">
+        Click on a link to choose a file.
+    </p>
+    {% endif %}
 
     {% if images %}
     <div id="images">

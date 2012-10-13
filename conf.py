@@ -21,6 +21,7 @@ SITE = {
     'private_upload_url':None,
     'auto_thumbnails':{},
     'image_extensions':['jpg', 'jpeg', 'png', 'gif'],
+    'logout_url':'/accounts/logout/',
 }
 
 NEXUS = {

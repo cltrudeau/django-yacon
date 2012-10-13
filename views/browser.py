@@ -209,7 +209,11 @@ def tree_top(request):
             if key:
                 expanded.append(key)
 
-    tree = build_filetree(expanded)
+    restricted = None
+    if not request.user.is_superuser:
+        restricted = request.user.username
+
+    tree = build_filetree(expanded, restricted)
     return HttpResponse(json.dumps(tree), content_type='application/json')
 
 

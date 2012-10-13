@@ -1,5 +1,6 @@
 # yacon.decorators.py
 
+import logging
 from functools import wraps
 
 from django.contrib.auth.views import redirect_to_login
@@ -7,6 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
 from yacon.utils import FileSpec
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 
