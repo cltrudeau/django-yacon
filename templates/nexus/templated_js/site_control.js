@@ -40,7 +40,7 @@ function site_setup() {
             // remove old sites, replace with what server sent
             repopulate_select('#site_select', data);
 
-            {% if not settings.YACON_DISABLE_ADD_SITE %}
+            {% if not conf.nexus.add_site_disabled %}
                 // add site actions
                 $('#site_select').append('<option value="nop">' + 
                     '----------</option>');
