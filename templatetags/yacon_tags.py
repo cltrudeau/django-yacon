@@ -12,6 +12,7 @@ from django.template.base import Node
 from yacon import conf
 from yacon.models.pages import BlockType
 from yacon.models.hierarchy import Menu
+from yacon.utils import SummarizedPage
 
 register = template.Library()
 logger = logging.getLogger(__name__)
@@ -443,4 +444,25 @@ def regroup(context, listing, size):
         grouped.append(subgroup)
 
     context['grouped'] = grouped
+    return ''
+
+
+@register.simple_tag(takes_context=True)
+def summarize_pages(context, pages, block_key, summary_size):
+    """Takes a list of Page objects and creates a list of SummarizePage
+    objects.  This is done in a tag as it should be done after pagination for
+    performance reasons.  Puts a variable in the context called "summaries".
+
+    :param page_array: array of pages to convert
+    :param block_key: name of block key used to produce summary text
+    :param summary_size: number of characters to include in the summary block
+
+    :returns: nothing, inserts a "summaries" list in the context
+    """
+    summaries = []
+    for page in page_array:
+        summaries.append(SummarizedPage(page, block_key, summary_size))
+
+    context['summaries'] = summaries
+
     return ''

@@ -6,6 +6,8 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 
 from yacon import conf
+from yacon.models.hierarchy import NodeTranslation
+from yacon.models.pages import PageType, BlockType
 
 logger = logging.getLogger(__name__)
 locale.setlocale(locale.LC_ALL, '')
@@ -115,6 +117,62 @@ class QuerySetChain(object):
                 index.step or 1))
         else:
             return islice(self._all(), index, index+1).next()
+
+
+class SummarizedPage(object):
+    """Holder for Page objects with ability to return portions of its content
+    for displaying summaries."""
+
+    def __init__(self, page, block_key, summary_size, highlighted=False):
+        self.page = page
+        self.block_key = block_key
+        self.summary_size = summary_size
+        self.highlighted = highlighted
+
+    @classmethod
+    def factory_from_highlighted_blocks(cls, blocks, summary_size):
+        items = []
+        for block in blocks:
+            pages = block.page_set.all()
+            for page in pages:
+                sp = SummarizedPage(page, block.block_type.key, summary_size,
+                    highlighted=True)
+                items.append(sp)
+
+        return items
+
+    @property 
+    def summary(self):
+        blocks = self.page.get_blocks(self.block_key)
+        if len(blocks) != 0:
+            if self.highlighted:
+                value = self.summarize_highlighted(blocks[0].content, 
+                    self.summary_size)
+            else:
+                value = self.summarize(blocks[0].content, self.summary_size)
+            return value
+
+        return ''
+
+    @classmethod
+    def summarize(cls, text, size_limit):
+        """Returns a substring no larger than size_limit, attempts to keep whole
+        words by cutting the string at the last space."""
+        # remove any html tags
+        subtext = re.sub('<[^<]+?>', '', text)[:size_limit]
+        if len(subtext) < size_limit:
+            return subtext
+
+        index = subtext.rfind(' ')
+        if index == -1:
+            return subtext
+
+        subtext = subtext[:index]
+        return subtext
+
+    @classmethod
+    def summarize_highlighted(cls, text, size_limit):
+        pass
 
 # ============================================================================
 # File Browser Tools
@@ -444,3 +502,23 @@ def get_user_attributes(obj, exclude_methods=True):
     return results
 
 
+def get_page_type(name):
+    try:
+        return PageType.objects.get(name=name)
+    except PageType.DoesNotExist:
+        return None
+
+
+def get_block_type(key):
+    try:
+        return BlockType.objects.get(key=key)
+    except BlockType.DoesNotExist:
+        return None
+
+
+def get_node(name):
+    try:
+        tx = NodeTranslation.objects.get(name=name)
+        return tx.node
+    except NodeTranslation.DoesNotExist:
+        return None

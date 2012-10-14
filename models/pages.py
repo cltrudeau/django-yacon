@@ -11,6 +11,7 @@ from sanitizer.models import SanitizedTextField
 
 from yacon.definitions import (SLUG_LENGTH, TITLE_LENGTH, ALLOWED_TAGS,
     ALLOWED_ATTRIBUTES)
+from yacon import fts
 from yacon.loaders import dynamic_load
 from yacon.models.common import Language, TimeTrackedModel
 
@@ -170,7 +171,7 @@ Instantiation errors are usually caused by problems in the constructor.
         return self.content_handler_instance
 
 
-class Block(TimeTrackedModel):
+class Block(TimeTrackedModel, fts.SearchableModel):
     """Defines a block of content for the CMS"""
     block_type = models.ForeignKey(BlockType)
 
@@ -178,11 +179,36 @@ class Block(TimeTrackedModel):
     content = SanitizedTextField(allowed_attributes=ALLOWED_ATTRIBUTES,
         allowed_tags=ALLOWED_TAGS)
 
+    search_objects = fts.SearchManager(fields=('content', ))
+
     # management of owner, groups, privileges etc. should go here (?)
 
     def __init__(self, *args, **kwargs):
         super(Block, self).__init__(*args, **kwargs)
         self.is_editable = False
+
+    @classmethod
+    def search(cls, terms, block_type=None, block_key=None):
+        """Finds blocks that contain the given search terms.  Searching is
+        done at the block level where the content is rather than at the page
+        level, this means you need to convert results to pages before
+        displaying them to users.
+
+        :param terms: single string containing search terms
+        :param block_type: [optional] if given restricts results to blocks
+            that match this block type
+        :param block_key: [optional] if given restricts results to blocks that
+            are stored with this block key
+        :returns: query set of Block objects with matching text in their
+            content field
+        """
+        blocks = Block.search_objects.search(terms)
+        if block_type:
+            blocks = blocks.filter(block_type=block_type)
+        if block_key:
+            blocks = blocks.filter(block_type__key=block_key)
+
+        return blocks
 
     def __unicode__(self):
         return u'Block(block_type=%s, content=%s)' % (self.block_type,
