@@ -188,7 +188,7 @@ class Block(TimeTrackedModel, fts.SearchableModel):
         self.is_editable = False
 
     @classmethod
-    def search(cls, terms, block_type=None, block_key=None):
+    def search(cls, terms, block_type=None, block_key=None, highlighted=False):
         """Finds blocks that contain the given search terms.  Searching is
         done at the block level where the content is rather than at the page
         level, this means you need to convert results to pages before
@@ -199,10 +199,16 @@ class Block(TimeTrackedModel, fts.SearchableModel):
             that match this block type
         :param block_key: [optional] if given restricts results to blocks that
             are stored with this block key
+        :param highlighted: [optional] True to return highlighted results,
+            defaults to False
         :returns: query set of Block objects with matching text in their
             content field
         """
-        blocks = Block.search_objects.search(terms)
+        if highlighted:
+            blocks = Block.search_objects.search(terms,
+                highlight_field='content')
+        else:
+            blocks = Block.search_objects.search(terms)
         if block_type:
             blocks = blocks.filter(block_type=block_type)
         if block_key:

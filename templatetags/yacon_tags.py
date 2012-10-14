@@ -453,16 +453,35 @@ def summarize_pages(context, pages, block_key, summary_size):
     objects.  This is done in a tag as it should be done after pagination for
     performance reasons.  Puts a variable in the context called "summaries".
 
-    :param page_array: array of pages to convert
+    :param pages: list of pages to convert
     :param block_key: name of block key used to produce summary text
     :param summary_size: number of characters to include in the summary block
 
     :returns: nothing, inserts a "summaries" list in the context
     """
     summaries = []
-    for page in page_array:
+    for page in pages:
         summaries.append(SummarizedPage(page, block_key, summary_size))
 
     context['summaries'] = summaries
 
+    return ''
+
+
+@register.simple_tag(takes_context=True)
+def summarize_pages_from_highlighted_blocks(context, blocks, summary_size):
+    """Takes a list of Block objects that have been returned from a
+    highlighted search and creates the corresponding SummarizePage objects.
+    This is done in a tag as it should be done after pagination.  Puts a
+    variable in the context called "summaries".
+
+    :param blocks: list of blocks to get pages from
+    :param summary_size: number of characters to include in the summary block
+
+    :returns: nothing, inserts a "summaries" list in the context
+    """
+    summaries = SummarizedPage.factory_from_highlighted_blocks(blocks, 
+        summary_size)
+
+    context['summaries'] = summaries
     return ''
