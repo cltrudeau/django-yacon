@@ -45,3 +45,16 @@ into the running packages with minor changes for integration.
     (some parts) Copyright (c) 2011, Odeon Consulting Group Pte Ltd
         website: http://od-eon.com/labs/django-fts-odeon/
         contact: developers@od-eon.com
+
+
+django-html-sanitizer
+~~~~~~~~~~~~~~~~~~~~~
+django-html-sanitizer is redistributed with Yacon under a permissive license.
+The entire package is included in this sub-directory, the package included is 
+a fork of the original at the time of inclusion it was waiting on a
+pull-request.  A subset of files is mixed into the running packages iwith
+minor changes for integration.
+
+    Copyright (c) 2012 Selwin Ong
+    original: https://github.com/ui/django-html_sanitizer
+    fork used: https://github.com/cltrudeau/django-html_sanitizer

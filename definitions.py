@@ -30,5 +30,15 @@ ALLOWED_TAGS = [
 
 ALLOWED_ATTRIBUTES = {
     'a' : ['href', 'title'],
-    'img' : ['src', ],
+    'img' : ['src', 'width', 'height', 'style'],
 }
+
+ALLOWED_STYLES = [
+    'width',
+    'height',
+    'border-width',
+    'border-height',
+    'border-style',
+    'margin',
+    'float',
+]

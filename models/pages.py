@@ -7,13 +7,12 @@ from django.utils import simplejson as json
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from sanitizer.models import SanitizedTextField
-
 from yacon.definitions import (SLUG_LENGTH, TITLE_LENGTH, ALLOWED_TAGS,
-    ALLOWED_ATTRIBUTES)
+    ALLOWED_ATTRIBUTES, ALLOWED_STYLES)
 from yacon import fts
 from yacon.loaders import dynamic_load
 from yacon.models.common import Language, TimeTrackedModel
+from yacon.sanitizer import SanitizedTextField
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +176,7 @@ class Block(TimeTrackedModel, fts.SearchableModel):
 
     parameters = models.TextField(null=True, blank=True)
     content = SanitizedTextField(allowed_attributes=ALLOWED_ATTRIBUTES,
-        allowed_tags=ALLOWED_TAGS)
+        allowed_tags=ALLOWED_TAGS, allowed_styles=ALLOWED_STYLES)
 
     search_objects = fts.SearchManager(fields=('content', ))
 
