@@ -9,7 +9,7 @@
             {% if clear_autocomplete %}
                 // don't want to disable autocomplete, but don't want the
                 // fields pre-filled either
-                $('form input:not(:button):not(:submit):not(:hidden)').val('');
+                $('form input:text').val('');
             {% endif %}
         });
     </script>
