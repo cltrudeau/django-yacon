@@ -5,8 +5,8 @@ function load_dialogs() {
             var node = active_node();
             var key = node.data.key;
             var name = $('#add_folder_form input#add_folder_name').val();
-            return "/yacon/browser/add_folder/" + encodeURIComponent(key) 
-                + "/" + name + "/";
+            return "/yacon/browser/add_folder/" + name + "/?node="
+                + encodeURIComponent(key);
         },
         function(data) { // on success of ajax call
             var tree = $('#tree').dynatree("getTree");
@@ -25,7 +25,7 @@ function load_dialogs() {
         function() { // url generator
             var node = active_node();
             var key = node.data.key;
-            return "/yacon/browser/remove_folder/" + key + "/";
+            return "/yacon/browser/remove_folder/?node=" + key;
         },
         function(data) { // on success of ajax call
             refresh_tree();

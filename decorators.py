@@ -58,10 +58,11 @@ def profile_required(target):
     return wrapper
 
 
-def verify_node(is_file):
-    """Decorator to check user's permissions against a file node (arg1) passed 
-    into the view.  A FileSpec is created based on the node, if the permission
-    check passes then this spec is put into the request (arg0).  
+def verify_node(parm, is_file):
+    """Decorator to check user's permissions against a file node contained in
+    the query string.  Does a request.GET[parm] to check the node in the view.
+    A FileSpec is created based on the node, if the permission check passes
+    then this spec is put into the request (arg0).  
 
     If the user is a superuser then the permissions are granted.  If not, the
     node is checked against the user in the request.  A user is only granted
@@ -75,7 +76,10 @@ def verify_node(is_file):
         def wrapper(*args, **kwargs):
             # process options
             request = args[0]
-            node = args[1]
+            node = request.GET.get(parm)
+            if not node:
+                raise Http404('permission denied')
+
             spec = FileSpec(node, node_is_file=is_file)
 
             if spec.allowed_for_user(request.user):

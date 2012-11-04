@@ -146,7 +146,6 @@ def popup_browser(request, callback):
 
     choose_mode = request.GET.get('choose_mode', 'singleselect')
 
-    print 'callback: ', callback
     request.session['callback'] = callback
     request.session['choose_mode'] = choose_mode
     request.session['image_only'] = image_only
@@ -226,8 +225,8 @@ class StubFile(object):
 
 
 @login_required
-@verify_node(False)
-def show_folder(request, node):
+@verify_node('node', False)
+def show_folder(request):
     spec = request.spec    # verify_node puts this in the request
     image_only = request.session.get('image_only', False)
     base_url = settings.MEDIA_URL
@@ -264,7 +263,7 @@ def show_folder(request, node):
 
     data = {
         'title':'Folder Info',
-        'node':node,
+        'node':request.GET['node'],
         'spec':spec,
         'relative_url':relative_url,
         'files':files,
@@ -280,8 +279,8 @@ def show_folder(request, node):
 
 
 @login_required
-@verify_node(False)
-def add_folder(request, node, name):
+@verify_node('node', False)
+def add_folder(request, name):
     spec = request.spec    # verify_node puts this in the request
     dir_path = os.path.join(spec.full_dir, name)
     os.mkdir(dir_path)
@@ -290,8 +289,8 @@ def add_folder(request, node, name):
 
 
 @login_required
-@verify_node(False)
-def remove_folder_warn(request, node):
+@verify_node('node', False)
+def remove_folder_warn(request):
     """Ajax call that returns a listing of the directories and files that
     would be effected if the given folder was removed."""
     spec = request.spec    # verify_node puts this in the request
@@ -311,7 +310,7 @@ def remove_folder_warn(request, node):
         'files':files,
         'dirs':dirs,
         'spec':spec,
-        'node':node,
+        'node':request.GET['node'],
     }
 
     return render_to_response('browser/remove_folder_warning.html', 
@@ -319,16 +318,16 @@ def remove_folder_warn(request, node):
 
 
 @login_required
-@verify_node(False)
-def remove_folder(request, node):
+@verify_node('node', False)
+def remove_folder(request):
     spec = request.spec    # verify_node puts this in the request
     shutil.rmtree(spec.full_dir)
     return HttpResponse()
 
 
 @login_required
-@verify_node(True)
-def remove_file(request, node):
+@verify_node('node', True)
+def remove_file(request):
     spec = request.spec    # verify_node puts this in the request
     if not os.path.exists(spec.full_filename):
         logger.error('ignored request to remove non-existent %s',

@@ -115,7 +115,7 @@
                 var filename = $(this).val();
                 var node = encodeURIComponent('{{node}}/' + filename);
                 $.ajax({
-                    url: "/yacon/browser/remove_file/" + node + "/",
+                    url: "/yacon/browser/remove_file/?node=" + node,
                     dataType: "json",
                     success: function(data) {
                         holder.remove();
@@ -145,7 +145,7 @@
         if( action ) {
             var node = encodeURIComponent('{{node}}/' + filename);
             $.ajax({
-                url: "/yacon/browser/remove_file/" + node + "/",
+                url: "/yacon/browser/remove_file/?node=" + node,
                 dataType: "json",
                 success: function(data) {
                     var tree = $('#tree').dynatree("getTree");

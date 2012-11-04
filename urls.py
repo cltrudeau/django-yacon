@@ -14,11 +14,11 @@ urlpatterns = patterns('yacon.views.browser',
 
     # right pane
     (r'^browser/root_control/(.*)/$', 'root_control'),
-    (r'^browser/show_folder/(.*)/$', 'show_folder'),
-    (r'^browser/add_folder/(.*)/(.*)/$', 'add_folder'),
-    (r'^browser/remove_folder_warn/(.*)/$', 'remove_folder_warn'),
-    (r'^browser/remove_folder/(.*)/$', 'remove_folder'),
-    (r'^browser/remove_file/(.*)/$', 'remove_file'),
+    (r'^browser/show_folder/$', 'show_folder'),
+    (r'^browser/add_folder/(.*)/$', 'add_folder'),
+    (r'^browser/remove_folder_warn/$', 'remove_folder_warn'),
+    (r'^browser/remove_folder/$', 'remove_folder'),
+    (r'^browser/remove_file/$', 'remove_file'),
 
     # upload 
     (r'^browser/upload_file/$', 'upload_file'),

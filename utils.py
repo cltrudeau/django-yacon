@@ -539,6 +539,7 @@ def build_filetree(expanded, restricted=None):
         public_node['children'] = {
             'title': restricted,
             'key': 'public:users/%s' % restricted,
+            'activate':True,
             'isLazy': True,
             'icon':'fatcow/folder.png',
         }

@@ -12,7 +12,7 @@ function load_folder_toolbar() {
             // get the warning about the nodes to remove
             var key = node.data.key;
             var dialog = $('#remove_folder_dialog');
-            dialog.load("/yacon/browser/remove_folder_warn/" + key + "/");
+            dialog.load("/yacon/browser/remove_folder_warn/?node=" + key);
             dialog.dialog("open");
         }
     });

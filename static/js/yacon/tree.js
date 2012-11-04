@@ -2,7 +2,6 @@
 // Tree Helper Functions
 
 function create_tree(activate, init_url, lazyread) {
-    // if you get here then user selected a site, load the tree
     $("#tree").dynatree({
         onActivate: function(node) {
             activate(node);

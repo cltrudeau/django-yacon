@@ -17,8 +17,8 @@ function activate(node) {
             + '/');
     }
     else {
-        $("div#node_container").load('/yacon/browser/show_folder/' 
-            + node.data.key + '/');
+        $("div#node_container").load('/yacon/browser/show_folder/?node=' 
+            + node.data.key);
     }
 }
 
