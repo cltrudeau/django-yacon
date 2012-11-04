@@ -1,6 +1,7 @@
 # yacon.utils.py
 import logging, json, inspect, urllib, os, locale, re
 from itertools import islice, chain
+from PIL import Image
 
 from django.conf import settings
 from django.http import HttpResponse, Http404
@@ -395,6 +396,11 @@ class FileSpec(object):
             thumb_file = os.path.abspath(os.path.join(thumb_path,
                 self.basename))
 
+            if not os.path.exists(thumb_file):
+                self.make_thumbnail(conf.site.auto_thumbnails['dir'],
+                    config, conf.site.auto_thumbnails['config'][config][0],
+                    conf.site.auto_thumbnails['config'][config][1])
+
             return FileSpec.factory_from_path(thumb_file, ensure_file=True)
         except KeyError:
             logger.exception('thumbnail requested but not properly configured')
@@ -402,6 +408,20 @@ class FileSpec(object):
         except AttributeError:
             logger.exception('thumbnail requested turned into bad path')
             return None
+
+    def make_thumbnail(self, thumb_dir, thumb_key, width, height):
+        image_dir = os.path.realpath(os.path.join(self.full_dir,
+            thumb_dir, thumb_key))
+        image_name = os.path.join(image_dir, self.basename)
+        try:
+            os.makedirs(image_dir)
+        except:
+            pass # already exists, do nothing
+
+        # use PIL to create the thumbnail
+        im = Image.open(self.full_filename)
+        im.thumbnail((width, height), Image.ANTIALIAS)
+        im.save(image_name, 'png')
 
     @property
     def is_private(self):

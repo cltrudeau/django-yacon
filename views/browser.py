@@ -4,7 +4,6 @@
 
 import os, logging, json, urllib, shutil, operator
 from io import FileIO, BufferedWriter
-from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -104,19 +103,8 @@ def _handle_upload(request, prefix=None):
 
     try:
         for key, value in conf.site.auto_thumbnails['config'].items():
-            image_dir = os.path.realpath(os.path.join(spec.full_dir,
-                conf.site.auto_thumbnails['dir'], key))
-            image_name = os.path.join(image_dir, spec.basename)
-            try:
-                os.makedirs(image_dir)
-            except:
-                # already exists, do nothing
-                pass
-
-            # use PIL to create the thumbnail
-            im = Image.open(spec.full_filename)
-            im.thumbnail(value, Image.ANTIALIAS)
-            im.save(image_name, 'png')
+            spec.make_thumbnail(conf.site.auto_thumbnails['dir'], 
+                key, value[0], value[1])
 
     except KeyError, e:
         logger.error(('auto_thumbnails missing conf key stopping thumbnail '

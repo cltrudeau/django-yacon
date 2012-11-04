@@ -240,9 +240,16 @@
     {% upload_widget node 'upload_complete' %}
 
     {% if images or files %}
-    <p id="single_select_instructions">
-        Click on a link to choose a file.
-    </p>
+        {% if choose_mode == 'multiselect' %}
+            <p id="single_select_instructions">
+                <b> Choose multiple files and press the "Choose Selected"
+                button</b>
+            </p>
+        {% else %}
+            <p id="single_select_instructions">
+                <b>Click on a link to choose a file.</b>
+            </p>
+        {% endif %}
     {% endif %}
 
     {% if images %}
