@@ -4,7 +4,7 @@
     {{ block.super }}
     <script type="text/JavaScript">
         $(document).ready(function(){
-            $('#navbar').tabnav('select', 2);
+            $('#navbar').tabnav('select_by_id', 'nav_users');
 
             {% if clear_autocomplete %}
                 // don't want to disable autocomplete, but don't want the
