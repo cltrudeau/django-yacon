@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>Page Three</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/JavaScript"
+        src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+    </script>
+    <link type="text/css" rel="stylesheet" 
+        href="../css/smoothness/jquery-ui-1.8.19.custom.css" />	
+    <link type="text/css" rel="stylesheet" href="../css/jquery-tab-nav.css" />	
+    <script type="text/JavaScript" src="../js/jquery-ui-1.8.19.custom.min.js">
+    </script>
+    <script type="text/JavaScript" src="../js/jquery-tab-nav.js">
+    </script>
+
+    <!-- nav bar -->
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            $('#navbar').tabnav();
+            $('#navbar').tabnav('select_by_id', 'three');
+        });
+    </script>
+</head>
+<body>
+    <!-- nav bar -->
+    <div id="navbar">
+        <ul>
+            <li id="one"> <a href="one.html">One</a> </li>
+            <li id="two"> <a href="two.html">Two</a> </li>
+            <li id="three"> <a href="three.html">Three</a> </li>
+        </ul>
+    </div>
+
+    <!-- content -->
+    <h1> Page Three </h1>
+    <p> A most excellent third page. Selected by id.</p>
+</body>
+</html>
