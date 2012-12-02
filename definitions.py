@@ -30,8 +30,8 @@ ALLOWED_TAGS = [
     'i',
     'li',
     'ol',
-    'p'
-    'pre'
+    'p',
+    'pre',
     'span',
     'strike',
     'strong',
@@ -47,7 +47,7 @@ ALLOWED_TAGS = [
 
 ALLOWED_ATTRIBUTES = {
     'a':['href', 'title'],
-    'img':['src', 'width', 'height', 'style'],
+    'img':['alt', 'src', 'width', 'height', 'style'],
     'table':['border', 'cellpadding', 'cellspacing', 'style', ],
     'p':['style', ],
 }
@@ -63,6 +63,10 @@ ALLOWED_STYLES = [
     'font-size',
     'height',
     'margin',
+    'margin-bottom',
+    'margin-left',
+    'margin-right',
+    'margin-top',
     'text-align',
     'width',
 ]
