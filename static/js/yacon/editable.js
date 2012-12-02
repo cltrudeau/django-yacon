@@ -116,7 +116,7 @@ $(document).ready(function() {
 
         // replace existing content with a form for editing
         div.children('.yacon_editable_content').html(
-            '<input type="text" name="title_edit" maxlength="25" value="' 
+            '<input type="text" name="title_edit" maxlength="50" value="' 
             + old_html[div[0].id].replace(/^\s+|\s+$/g, '') + '">'
         );
     });
