@@ -1,12 +1,9 @@
 function setup() {
-    load_toolbars();
     load_dialogs();
     create_tree(activate, init_ajax_url, lazy_read);
 }
 
 function activate(node) {
-    hide_all_toolbars();
-
     // load contents of node
     var pieces = node.data.key.split(":");
     var file_type = pieces[0];

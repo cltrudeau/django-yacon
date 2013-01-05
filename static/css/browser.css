@@ -65,18 +65,30 @@
     padding-right:1px;
     line-height:1.5em;
 }
-#actions {
-    clear:both;
-}
-#remove_files,
-#multi_select_files,
-#flip_select_all {
-    font-size:18px;
-    margin-top:20px;
-    margin-bottom:15px;
-}
 #action_button_spacer {
     display:inline-block;
     height:1px;
     width:250px;
+}
+#left_actions {
+    display:inline-block;
+    border:1px solid #fff;
+    margin:4px;
+}
+#middle_actions {
+    display:inline-block;
+    margin-left:45px;
+}
+#right_actions {
+    display:inline-block;
+    margin-left:45px;
+}
+#select_actions_title {
+    display:block;
+    font-weight:normal;
+    text-align:center;
+}
+#upload_area {
+    padding-top:15px;
+    clear:both;
 }

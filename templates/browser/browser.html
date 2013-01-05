@@ -12,8 +12,6 @@
 
     <script type="text/JavaScript" src="/static/js/yacon/tree.js">
     </script>
-    <script type="text/JavaScript" src="/static/js/yacon/browser/toolbars.js">
-    </script>
     <script type="text/JavaScript" src="/static/js/yacon/browser/dialogs.js">
     </script>
     <script type="text/JavaScript" src="/static/js/yacon/browser/setup.js">
@@ -31,21 +29,17 @@
 
 {% block content %}
 <div class="left">
+    {% if not popup %}
     <div class="toolbar ui-widget-header ui-corner-all">
         <div id="fake_toolbar"></div>
     </div>
+    {% endif %}
     <div id="tree_container">
         <div id="tree">
         </div>
     </div>
 </div>
 <div class="right">
-    <div class="toolbar ui-widget-header ui-corner-all">
-        <div id="folder_toolbar">
-            <button id="add_folder">Add Child Folder</button>
-            <button id="remove_folder_warn">Remove Folder</button>
-        </div>
-    </div>
     <div id="node_container">
     </div>
 </div>

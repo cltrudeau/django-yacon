@@ -129,10 +129,11 @@ def ckeditor_browser(request):
     request.session['func_num'] = func_num
     request.session['choose_mode'] = 'ckeditor'
     request.session['image_only'] = image_only
+    request.session['popup'] = True
     data = {
         'title':'Uploads',
         'base_template':'browser_base.html',
-        'popup':'1',
+        'popup':True,
     }
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
@@ -149,10 +150,11 @@ def popup_browser(request, callback):
     request.session['callback'] = callback
     request.session['choose_mode'] = choose_mode
     request.session['image_only'] = image_only
+    request.session['popup'] = True
     data = {
         'title':'File Browser',
         'base_template':'browser_base.html',
-        'popup':'1',
+        'popup':True,
     }
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
@@ -229,6 +231,7 @@ class StubFile(object):
 def show_folder(request):
     spec = request.spec    # verify_node puts this in the request
     image_only = request.session.get('image_only', False)
+    popup = request.session.get('popup', False)
     base_url = settings.MEDIA_URL
     if spec.file_type == 'private':
         base_url = conf.site.private_upload
@@ -272,6 +275,8 @@ def show_folder(request):
         'func_num':request.session.get('func_num', None),
         'choose_mode':request.session.get('choose_mode', 'view'),
         'callback':request.session.get('callback', ''),
+        'image_only':image_only,
+        'popup':popup,
     }
 
     return render_to_response('browser/show_folder.html', data, 

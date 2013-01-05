@@ -25,6 +25,11 @@ function load_dialogs() {
         function() { // url generator
             var node = active_node();
             var key = node.data.key;
+
+            // activate the parent's node so when we come back on the refresh
+            // things will be focused there
+            node = node.getParent();
+            node.activate();
             return "/yacon/browser/remove_folder/?node=" + key;
         },
         function(data) { // on success of ajax call

@@ -65,6 +65,11 @@
     }
 
     function prepare_page() {
+        // fix folder heights if necessary
+        {% if not popup %}
+            $('.toolbar').css({'height':'45px'});
+        {% endif %}
+
         $('#folder_toolbar').show();
 
         // loop through and populate our listing of images and files
@@ -85,7 +90,7 @@
         }
         else {
             $('#single_select_instrutions').hide();
-            $('#multi_select_files').click(function() {
+            $('#multi_select_files').button().click(function() {
                 $('body').css('cursor', 'progress');
                 $('.filename').each(function() {
                     var div = $(this).parent();
@@ -102,7 +107,14 @@
         register_selection_handlers();
 
         // handle remove and select buttons
-        $('#remove_files').click(function() {
+        $('#remove_files').button().click(function() {
+            var checked = $(':checked');
+            var num = checked.size();
+            if( num == 0 ) {
+                alert('Please select one or more files before pressing delete');
+                return
+            }
+
             var action = confirm('Remove selected files?  This cannot be '
                 + 'undone.');
             if( !action ) {
@@ -110,7 +122,7 @@
             }
 
             // remove the file or image
-            $(':checked').each(function() {
+            checked.each(function() {
                 var holder = $(this).parent().parent();
                 var filename = $(this).val();
                 var node = encodeURIComponent('{{node}}/' + filename);
@@ -125,34 +137,35 @@
         });
 
         // de/select all
-        $('#flip_select_all').click(function() {
-            var any_selected = false;
+        $('#select_all').button().click(function() {
             $('input[type="checkbox"]').each(function() {
-                if( $(this).attr("checked") ) {
-                    any_selected = true;
-                }
-            });
-            var select_state = !any_selected;
-            $('input[type="checkbox"]').each(function() {
-                $(this).attr("checked", select_state);
+                $(this).attr("checked", true);
             });
         });
-    }
-
-    function remove_file(filename) {
-        var action = confirm('Remove \"' + filename + '"?  This cannot be '
-            + 'undone.');
-        if( action ) {
-            var node = encodeURIComponent('{{node}}/' + filename);
-            $.ajax({
-                url: "/yacon/browser/remove_file/?node=" + node,
-                dataType: "json",
-                success: function(data) {
-                    var tree = $('#tree').dynatree("getTree");
-                    tree.reactivate();
-                }
+        $('#select_none').button().click(function() {
+            $('input[type="checkbox"]').each(function() {
+                $(this).attr("checked", false);
             });
-        }
+        });
+
+        $('#add_folder').button().click(function() {
+            var node = active_node();
+            if( node != null ) {
+                $('#add_folder_dialog').dialog("open");
+                node.expand(true);
+            }
+        });
+
+        $('#remove_folder_warn').button().click(function() {
+            var node = active_node();
+            if( node != null ) {
+                // get the warning about the nodes to remove
+                var key = node.data.key;
+                var dialog = $('#remove_folder_dialog');
+                dialog.load("/yacon/browser/remove_folder_warn/?node=" + key);
+                dialog.dialog("open");
+            }
+        });
     }
 
     function upload_complete(id, fileName, responseJSON) {
@@ -168,6 +181,9 @@
     }
 
     function add_image(name, url) {
+        $('#empty_folder').hide();
+        $('#not_empty_folder').show();
+
         // check for duplicates
         var dupes = $('a[href="' + url + '"]');
         if( dupes.length > 0 ) {
@@ -198,6 +214,9 @@
     }
 
     function add_file(name, url) {
+        $('#empty_folder').hide();
+        $('#not_empty_folder').show();
+
         // check for duplicates
         var dupes = $('a[href="' + url + '"]');
         console.debug('dupes: ' + dupes);
@@ -227,55 +246,69 @@
     $(document).ready(prepare_page);
 </script>
 
+<div class="toolbar ui-widget-header ui-corner-all">
+    <div id="folder_toolbar">
+        <div id="left_actions">
+            <span id="select_actions_title">select</span>
+            <button id="select_all">All</button>
+            <button id="select_none">None</button>
+        </div>
+        <div id="middle_actions">
+            <button id="multi_select_files">Done</button>
+        </div>
+        <div id="right_actions">
+            <button id="add_folder">Add Folder</button>
+            <button id="remove_folder_warn">Remove Folder</button>
+            <button id="remove_files">Delete</button>
+        </div>
+    </div>
+</div>
+
 <link type="text/css" rel="stylesheet" href="/static/css/browser.css" />	
 
 <div class="node">
-    <h2> Folder: {{spec.relative_dir}}/ </h2>
-    <p>
-        Click the "Upload a file" button to choose one or more files to upload 
-        to this directory.  If your browser supports drag-and-drop you can also
-        simply drag files to the button.  Files with the same name will be
-        overwritten.
-    </p>
-    {% upload_widget node 'upload_complete' %}
-
-    {% if images or files %}
-        {% if choose_mode == 'multiselect' %}
-            <p id="single_select_instructions">
-                <b> Choose multiple files and press the "Choose Selected"
-                button</b>
-            </p>
-        {% else %}
-            <p id="single_select_instructions">
-                <b>Click on a link to choose a file.</b>
-            </p>
-        {% endif %}
+    {% if not popup %}
+        <h2> Folder: {{spec.relative_dir}}/ </h2>
     {% endif %}
 
-    {% if images %}
-    <div id="images">
-        <div id="image_listing">
-        </div>
-    </div>
-    {% endif %}
-
-    {% if files %}
-    <div id="files">
-        <div id="file_listing">
-        </div>
-    </div>
-    {% endif %}
-
-    {% if not images and not files %}
+    <div id="empty_folder">
         <p>
             <i>Empty folder</i>
         </p>
-    {% else %}
-        <div id="actions">
-            <button id="flip_select_all">Select/Deselect All</button>
-            <button id="multi_select_files">Choose Selected</button>
-            <div id="action_button_spacer">&nbsp;</div>
-            <button id="remove_files">Delete Selected</button>
+    </div>
+    <div id="not_empty_folder" style="display:none;">
+        {% if choose_mode == 'multiselect' %}
+            <p>
+                <b> Choose multiple 
+                {% if image_only %}
+                    images
+                {% else %}
+                    files
+                {% endif %}
+                then press "Done".
+                </b>
+            </p>
+        {% else %}
+            <p>
+                <b>Click on a link to choose 
+                {% if image_only %}
+                    an image.
+                {% else %}
+                    a file.
+                {% endif %}
+                </b>
+            </p>
+        {% endif %}
+        <div id="images">
+            <div id="image_listing">
+            </div>
         </div>
-    {% endif %}
+        <div id="files">
+            <div id="file_listing">
+            </div>
+        </div>
+    </div>
+    <div id="upload_area">
+        {% upload_widget node 'upload_complete' %}
+    </div>
 </div>

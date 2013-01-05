@@ -51,7 +51,11 @@ def uploads_panel(request):
         'title':'Uploads',
         'base_template':'nexus_base.html',
         'choose_mode':'view',
+        'popup':False,
     }
+    request.session['choose_mode'] = 'view'
+    request.session['image_only'] = False
+    request.session['popup'] = False
 
     return render_to_response('browser/browser.html', data, 
         context_instance=RequestContext(request))
