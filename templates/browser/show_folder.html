@@ -48,7 +48,6 @@
         }
         else if( "{{choose_mode}}" == "multiselect" ) {
             $('.filename').click(function() {
-                console.debug('inside ms filename click');
                 var div = $(this).parent();
                 var checkbox = div.children('input');
                 checkbox.attr("checked", !checkbox.attr("checked"));
@@ -219,7 +218,6 @@
 
         // check for duplicates
         var dupes = $('a[href="' + url + '"]');
-        console.debug('dupes: ' + dupes);
         if( dupes.length > 0 ) {
             return;
         }
