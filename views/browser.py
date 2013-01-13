@@ -2,15 +2,13 @@
 #
 # File Browser Views
 
-import os, logging, json, urllib, shutil, operator
+import os, logging, json, shutil, operator
 from io import FileIO, BufferedWriter
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.files.uploadedfile import UploadedFile
-from django.contrib.auth.models import User
-from django.http import Http404, HttpResponseBadRequest, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 

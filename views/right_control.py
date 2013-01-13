@@ -4,7 +4,7 @@
 # Right pane in Nexus control panel.  Shows the contents of items selected in
 # the site tree in the left panel.
 
-import logging, json
+import logging
 
 from django.http import HttpResponse
 from django.template import RequestContext

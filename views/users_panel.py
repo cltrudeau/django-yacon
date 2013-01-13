@@ -14,7 +14,6 @@ from django.shortcuts import render_to_response, get_object_or_404
 
 from yacon import conf
 from yacon.decorators import superuser_required
-from yacon.models.common import Language
 from yacon.models.users import UsernameError
 
 logger = logging.getLogger(__name__)

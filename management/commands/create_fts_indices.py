@@ -1,5 +1,5 @@
 from django.core.management.base import NoArgsCommand
-from django.db import connections, router, transaction, models, DEFAULT_DB_ALIAS
+from django.db import connections, transaction, models, DEFAULT_DB_ALIAS
 import yacon.fts
 
 class Command(NoArgsCommand):

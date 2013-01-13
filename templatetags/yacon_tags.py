@@ -7,7 +7,6 @@ import logging, traceback, json
 
 from django import template
 from django.template import loader
-from django.template.base import Node
 
 from yacon import conf
 from yacon.models.pages import BlockType

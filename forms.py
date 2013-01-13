@@ -94,6 +94,6 @@ class CreatePageForm(forms.Form):
         data = super(CreatePageForm, self).clean()
         if not data['auto_slug'] and not data['slug']:
             # auto slug not specified but slug not given
-            raise ValidationError('slug field cannot be empty')
+            raise forms.ValidationError('slug field cannot be empty')
 
         return data

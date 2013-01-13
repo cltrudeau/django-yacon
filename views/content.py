@@ -6,18 +6,14 @@ import logging, urllib
 from django.contrib.auth.decorators import login_required
 from django.forms.util import ErrorList
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
 from django.utils import formats
-
-from django.views.decorators.csrf import csrf_exempt
 
 from yacon.decorators import post_required
 from yacon.forms import CreatePageForm
 from yacon.helpers import prepare_context, permission_to_edit_page
-from yacon.models.site import Site
 from yacon.models.hierarchy import BadSlug, Node
-from yacon.models.pages import Block, Page, PageType, Translation, MetaPage
+from yacon.models.pages import Block, Page, PageType, MetaPage
 from yacon.utils import JSONResponse
 
 logger = logging.getLogger(__name__)
@@ -139,7 +135,7 @@ def create_page_from_node(request, node_id, page_type_id, language_code,
     node = get_object_or_404(Node, id=node_id)
     langs = node.site.get_languages(language_code)
     if len(langs) == 0:
-        lang = site.default_language
+        lang = node.site.default_language
     else:
         lang = langs[0]
     uri = node.node_to_path(language=lang)
