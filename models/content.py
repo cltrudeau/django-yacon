@@ -89,7 +89,6 @@ class FlatContent(ContentHandler):
     """ContentHandler for content that requires no permission checking or
     other work, essentially just outputs what is in the db for the block"""
     def internal_render(self, request, context, block):
-        logger.debug('returning content')
         c = RequestContext(request)
         t = Template(block.content)
         return t.render(c)
@@ -105,7 +104,6 @@ class DynamicContent(ContentHandler):
     the context for the request and the block firing the ContentHandler.  The
     function should return a string containing the content to be rendered. """
     def internal_render(self, request, context, block):
-        logger.debug('returning content')
         mod = __import__(self.parms['module'], 
             fromlist=[self.parms['function']])
         f = getattr(mod, self.parms['function'])

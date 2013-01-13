@@ -95,17 +95,12 @@ class BlockType(TimeTrackedModel):
 
     def get_content_handler(self):
         if self.content_handler_instance != None:
-            logger.debug('returning cached content_handler_instance')
             return self.content_handler_instance
 
         # instantiate a content handler
         try:
-            logger.debug('about to import mod %s.%s' % (self.module_name,
-                self.content_handler_name))
-
             mod = __import__(self.module_name, globals(), locals(),
                 [self.content_handler_name])
-            logger.debug('mod import successful')
         except Exception, e:
             logger.exception('importing mod caused exception')
             t = e.__class__.__name__
@@ -125,7 +120,6 @@ import errors in the module.
             raise bch
 
         try:
-            logger.debug('getting class object for content handler')
             klass = getattr(mod, self.content_handler_name)
             logger.debug('found class for content handler')
         except Exception, e:
@@ -146,8 +140,6 @@ exception was: "%s" with the message:
 
         try:
             parms = self.get_content_handler_parms()
-            logger.debug('instantiatiing class with parms: %s' % parms)
-
             self.content_handler_instance = klass(self, parms)
         except Exception, e:
             logger.exception('instantiating content handler caused exception')
@@ -166,7 +158,6 @@ Instantiation errors are usually caused by problems in the constructor.
             bch = BadContentHandler(msg)
             raise bch
 
-        logger.debug('returning handler: %s' % self.content_handler_instance)
         return self.content_handler_instance
 
 
