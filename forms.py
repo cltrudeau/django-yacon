@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 class UpdateUserForm(forms.Form):
-    username = forms.CharField(max_length=30)
+    username = forms.RegexField(max_length=30, regex=r'^[\w.@+-]+$',
+        error_messages = {'invalid':('Only letters, numbers and the characters '
+            '@ . + - _ are allowed.')})
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField(max_length=75)
