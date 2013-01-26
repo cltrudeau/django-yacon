@@ -83,7 +83,6 @@ def prepare_context(request, uri=None):
     }
 
     page_context = conf.custom.page_context
-    logger.debug('got context: %s', page_context)
     page_context(request, uri, data)
 
     return data
