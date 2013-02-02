@@ -159,7 +159,7 @@ class HighlightedSearch(object):
             if forward > len(self.fragments):
                 forward = len(self.fragments)
 
-            for j in range(i + 1, forward + 1):
+            for j in range(i + 1, forward):
                 term = self.fragments[j]
                 size += len(term) + 1
                 keeping.append(term)
