@@ -39,6 +39,7 @@ ALLOWED_TAGS = [
     'sup',
     'table',
     'tbody',
+    'thead',
     'tr',
     'td',
     'u',
@@ -49,7 +50,13 @@ ALLOWED_ATTRIBUTES = {
     'a':['href', 'title'],
     'img':['alt', 'src', 'width', 'height', 'style'],
     'table':['border', 'cellpadding', 'cellspacing', 'style', ],
+    'td':['style', ],
+    'tr':['style', ],
+    'tbody':['style', ],
+    'thead':['style', ],
     'p':['style', ],
+    'span':['style', ],
+    'div':['style', ],
 }
 
 ALLOWED_STYLES = [
