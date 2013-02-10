@@ -238,5 +238,4 @@ def replace_title(request):
             'DATETIME_FORMAT'),
         'page_id':page.id,
     }
-    response = JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
-    return response
+    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})

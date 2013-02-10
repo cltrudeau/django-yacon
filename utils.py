@@ -1,5 +1,6 @@
 # yacon.utils.py
-import logging, json, inspect, urllib, os, locale, re
+import logging, json, inspect, urllib, os, locale, re, time
+from datetime import datetime
 from itertools import islice, chain
 from PIL import Image
 
@@ -466,6 +467,14 @@ class FileSpec(object):
                 return conf.site.private_upload_url + self.relative_dir
 
         return ''
+
+    @property
+    def uncached_url(self):
+        now = datetime.now()
+        epoch = int(time.mktime(now.timetuple()))
+        ms = now.microsecond
+        url = '%s?c=%s.%s' % (self.url, epoch, ms)
+        return url
 
 
 # -------------------

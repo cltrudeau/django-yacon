@@ -38,6 +38,7 @@
         // remove any existing bindings, no easy way of dealing with the new
         // elements otherwise
         $('.filename').unbind('click');
+        $('.image_edit').unbind('click');
 
         // browser can be started in different modes that change what happens
         // when you click on an file name
@@ -61,6 +62,17 @@
                 return false;
             });
         }
+
+        $('.image_edit').click(function() {
+            var url = $(this).attr('href');
+            var index = url.indexOf('?');
+            if( index != -1 ) {
+                url = url.substring(0, index);
+            }
+            $("div#node_container").load('/yacon/browser/image_edit/?image='  
+                + $(this).attr('href')); 
+            return false;
+        });
     }
 
     function prepare_page() {
@@ -99,7 +111,7 @@
                     }
                 });
                 $('body').css('cursor', 'auto');
-                window.close()
+                window.close();
                 return false;
             });
         }
@@ -183,25 +195,26 @@
         $('#empty_folder').hide();
         $('#not_empty_folder').show();
 
-        // check for duplicates
-        var dupes = $('a[href="' + url + '"]');
-        if( dupes.length > 0 ) {
-            return;
-        }
+        // remove duplicates
+        $('a[href="' + url + '"]').parent().parent().remove();
 
+        var now = new Date();
         var div = $('#image_listing');
         var html = 
             '<div class="image_holder" id="image_holder_' + holder_counter +
                     '">' +
                 '<div class="image_photo">' +
                     '<a target="_blank" class="filename" href="' + url + '">' +
-                        '<img src="' + url + '"/>' +
+                        '<img src="' + url + '?c=' + escape(now) + '"/>' +
                     '</a>' +
                 '</div>' +
                 '<div class="image_box hover_box">' +
+                    '<a target="_blank" class="filename" ' +
+                        'href="' + url + '">' + name + '</a><br/>' +
                     '<input type="checkbox" name="item" value="' + name + '">' +
                     '<a target="_blank" class="filename" ' +
-                        'href="' + url + '">' + name + '</a>' +
+                        'href="' + url + '">view</a>&nbsp;' +
+                    '<a class="image_edit" href="' + url + '">edit</a>' +
                 '</div>' +
             '</div>';
         div.append(html);

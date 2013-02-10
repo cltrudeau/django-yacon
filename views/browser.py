@@ -4,6 +4,7 @@
 
 import os, logging, json, shutil, operator
 from io import FileIO, BufferedWriter
+from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -13,7 +14,7 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 
 from yacon import conf
-from yacon.decorators import verify_node
+from yacon.decorators import verify_node, verify_file_url
 from yacon.utils import FileSpec, files_subtree, build_filetree
 
 logger = logging.getLogger(__name__)
@@ -357,5 +358,67 @@ def remove_file(request):
     except KeyError, e:
         logger.error(('auto_thumbnails missing conf key stopping thumbnail '
             'removal'), e.message)
+
+    return HttpResponse()
+
+
+@login_required
+@verify_file_url('image', True)
+def image_edit(request):
+    data = {
+        'spec':request.spec, # verify_file_url puts this in the request
+    }
+    if not os.path.exists(request.spec.full_filename):
+        return render_to_response('browser/image_edit_error.html', data, 
+            context_instance=RequestContext(request))
+
+    return render_to_response('browser/image_edit.html', data, 
+        context_instance=RequestContext(request))
+
+
+@login_required
+@verify_file_url('image', True)
+def image_edit_save(request):
+    spec = request.spec
+    if not os.path.exists(request.spec.full_filename):
+        return HttpResponse('File not found on server', status='404')
+
+    # use PIL to rotate, scale and crop the image
+    changed = False
+    img = Image.open(spec.full_filename)
+    rotate = request.GET.get('rotate')
+    if rotate:
+        img = img.rotate(-1 * int(rotate))
+        changed = True
+
+    width = request.GET.get('scale_width')
+    height = request.GET.get('scale_height')
+    if width:
+        img = img.resize((int(float(width)), int(float(height))), 
+            Image.ANTIALIAS)
+        changed = True
+
+    x1 = request.GET.get('crop_x1')
+    y1 = request.GET.get('crop_y1')
+    x2 = request.GET.get('crop_x2')
+    y2 = request.GET.get('crop_y2')
+    if x1:
+        box = (int(float(x1)), int(float(y1)), int(float(x2)), int(float(y2)))
+        img = img.crop(box)
+        changed = True
+        
+    if not changed or len(conf.site.auto_thumbnails) == 0:
+        return HttpResponse()
+
+    # image changed, saved the new one and update any thumbnails
+    img.save(spec.full_filename)
+    try:
+        for key, value in conf.site.auto_thumbnails['config'].items():
+            spec.make_thumbnail(conf.site.auto_thumbnails['dir'], 
+                key, value[0], value[1])
+
+    except KeyError, e:
+        logger.error(('auto_thumbnails missing conf key stopping thumbnail '
+            'generation'), e.message)
 
     return HttpResponse()

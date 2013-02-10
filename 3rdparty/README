@@ -67,3 +67,13 @@ the running packages.
 
     Copyright (c) 2012 Christopher Trudeau
     original: https://github.com/cltrudeau/jquery-tab-nav
+
+
+raphael-js
+~~~~~~~~~~
+raphael-js is redistributed with Yacon under the MIT license.  The minimized
+JS file is mixed into the running packages.
+
+    Copyright © 2008-2012 Dmitry Baranovskiy (http://raphaeljs.com)
+    Copyright © 2008-2012 Sencha Labs (http://sencha.com)
+    original: http://raphaeljs.com

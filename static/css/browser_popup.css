@@ -9,8 +9,7 @@
     padding-right: 1%;
 }
 .right {
-    min-width: 50%;
-    max-width: 70%;
+    width: 80%;
     margin-bottom:40px;
 }
 

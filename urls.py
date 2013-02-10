@@ -19,6 +19,8 @@ urlpatterns = patterns('yacon.views.browser',
     (r'^browser/remove_folder_warn/$', 'remove_folder_warn'),
     (r'^browser/remove_folder/$', 'remove_folder'),
     (r'^browser/remove_file/$', 'remove_file'),
+    (r'^browser/image_edit/$', 'image_edit'),
+    (r'^browser/image_edit_save/$', 'image_edit_save'),
 
     # upload 
     (r'^browser/upload_file/$', 'upload_file'),

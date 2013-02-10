@@ -93,3 +93,40 @@ def verify_node(parm, is_file):
 
         return wrapper
     return decorator
+
+
+def verify_file_url(parm, is_file):
+    """Decorator to check user's permissions against a file url contained in 
+    the query string.  Does a request.GET[parm] to check the file in the view.
+    A FileSpec is created based on the file, if the permission check passes
+    then this spec is put into the request (arg0).  
+
+    If the user is a superuser then the permissions are granted.  If not, the
+    file is checked against the user in the request.  A user is only granted
+    permission if the file is in under one of "public:users/X" or 
+    "private:users/X", where X is the username found in the request.
+
+    The "is_file" parameter is a boolean, True indicates the url is for a file.
+    """
+    def decorator(target):
+        @wraps(target)
+        def wrapper(*args, **kwargs):
+            # process options
+            request = args[0]
+            url = request.GET.get(parm)
+            if not url:
+                raise Http404('permission denied')
+
+            spec = FileSpec.factory_from_url(url, ensure_file=is_file)
+
+            if spec.allowed_for_user(request.user):
+                request.spec = spec
+                return target(*args, **kwargs)
+
+            logger.error('user %s attempted to access node %s',
+                request.user.username, node)
+
+            raise Http404('permission denied')
+
+        return wrapper
+    return decorator
