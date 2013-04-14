@@ -8,14 +8,18 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # this script used to change sanitizer to yacon.sanitizer, the change
+        # has been retro-ed into all the migration scripts so now this does
+        # nothing
 
-        # Changing field 'Block.content'
-        db.alter_column('yacon_block', 'content', self.gf('yacon.sanitizer.SanitizedTextField')())
+        # # Changing field 'Block.content'
+        #    db.alter_column('yacon_block', 'content', self.gf('yacon.sanitizer.SanitizedTextField')())
+        pass
 
     def backwards(self, orm):
-
-        # Changing field 'Block.content'
-        db.alter_column('yacon_block', 'content', self.gf('sanitizer.models.SanitizedTextField')())
+        # # Changing field 'Block.content'
+        #    db.alter_column('yacon_block', 'content', self.gf('sanitizer.models.SanitizedTextField')())
+        pass
 
     models = {
         'auth.group': {

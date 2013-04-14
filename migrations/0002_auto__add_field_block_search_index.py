@@ -59,7 +59,7 @@ class Migration(SchemaMigration):
         'yacon.block': {
             'Meta': {'object_name': 'Block'},
             'block_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['yacon.BlockType']"}),
-            'content': ('sanitizer.models.SanitizedTextField', [], {}),
+            'content': ('yacon.sanitizer.SanitizedTextField', [], {}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'parameters': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
