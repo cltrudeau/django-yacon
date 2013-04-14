@@ -105,7 +105,6 @@ def _custom(key):
                 _USER_CURATOR = dynamic_load('yacon.curators.UserCurator')
 
         return _USER_CURATOR
-
     # else:
     return value
 

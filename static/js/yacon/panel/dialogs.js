@@ -410,7 +410,7 @@ function load_menu_dialogs() {
             }
         },
         function(data) { // on success of ajax call
-                refresh_tree();
+            refresh_tree();
         }
     );
 }

@@ -281,8 +281,14 @@ def menu(context, name, separator=''):
         language = context['site'].default_language
         select = None
 
+    user = context.get('user', None)
     items = list(menu.first_level.all())
     for item in items:
+        if item.requires_login and (not user or not user.is_authenticated()):
+            # login required to see this item, there is no user in the session
+            # or they're not authenticated, skip the item
+            continue
+
         last = (item == items[-1])
         menuitem = _render_menuitem(item, language, select, last, separator, 1)
         results.append(menuitem)

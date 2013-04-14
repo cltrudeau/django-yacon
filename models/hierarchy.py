@@ -346,6 +346,7 @@ class MenuItem(BaseNode):
     metapage = models.OneToOneField('yacon.MetaPage', blank=True, null=True,
         unique=True)
     menu = models.ForeignKey('yacon.Menu')
+    requires_login = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'yacon'

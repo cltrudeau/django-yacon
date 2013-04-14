@@ -94,10 +94,9 @@ if conf.nexus.enabled:
         (r'^nexus/control/move_menuitem_out/(\d+)/$', 'move_menuitem_out'),
         (r'^nexus/control/move_menuitem_up/(\d+)/$', 'move_menuitem_up'),
         (r'^nexus/control/move_menuitem_down/(\d+)/$', 'move_menuitem_down'),
+        (r'^nexus/control/toggle_menuitem_requires_login/(\d+)/$',
+            'toggle_menuitem_requires_login'),
     )
-
-
-
 
     # control panel, dialogs
     urlpatterns += patterns('yacon.views.dialogs',

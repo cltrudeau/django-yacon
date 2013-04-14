@@ -6,6 +6,18 @@
         $('#rename_menuitem_translation_dialog').dialog('open');
     }
 
+    function toggle_requires_login(id) {
+        $.ajax({
+            url: "/yacon/nexus/control/toggle_menuitem_requires_login/" + id 
+                + "/",
+            dataType: "json",
+            success: function(data) {
+                refresh_tree();
+            }
+        });
+
+    }
+
     $(document).ready(function(){
         $('#menuitem_toolbar').show();
 
@@ -63,6 +75,12 @@
             {% else %}
                 <i>None</i>
             {% endif %}
+        </li>
+        <li>
+            Requires Login: {{menuitem.requires_login}} 
+            <a href="javascript:void(0);" 
+                onclick="toggle_requires_login({{menuitem.id}})">
+                (toggle)</a>
         </li>
     </ul>
 
