@@ -354,8 +354,9 @@ class MenuItem(BaseNode):
     def __unicode__(self):
         return 'MenuItem(id=%s)' % self.id
 
-    def create_child(self, metapage, translations={}):
-        child = self.add_child(metapage=metapage, menu=self.menu)
+    def create_child(self, metapage, translations={}, requires_login=False):
+        child = self.add_child(metapage=metapage, menu=self.menu,
+            requires_login=requires_login)
         for key, value in translations.items():
             MenuItemTranslation.objects.create(language=key, name=value, 
                 menuitem=child)
@@ -447,8 +448,9 @@ class Menu(TimeTrackedModel):
     def first_level(self):
         return MenuItem.objects.filter(menu=self, depth=1)
 
-    def create_child(self, metapage, translations={}):
-        item = MenuItem.add_root(metapage=metapage, menu=self)
+    def create_child(self, metapage, translations={}, requires_login=False):
+        item = MenuItem.add_root(metapage=metapage, menu=self,
+            requires_login=requires_login)
         for key, value in translations.items():
             MenuItemTranslation.objects.create(language=key, name=value, 
                 menuitem=item)
