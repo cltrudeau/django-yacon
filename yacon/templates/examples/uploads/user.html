@@ -1,0 +1,12 @@
+{% extends "examples/base.html" %}
+{% load yacon_tags %}
+
+{% block body %}
+<h1> User Upload Example </h1>
+
+<p>
+Must be logged in for this to work.  Uploads to the user's directory.
+</p>
+
+{% user_upload_widget "public:bar" %}
+{% endblock body %}

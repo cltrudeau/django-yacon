@@ -1,0 +1,3 @@
+JS normally shouldn't run through the template engine, but we need to be able
+to turn certain features on and off based on settings.  Files in this
+directory are rendered templates

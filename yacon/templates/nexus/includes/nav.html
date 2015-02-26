@@ -1,0 +1,24 @@
+        <ul>
+            <li id="nav_pages"> 
+                <a href="/yacon/nexus/control_panel/">Pages</a> 
+            </li>
+            <li id="nav_settings"> 
+                <a href="/yacon/nexus/config_panel/">Settings</a> 
+            </li>
+            <li id="nav_users"> 
+                <a href="/yacon/nexus/users_panel/">Users</a> 
+            </li>
+            <li id="nav_uploads"> 
+                <a href="/yacon/nexus/uploads_panel/">Uploads</a> 
+            </li>
+            {% if admin_enabled %}
+            <li id="nav_admin"> <a href="/admin/">DB</a> </li>
+            {% endif %}
+            {% if conf.custom.extra_admin_nav %}
+                {% for tuple in conf.custom.extra_admin_nav %}
+                    <li id="{{tuple.0}}"> 
+                        <a href="{{tuple.1}}">{{tuple.2}}</a> 
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>

@@ -1,0 +1,416 @@
+{% extends "nexus_base.html" %}
+
+{% block scripts %}
+    {{ block.super }}
+    <!-- dynatree -->
+    <link type="text/css" rel="stylesheet" 
+        href="/static/js/dynatree/skin/ui.dynatree.css" />	
+    <script type="text/JavaScript" src="/static/js/dynatree/jquery.cookie.js">
+    </script>
+    <script type="text/JavaScript" 
+        src="/static/js/dynatree/jquery.dynatree.min.js"> </script>
+
+    <!-- select box -->
+    <script type="text/JavaScript" 
+        src="/static/js/jquery-ui-selectbox-widget.min.js">
+    </script>
+
+    <!-- scripts to prepoulate slugs -->
+    <script type="text/JavaScript" src="/static/js/yacon/djangoadmin/urlify.js">
+    </script>
+
+    <script type="text/JavaScript" src="/static/js/yacon/tree.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/panel/actions.js">
+    </script>
+    <script type="text/JavaScript" src="/yacon/nexus/site_control/"> </script>
+    <script type="text/JavaScript" src="/static/js/yacon/panel/toolbars.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/panel/dialogs.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/panel/autopop.js">
+    </script>
+    <script type="text/JavaScript" src="/static/js/yacon/panel/ready.js">
+    </script>
+
+    <script type="text/JavaScript">
+        $(document).ready(function(){
+            $('#navbar').tabnav('select_by_id', 'nav_pages');
+        });
+    </script>
+{% endblock scripts %}
+
+{% block content %}
+<div class="left">
+    <div class="toolbar ui-widget-header ui-corner-all">
+        <div id="site_select_wrapper">
+            <select id="site_select">
+            </select>
+        </div>
+        <div id="site_sidebar">
+            <button id="site_info">Site Info</button>
+        </div>
+    </div>
+    <div id="tree_container">
+        <div id="tree">
+        </div>
+    </div>
+</div>
+<div class="right">
+    <div class="toolbar ui-widget-header ui-corner-all">
+        <div id="folder_toolbar">
+            <button id="add_folder">Add Child Folder</button>
+            <button id="add_page">Add Child Page</button>
+            <button id="remove_folder_warn">Remove Folder</button>
+            <button id="add_path">Add Translation</button>
+        </div>
+        <div id="metapage_toolbar">
+            <button id="add_menuitem">Add To Menu</button>
+            <button id="remove_page_warn">Remove Page</button>
+            <button id="add_translation">Add Translation</button>
+            <button id="make_default_page">Default For Node</button>
+        </div>
+        <div id="site_toolbar">
+            <button id="add_site_lang">Add Language</button>
+        </div>
+        <div id="menucontrol_toolbar">
+            <button id="add_menu">Add Menu</button>
+        </div>
+        <div id="menu_toolbar">
+            <button id="remove_menu_warn">Remove Menu</button>
+        </div>
+        <div id="menuitem_toolbar">
+            <button id="remove_menuitem_warn">Remove MenuItem</button>
+            <button id="add_menuitem_translation">Add Translation</button>
+            <button id="menuitem_move_out">Move Outwards</button>
+            <button id="menuitem_move_up">Move Up</button>
+            <button id="menuitem_move_down">Move Down</button>
+        </div>
+    </div>
+    <div id="node_container">
+    </div>
+</div>
+
+<!-- Dialog Boxes -->
+<div id="remove_folder_dialog">
+</div>
+
+<div id="remove_page_dialog">
+</div>
+
+<div id="edit_block_dialog">
+    <div id="csrf_token" style="display:none;">{%csrf_token%}</div>
+    <div id="block_id" style="display:none;"></div>
+    <div class="yacon_editable_content">
+    </div>
+</div>
+
+<div id="add_folder_dialog">
+    <p>
+        Enter title and slug for the new sub-folder using the site's default
+        language:
+    </p>
+    <form id="add_folder_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_folder_title">Title</label> </th>
+                <td> 
+                    <input type="text" name="title" id="add_folder_title" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_folder_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="add_folder_slug" /> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_page_dialog">
+    <p>
+        Choose a page type and language for the new page:
+    </p>
+    <form id="add_page_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_page_pagetype">Page Type</label> </th>
+                <td>
+                    <select id="add_page_pagetype">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_page_language">Language</label> </th>
+                <td>
+                    <select id="add_page_language">
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_translation_dialog">
+    <p>
+        Enter title and slug for the new translation:
+    </p>
+    <form id="add_translation_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_translation_lang">Language</label> </th>
+                <td>
+                    <select id="add_translation_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_translation_title">Title</label> </th>
+                <td> 
+                    <input type="text" name="title" 
+                        id="add_translation_title" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_translation_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="add_translation_slug"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_path_dialog">
+    <p>
+        Enter name and slug for a new translated path:
+    </p>
+    <form id="add_path_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_path_lang">Language</label> </th>
+                <td>
+                    <select id="add_path_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_path_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_path_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_path_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="add_path_slug"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="remove_path_dialog">
+</div>
+
+<div id="edit_path_dialog">
+    <p>
+        Edit path details:
+    </p>
+    <form id="edit_path_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="edit_path_lang">Language</label> </th>
+                <td> 
+                    <input type="text" name="language" readonly="readonly"
+                        id="edit_path_lang" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_path_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="edit_path_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_path_slug">Slug</label> </th>
+                <td> 
+                    <input type="text" name="slug" id="edit_path_slug"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="edit_path_dialog_warn">
+    </div>
+</div>
+
+<div id="add_site_lang_dialog">
+    <p>
+        Choose a language to add to this site.  Additional languages can be
+        added on the "Settings" tab.
+    </p>
+    <form id="add_site_lang_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_site_lang_lang">Language</label> </th>
+                <td>
+                    <select id="add_site_lang_lang">
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="edit_site_dialog">
+    <form id="edit_site_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="edit_site_lang">Default Language</label> 
+                </th>
+                <td>
+                    <select id="edit_site_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_site_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="edit_site_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="edit_site_domain">Domain</label> </th>
+                <td> 
+                    <input type="text" name="domain" id="edit_site_domain" /> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_new_site_dialog">
+    <form id="add_new_site_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="add_new_site_lang">Default Language</label> 
+                </th>
+                <td>
+                    <select id="add_new_site_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_new_site_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_new_site_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_new_site_domain">Domain</label> </th>
+                <td> 
+                    <input type="text" name="domain" id="add_new_site_domain"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="remove_menu_dialog">
+</div>
+
+<div id="remove_menuitem_dialog">
+</div>
+
+<div id="add_menuitem_translation_dialog">
+    <p>
+        Enter name for the new translation:
+    </p>
+    <form id="add_menuitem_translation_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="add_menuitem_translation_lang">Language</label>
+                </th>
+                <td>
+                    <select id="add_menuitem_translation_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> 
+                    <label for="add_menuitem_translation_name">Name</label>
+                </th>
+                <td> 
+                    <input type="text" name="name" 
+                        id="add_menuitem_translation_name"/> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_menuitem_dialog">
+    <p>
+        Choose which menu to add this page to as a MenuItem and enter its name
+        in the site's default language:
+    </p>
+    <form id="add_menuitem_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_menuitem_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_menuitem_name" /> 
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_menuitem_menu">Menu</label> </th>
+                <td>
+                    <select id="add_menuitem_menu">
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_menu_dialog">
+    <p>
+        Enter a name for the new menu:
+    </p>
+    <form id="add_menu_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> <label for="add_menu_name">Name</label> </th>
+                <td> 
+                    <input type="text" name="name" id="add_menu_name" /> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="rename_menuitem_translation_dialog">
+    <p>
+        Change the name for this translation:
+    </p>
+    <form id="rename_menuitem_translation_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th> 
+                    <label for="rename_menuitem_translation_name">Name</label> 
+                </th>
+                <td> 
+                    <input type="text" name="name" 
+                        id="rename_menuitem_translation_name" /> 
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" id="rename_menuitem_translation_id" /> 
+        <input type="hidden" id="rename_menuitem_translation_lang" /> 
+    </form>
+</div>
+{% endblock content %}

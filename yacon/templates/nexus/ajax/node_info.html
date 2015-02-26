@@ -1,0 +1,76 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#folder_toolbar').show();
+
+        {% if node.has_missing_translations %}
+            $('#add_path').show();
+        {% else %}
+            $('#add_path').hide();
+        {% endif %}
+
+        {% if default_path == '/' %}
+            $('#remove_folder_warn').hide();
+        {% else %}
+            $('#remove_folder_warn').show();
+        {% endif %}
+    });
+</script>
+
+<div class="node" id="{{node.id}}">
+    <h2> Node Info for: {{default_path|safe}} </h2>
+
+    <ul>
+        <li>
+            Node ID: {{node.id}}
+        </li>
+        <li>
+            # of Child MetaPages: {{num_metapages}}
+        </li>
+        <li>
+            # of Child Folders: {{num_children}}
+        </li>
+        <li>
+            Created: {{node.created}}
+        </li>
+        <li>
+            Last Updated: {{node.updated}}
+        </li>
+        <li>
+            Node Paths and Default Pages:
+        </li>
+        <ul>
+            {% for item in path_items %}
+                <li>
+                    {% if item.path %}
+                        {{item.path}} &mdash; (<i>{{item.lang.code}}</i>)
+                        <a href="javascript:void(0);"
+onclick="edit_path({{item.translation.id}}, '{{item.lang.code|escapejs}}', '{{item.translation.name|escapejs}}', '{{item.path|escapejs}}')">
+                            (edit)</a>
+                        <a href="javascript:void(0);"
+                            onclick="remove_path({{item.translation.id}})">
+                            (delete)</a>
+                    {% else %}
+                        <i>No path for {{item.lang.code}}</i>
+                    {% endif %}
+                </li>
+                {% if item.page %}
+                <ul>
+                    <li>
+                        "{{item.page.title}}"
+                        {% if item.path %}
+                            <a href="{{item.path}}">(view)</a>
+                        {% else %}
+                            (<i>unreachable</i>)
+                        {% endif %}
+                        <a href="javascript:void(0);"
+            onclick="choose_item('metapage:' + {{item.page.metapage.id}})">
+                            (info)</a>
+                    </li>
+                </ul>
+                {% endif %}
+            {% empty %}
+                <li> <i>None</i> </li>
+            {% endfor %}
+        </ul>
+    </ul>
+</div>

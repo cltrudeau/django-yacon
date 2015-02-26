@@ -1,0 +1,94 @@
+#images {
+    clear:both;
+    float:left;
+}
+.image_listing {
+    float:left;
+    width:95%;
+}
+.image_holder {
+    float:left;
+    width:180px;
+    margin:10px;
+}
+.image_photo{
+    width:180px;
+    height:180px;
+    overflow:hidden;
+}
+.image_photo img {
+    max-height:100%;
+}
+.image_box {
+    width:180px;
+    margin-top:5px;
+    overflow:hidden;
+    white-space:nowrap;
+    border:1px solid #fff;
+}
+.image_delete {
+    text-decoration:none;
+    color:#EE0000;
+    border:1px solid #999;
+    padding-top:2px;
+    padding-left:2px;
+    padding-right:1px;
+    line-height:1.5em;
+}
+
+#files {
+    clear:both;
+    float:left;
+}
+#file_listing {
+    float:left;
+    width:95%;
+}
+.file_holder {
+    float:left;
+    width:198px;
+}
+.file_box {
+    width:190px;
+    margin-top:5px;
+    margin-left:5px;
+    overflow:hidden;
+    white-space:nowrap;
+    border:1px solid #fff;
+}
+.file_delete {
+    text-decoration:none;
+    color:#EE0000;
+    border:1px solid #999;
+    padding-top:2px;
+    padding-left:2px;
+    padding-right:1px;
+    line-height:1.5em;
+}
+#action_button_spacer {
+    display:inline-block;
+    height:1px;
+    width:250px;
+}
+#left_actions {
+    display:inline-block;
+    border:1px solid #fff;
+    margin:4px;
+}
+#middle_actions {
+    display:inline-block;
+    margin-left:35px;
+}
+#right_actions {
+    display:inline-block;
+    margin-left:35px;
+}
+#select_actions_title {
+    display:block;
+    font-weight:normal;
+    text-align:center;
+}
+#upload_area {
+    padding-top:15px;
+    clear:both;
+}

@@ -1,0 +1,17 @@
+#middle_actions {
+    display:inline-block;
+    margin-left:35px;
+}
+#right_actions {
+    display:inline-block;
+    margin-left:20px;
+    width:200px;
+}
+#rotate {
+    width:34px;
+    height:34px;
+    background-image: url("/static/icons/fatcow/rotate_clockwise.png");
+}
+#holder {
+    margin-top:10px;
+}

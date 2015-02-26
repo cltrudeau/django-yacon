@@ -1,0 +1,207 @@
+<script type="text/JavaScript">
+    var CKEDITOR_BASEPATH = '/static/ckeditor/';
+
+    $(document).ready(function(){
+        $('#metapage_toolbar').show();
+
+        {% if metapage.has_missing_translations %}
+            $('#add_translation').show();
+        {% else %}
+            $('#add_translation').hide();
+        {% endif %}
+
+        {% if metapage.is_node_default %}
+            $('#make_default_page').hide();
+        {% else %}
+            $('#make_default_page').show();
+        {% endif %}
+
+        {% if menuitem %}
+            $('#add_menuitem').hide();
+        {% else %}
+            $('#add_menuitem').show();
+        {% endif %}
+    });
+</script>
+<script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="/static/ckeditor/adapters/jquery.js">
+</script>
+<script type="text/javascript" src="/static/js/yacon/content_utils.js"></script>
+
+<div class="node" id="{{page.id}}">
+    <h2> MetaPage{% if default_page %}: {{default_page.title}}{% endif %} 
+    (id={{metapage.id}})
+    </h2>
+
+    <ul>
+        <li>
+            MetaPage Alias ID:
+            {% if metapage.alias %}
+                {{metapage.alias.id}} 
+                <a onclick="choose_item('metapage:' + {{metapage.alias.id}})"
+                    href="javascript:void(0);">(info)</a>
+            {% else %}
+                <i>Not an alias</i>
+            {% endif %}
+        </li>
+        <li>
+            Created: {{metapage.created}}
+        </li>
+        <li>
+            Last Updated: {{metapage.updated}}
+        </li>
+        <li>
+            Node ID: {{metapage.node.id}}
+        </li>
+        <li>
+            Page Type: {{metapage.page_type.name}}
+        </li>
+        <li>
+            {% if metapage.page_type.template %}
+                Template: {{metapage.page_type.template}}
+            {% else %}
+                Dynamic Module: {{metapage.page_type.dynamic}}
+            {% endif %}
+        </li>
+        <li>
+            In Menu: 
+            {% if menuitem %}
+                {{menuitem.menu.name}}
+            {% else %}
+                <i>Not in a menu</i>
+            {% endif %}
+        </li>
+    </ul>
+
+    <h3>Contents</h3>
+
+    <ul>
+        {% if default_page %}
+            <li> 
+                "{{default_page.title}}" ({{default_page.language.code}})
+                {% if default_page.uri %}
+                    <a href="{{default_page.uri}}">(view)</a>&nbsp;
+                    {% if not metapage.alias %}
+                        <a href="javascript:void(0);"
+onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|escapejs}}', '{{default_page.metapage.has_alias}}')">
+                            (delete)</a>
+                    {% endif %}
+                {% else %}
+                    (<i>unreachable</i>)
+                {% endif %}
+            </li>
+            <ul>
+                <li>
+                    Slug: {{default_page.slug}}
+                </li>
+                <li>
+                    Created: {{default_page.created}}
+                </li>
+                <li>
+                    Last Updated: {{default_page.updated}}
+                </li>
+                <li>
+                    Owner: {{default_page.owner}}
+                </li>
+                {% if default_page.all_blocks %}
+                <li>
+                    Blocks:
+                </li>
+                <ul>
+                    {% for block in default_page.all_blocks %}
+                        <li>
+                            ID / Key: 
+                            {{block.id}} / {{block.block_type.key}}
+                            <a href="#" 
+                                onclick="return edit_block({{block.id}});">
+                                (edit)</a>
+                        </li>
+                        <ul>
+                            <li>
+                                Specifier Name:
+                                {{block.block_type.name}}
+                            </li>
+                            <li>
+                                Content Handler:
+                                {{block.block_type.content_handler}}
+                            </li>
+                            <li>
+                                Content Handler Parameters:
+                                {{block.block_type.content_handler_parms}}
+                            </li>
+                            <li>
+                                Block Parameters:
+                                {{block.parameters}}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </ul>
+        {% else %}
+            <li> 
+                <i>No Default Translation 
+                    ({{metapage.node.site.default_language.code}})</i>
+            </li>
+        {% endif %}
+        {% for page in translated_pages %}
+            <li>
+                "{{page.title}}" ({{page.language.code}})
+                <a href="{{page.uri}}">(view)</a>
+                {% if not metapage.alias %}
+                    <a href="javascript:void(0);"
+    onclick="remove_page_translation({{page.id}}, '{{page.title|escapejs}}', '{{page.metapage.has_alias}}')">
+                        (delete)</a>
+                {% endif %}
+            </li>
+            <ul>
+                <li>
+                    Slug
+                    <td>{{page.slug}}</td>
+                </li>
+                <li>
+                    Created: {{page.created}}
+                </li>
+                <li>
+                    Last Updated: {{page.updated}}
+                </li>
+                <li>
+                    Owner: {{default_page.owner}}
+                </li>
+                {% if page.all_blocks %}
+                <li>
+                    Blocks:
+                </li>
+                <ul>
+                    {% for block in page.all_blocks %}
+                        <li>
+                            ID / Key: 
+                            {{block.id}} / {{block.block_type.key}}
+                        </li>
+                        <ul>
+                            <li>
+                                Specifier Name:
+                                {{block.block_type.name}}
+                            </li>
+                            <li>
+                                Content Handler:
+                                {{block.block_type.content_handler}}
+                            </li>
+                            <li>
+                                Content Handler Parameters:
+                                {{block.block_type.content_handler_parms}}
+                            </li>
+                            <li>
+                                Block Parameters:
+                                {{block.parameters}}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+            </ul>
+        {% empty %}
+        {% endfor %}
+    </ul>
+</div>

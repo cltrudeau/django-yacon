@@ -1,0 +1,327 @@
+{% load yacon_tags %}
+
+<script type="text/JavaScript">
+    var image_extensions = $.parseJSON('{{image_extensions|safe}}');
+    var holder_counter = 0;
+
+    function hover_on() {
+        $(this).css({
+            'overflow':'visible',
+            'background-color':'#fff',
+            'border':'1px solid #999',
+            'z-index':1000,
+            'width':'auto',
+            'position':'relative'
+        });
+        var width = $(this).find('.filename').width() + 30;
+        $(this).css({
+        'width':width
+        });
+    }
+    function hover_off() {
+        $(this).css({
+            'border':'1px solid #fff',
+            'overflow':'hidden',
+            'z-index':1,
+            'width':'auto'
+        });
+    }
+
+    function ckeditor_select() {
+        window.opener.CKEDITOR.tools.callFunction({{func_num}},
+            $(this).attr('href'));
+        window.close()
+        return false;
+    }
+
+    function register_selection_handlers() {
+        // remove any existing bindings, no easy way of dealing with the new
+        // elements otherwise
+        $('.filename').unbind('click');
+        $('.image_edit').unbind('click');
+
+        // browser can be started in different modes that change what happens
+        // when you click on an file name
+        if( "{{choose_mode}}" == "ckeditor" ) {
+            // we're in pop-up ckeditor select mode, re-assign what clicking
+            // on a link does
+            $('.filename').click(ckeditor_select);
+        }
+        else if( "{{choose_mode}}" == "multiselect" ) {
+            $('.filename').click(function() {
+                var div = $(this).parent().parent();
+                var checkbox = div.find('input');
+                checkbox.attr("checked", !checkbox.attr("checked"));
+                return false;
+            });
+        }
+        else if( "{{choose_mode}}" == "singleselect" ) {
+            $('.filename').click(function() {
+                window.opener['{{callback}}']($(this).attr('href'));
+                window.close()
+                return false;
+            });
+        }
+
+        $('.image_edit').click(function() {
+            var url = $(this).attr('href');
+            var index = url.indexOf('?');
+            if( index != -1 ) {
+                url = url.substring(0, index);
+            }
+            $("div#node_container").load('/yacon/browser/image_edit/?image='  
+                + $(this).attr('href')); 
+            return false;
+        });
+    }
+
+    function prepare_page() {
+        // fix folder heights if necessary
+        {% if not popup %}
+            $('.toolbar').css({'height':'45px'});
+        {% endif %}
+
+        $('#folder_toolbar').show();
+
+        // loop through and populate our listing of images and files
+        {% if images %}
+            {% for image in images %}
+                add_image('{{image.name}}', '{{image.url}}');
+            {% endfor %}
+        {% endif %}
+        {% if files %}
+            {% for file in files %}
+                add_file('{{file.name}}', '{{file.url}}');
+            {% endfor %}
+        {% endif %}
+
+        if( "{{choose_mode}}" != "multiselect" ) {
+            // not in multi select mode, hide the selection button
+            $('#multi_select_files').hide();
+        }
+        else {
+            $('#single_select_instrutions').hide();
+            $('#multi_select_files').button().click(function() {
+                $('body').css('cursor', 'progress');
+                $('.filename').each(function() {
+                    var div = $(this).parent();
+                    var checkbox = div.children('input').first();
+                    if( checkbox.attr("checked") ) {
+                        window.opener['{{callback}}']($(this).attr('href'));
+                    }
+                });
+                $('body').css('cursor', 'auto');
+                window.close();
+                return false;
+            });
+        }
+        register_selection_handlers();
+
+        // handle remove and select buttons
+        $('#remove_files').button().click(function() {
+            var checked = $(':checked');
+            var num = checked.size();
+            if( num == 0 ) {
+                alert('Please select one or more files before pressing delete');
+                return
+            }
+
+            var action = confirm('Remove selected files?  This cannot be '
+                + 'undone.');
+            if( !action ) {
+                return;
+            }
+
+            // remove the file or image
+            checked.each(function() {
+                var holder = $(this).parent().parent();
+                var filename = $(this).val();
+                var node = encodeURIComponent('{{node}}/' + filename);
+                $.ajax({
+                    url: "/yacon/browser/remove_file/?node=" + node,
+                    dataType: "json",
+                    success: function(data) {
+                        holder.remove();
+                    }
+                });
+            });
+        });
+
+        // de/select all
+        $('#select_all').button().click(function() {
+            $('input[type="checkbox"]').each(function() {
+                $(this).attr("checked", true);
+            });
+        });
+        $('#select_none').button().click(function() {
+            $('input[type="checkbox"]').each(function() {
+                $(this).attr("checked", false);
+            });
+        });
+
+        $('#add_folder').button().click(function() {
+            var node = active_node();
+            if( node != null ) {
+                $('#add_folder_dialog').dialog("open");
+                node.expand(true);
+            }
+        });
+
+        $('#remove_folder_warn').button().click(function() {
+            var node = active_node();
+            if( node != null ) {
+                // get the warning about the nodes to remove
+                var key = node.data.key;
+                var dialog = $('#remove_folder_dialog');
+                dialog.load("/yacon/browser/remove_folder_warn/?node=" + key);
+                dialog.dialog("open");
+            }
+        });
+    }
+
+    function upload_complete(id, fileName, responseJSON) {
+        var ext = fileName.split('.').pop();
+        if( $.inArray(ext, image_extensions) != -1 ) {
+            // file was an image
+            add_image(fileName, '{{relative_url}}' + fileName);
+        }
+        else {
+            // file was not an image
+            add_file(fileName, '{{relative_url}}' + fileName);
+        }
+    }
+
+    function add_image(name, url) {
+        $('#empty_folder').hide();
+        $('#not_empty_folder').show();
+
+        // remove duplicates
+        $('a[href="' + url + '"]').parent().parent().remove();
+
+        var now = new Date();
+        var div = $('#image_listing');
+        var html = 
+            '<div class="image_holder" id="image_holder_' + holder_counter +
+                    '">' +
+                '<div class="image_photo">' +
+                    '<a target="_blank" class="filename" href="' + url + '">' +
+                        '<img src="' + url + '?c=' + escape(now) + '"/>' +
+                    '</a>' +
+                '</div>' +
+                '<div class="image_box hover_box">' +
+                    '<a target="_blank" class="filename" ' +
+                        'href="' + url + '">' + name + '</a><br/>' +
+                    '<input type="checkbox" name="item" value="' + name + '">' +
+                    '<a target="_blank" class="filename" ' +
+                        'href="' + url + '">view</a>&nbsp;' +
+                    '<a class="image_edit" href="' + url + '">edit</a>' +
+                '</div>' +
+            '</div>';
+        div.append(html);
+
+        // file names are in a bounding box, have mouse over show the whole
+        // thing
+        $('#image_holder_' + holder_counter + ' .hover_box').hover(hover_on, 
+            hover_off);
+        holder_counter++;
+        register_selection_handlers();
+    }
+
+    function add_file(name, url) {
+        $('#empty_folder').hide();
+        $('#not_empty_folder').show();
+
+        // check for duplicates
+        var dupes = $('a[href="' + url + '"]');
+        if( dupes.length > 0 ) {
+            return;
+        }
+
+        var div = $('#file_listing');
+        var html = 
+            '<div class="file_holder" id="file_holder_' + holder_counter + 
+                    '">' +
+                '<div class="file_box hover_box">' +
+                    '<input type="checkbox" name="item" value="' + name + '">' +
+                    '<a target="_blank" class="filename" ' +
+                        'href="' + url + '">' + name + '</a>' +
+                '</div>' +
+            '</div>';
+        div.append(html);
+        // file names are in a bounding box, have mouse over show the whole
+        // thing
+        $('#filee_holder_' + holder_counter + ' .hover_box').hover(hover_on, 
+            hover_off);
+        holder_counter++;
+        register_selection_handlers();
+    }
+
+    $(document).ready(prepare_page);
+</script>
+
+<div class="toolbar ui-widget-header ui-corner-all">
+    <div id="folder_toolbar">
+        <div id="left_actions">
+            <span id="select_actions_title">select</span>
+            <button id="select_all">All</button>
+            <button id="select_none">None</button>
+        </div>
+        <div id="middle_actions">
+            <button id="multi_select_files">Done</button>
+        </div>
+        <div id="right_actions">
+            <button id="add_folder">Add Folder</button>
+            <button id="remove_folder_warn">Remove Folder</button>
+            <button id="remove_files">Delete</button>
+        </div>
+    </div>
+</div>
+
+<link type="text/css" rel="stylesheet" href="/static/css/browser.css" />	
+
+<div class="node">
+    {% if not popup %}
+        <h2> Folder: {{spec.relative_dir}}/ </h2>
+    {% endif %}
+
+    <div id="empty_folder">
+        <p>
+            <i>Empty folder</i>
+        </p>
+    </div>
+    <div id="not_empty_folder" style="display:none;">
+        {% if choose_mode == 'multiselect' %}
+            <p>
+                <b> Choose multiple 
+                {% if image_only %}
+                    images
+                {% else %}
+                    files
+                {% endif %}
+                then press "Done".
+                </b>
+            </p>
+        {% else %}
+            <p>
+                <b>Click on a link to choose 
+                {% if image_only %}
+                    an image.
+                {% else %}
+                    a file.
+                {% endif %}
+                </b>
+            </p>
+        {% endif %}
+        <div id="images">
+            <div id="image_listing">
+            </div>
+        </div>
+        <div id="files">
+            <div id="file_listing">
+            </div>
+        </div>
+    </div>
+    <div id="upload_area">
+        {% upload_widget node 'upload_complete' %}
+    </div>
+</div>

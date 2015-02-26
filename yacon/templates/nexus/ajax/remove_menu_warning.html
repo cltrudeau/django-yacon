@@ -1,0 +1,11 @@
+<p>
+    Please confirm you would like to remove Menu "{{menu.name}}" 
+    (id={{menu.id}})
+</p>
+{% if items %}
+<p>
+    These MenuItems and their translations will also be removed:
+
+{{items|safe}}
+</p>
+{% endif %}

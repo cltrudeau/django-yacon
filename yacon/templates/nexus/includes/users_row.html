@@ -1,0 +1,41 @@
+                <td>
+                    <a href="/yacon/nexus/users/edit_user/{{profile.id}}/">
+                        {{profile.user.username}}</a>
+                </td>
+                <td>
+                    {% if profile.user.last_name %}
+                        {{profile.user.last_name}},
+                    {% else %}
+                        <i>blank</i>,
+                    {% endif %}
+                    {% if profile.user.first_name %}
+                        {{profile.user.first_name}}
+                    {% else %}
+                        <i>blank</i>
+                    {% endif %}
+                </td>
+                <td>
+                    {{profile.user.email}}
+                </td>
+                <td class="centred">
+                    {% if profile.user.is_staff %}
+                        <img src="/static/icons/fatcow/check.png" alt="True"/>
+                    {% else %}
+                        <br/>
+                    {% endif %}
+                </td>
+                <td class="centred">
+                    {% if profile.user.is_superuser %}
+                        <img src="/static/icons/fatcow/check.png" alt="True"/>
+                    {% else %}
+                        <br/>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/yacon/nexus/users/user_password/{{profile.id}}/">
+                        Change Password</a>
+                </td>
+                <td>
+                    <a href="/yacon/nexus/users/su/{{profile.id}}/">
+                        Switch To User</a>
+                </td>

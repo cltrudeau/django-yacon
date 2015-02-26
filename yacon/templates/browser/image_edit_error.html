@@ -1,0 +1,25 @@
+<script type="text/JavaScript">
+    function reshow_folder() {
+        var tree = $('#tree').dynatree("getTree");
+        tree.reactivate();
+    }
+</script>
+
+<div class="toolbar ui-widget-header ui-corner-all">
+    <div id="folder_toolbar">
+    </div>
+</div>
+
+<link type="text/css" rel="stylesheet" href="/static/css/browser.css" />	
+
+<div class="node">
+    <h2>File Error</h2>
+
+    <p>
+        A problem has occurred loading the image.  If the issue persists
+        contact your administrator.
+    </p>
+    <p>
+        <a href="javascript:void(0);" onclick="reshow_folder()">Return</a>
+    </p>
+</div>

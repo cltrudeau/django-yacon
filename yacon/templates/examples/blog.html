@@ -1,0 +1,9 @@
+{% extends "examples/base.html" %}
+{% load yacon_tags %}
+
+{% block body %}
+<h1> {{page.title}} </h1>
+
+{% block_by_key "blog" %}
+
+{% endblock body %}

@@ -1,0 +1,46 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#site_toolbar').show();
+
+        {% if site.has_missing_languages %}
+            $('#add_site_lang').show();
+        {% else %}
+            $('#add_site_lang').hide();
+        {% endif %}
+    });
+</script>
+<div class="node" id="{{site.id}}">
+    <h2> 
+        Site Info for: {{site.name}} 
+        <a href="javascript:void(0);"
+onclick="edit_site({{site.id}}, '{{site.name|escapejs}}', '{{site.domain|escapejs}}')">
+            (edit)</a>
+    </h2>
+    <ul>
+        <li>
+            Domain: {{site.domain}}
+        </li>
+        <li>
+            Default Language: {{site.default_language.name}}
+                ({{site.default_language.code}})
+        </li>
+        {% for lang in alternate_languages %}
+            {% if forloop.first %}
+            <li>
+                Alternate Languages:
+            </li>
+            <ul>
+            {% endif %}
+                <li>
+                    {{lang.name}} ({{lang.code}})
+                </li>
+            {% if forloop.last %}
+            <ul>
+            {% endif %}
+        {% empty %}
+        {% endfor %}
+
+        {% if alternate_languages %}
+        {% endif %}
+    </ul>
+</div>

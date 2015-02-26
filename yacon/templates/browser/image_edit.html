@@ -1,0 +1,313 @@
+<script type="text/JavaScript" src="/static/js/raphael-min.js">
+</script>
+
+<script type="text/JavaScript">
+var rotation = 0;
+var scale_factor = 1;
+var width = 0;
+var height = 0;
+var largest = 0;
+var offset_x = 0;
+var offset_y = 0;
+var paper, original_image, image, selector, selector_box
+var selector_n, selector_e, selector_s, selector_w;
+var scale_direction = 'w';
+
+function kill_selector() {
+    if( typeof(selector) != 'undefined' ) {
+        selector.remove();
+    }
+}
+
+function scale_image() {
+    kill_selector();
+    var size = $('#scale_slider').slider("value");
+    if( scale_direction == 'h' ) {
+        // scaling height with bar
+        scale_factor = (size / height);
+    }
+    else {
+        // scaling height with bar
+        scale_factor = (size / width);
+    }
+
+    image.transform('R' + rotation + 'S' + scale_factor);
+}
+
+function create_selector(x, y, w, h) {
+    kill_selector();
+    selector = paper.set();
+    selector_box = paper.rect(x, y, w, h).attr({
+        fill:"#909090",
+        stroke:"#909090",
+        opacity:0.5,
+        cursor:"move"
+    });
+    selector_box.drag(function(dx, dy) { // on move
+            var box = image.getBBox();
+            var x = this.bound.x + dx;
+            var y = this.bound.y + dy;
+            if( x < box.x )
+                x = box.x;
+            if( y < box.y )
+                y = box.y;
+            if( x + this.bound.width > box.x2 )
+                x = selector_box.getBBox().x;
+            if( y + this.bound.height > box.y2 )
+                y = selector_box.getBBox().y;
+
+            resize_selector(x, y, this.bound.width, this.bound.height)
+        },
+        function() { // on start
+            selector_box.bound = selector_box.getBBox();
+        },
+        function() {}  // on end
+    );
+    selector.push(selector_box);
+    selector_n = crop_boundary('M' + x + ',' + y + 'H' + (x + w), 'n-resize');
+    selector_e = crop_boundary('M' + (x + w) + ',' + y + 'V' + (y + h),
+        'e-resize');
+    selector_s = crop_boundary('M' + x + ',' + (y + h ) + 'H' + (x + w),
+        's-resize');
+    selector_w = crop_boundary('M' + x + ',' + y + 'V' + (y + h), 'w-resize');
+    selector.push(selector_n);
+    selector.push(selector_e);
+    selector.push(selector_s);
+    selector.push(selector_w);
+}
+
+function resize_selector(x, y, w, h) {
+    selector_box.attr({
+        x:x,
+        y:y,
+        width:w,
+        height:h,
+    });
+    selector_n.attr({
+        path:'M' + x + ',' + y + 'H' + (x + w)
+    });
+    selector_e.attr({
+        path:'M' + (x + w) + ',' + y + 'V' + (y + h)
+    });
+    selector_s.attr({
+        path:'M' + x + ',' + (y + h ) + 'H' + (x + w)
+    });
+    selector_w.attr({
+        path:'M' + x + ',' + y + 'V' + (y + h)
+    });
+}
+
+function crop_boundary(dim, cursor) {
+    b = paper.path(dim).attr({
+        fill:"#efefef",
+        opacity:0.5,
+        'stroke-dasharray':"-",
+        'stroke-width':5,
+        'cursor':cursor
+    });
+    b.direction = cursor[0];
+    b.drag(
+        function(dx, dy) { // on move
+            var box = image.getBBox();
+            var x = this.bound.x;
+            var y = this.bound.y;
+            var w = this.bound.width;
+            var h = this.bound.height;
+
+            if( this.direction == 'n' ) {
+                y += dy;
+                h -= dy;
+
+                if( y < box.y ) {
+                    y = box.y;
+                    h = this.bound.y2 - y;
+                }
+                if( h < 0 ) {
+                    h = 1;
+                    y = this.bound.y2 + 1;
+                }
+            } else if( this.direction == 'e' ) {
+                w += dx;
+
+                if( x + w > box.x2 ) {
+                    w = box.x2 - x;
+                }
+                if( w < 0 ) {
+                    w = 1;
+                    x = this.bound.x + 1;
+                }
+            } else if( this.direction == 's' ) {
+                h += dy;
+
+                if( y + h > box.y2 ) {
+                    h = box.y2 - y;
+                }
+                if( h < 0 ) {
+                    h = 1;
+                    y = this.bound.y + 1;
+                }
+            } else {
+                x += dx;
+                w -= dx;
+
+                if( x < box.x ) {
+                    x = box.x;
+                    w = this.bound.x2 - x;
+                }
+                if( w < 0 ) {
+                    w = 1;
+                    x = this.bound.x2 - 1;
+                }
+            }
+
+            resize_selector(x, y, w, h);
+        },
+        function() { // on start
+            this.bound = selector_box.getBBox();
+        },
+        function() {}  // on end
+    )
+    return b;
+}
+
+$(document).ready(function(){
+    original_image = $('#image');
+    width = original_image.width();
+    height = original_image.height();
+    largest = width;
+    offset_y = (width - height) / 2;
+    if( height > largest ) {
+        largest = height;
+        offset_x = (height - width) / 2;
+        offset_y = 0;
+        scale_direction = 'h';
+    }
+
+    // build scale slider
+    var slider = $('#scale_slider');
+    $('#scale_slider').slider({
+        orientation: "horizontal",
+        range:"min",
+        max:largest,
+        min:1,
+        value:largest,
+        slide:scale_image,
+        change:scale_image,
+        stop: function(event, ui) {
+            post_stop = true;
+        }
+    })
+    $('.ui-slider-handle').html('&laquo;scale');
+    $('.ui-slider-handle').css({
+        'width':'76px',
+        'text-align':'center',
+        'outline':'none',
+        'border-width':'1px'
+    });
+
+    // set up Raphael and import the image
+    paper = Raphael("holder", largest, largest);
+    paper.rect(0, 0, largest, largest);
+    image = paper.image(original_image.attr("src"), offset_x, offset_y, 
+        width, height);
+
+    // ------------------------------------------------
+    // toolbar button handlers
+    $('#save').button().click(function() {
+        var url = "/yacon/browser/image_edit_save/?image={{spec.url}}"
+        var box = image.getBBox();
+        if( rotation != 0 ) {
+            url += '&rotate=' + rotation;
+        }
+        if( scale_factor != 1 ) {
+            url += '&scale_width=' + box.width;
+            url += '&scale_height=' + box.height;
+        }
+        if( typeof(selector) != 'undefined' ) {
+            var crop = selector_box.getBBox();
+            if( typeof(crop) != 'undefined' ) {
+                url += '&crop_x1=' + (crop.x - box.x);
+                url += '&crop_y1=' + (crop.y - box.y);
+                url += '&crop_x2=' + (crop.x2 - box.x);
+                url += '&crop_y2=' + (crop.y2 - box.y);
+            }
+        }
+
+        $.ajax({
+            url:url,
+            dataType: "json",
+            success: function(data) {
+                var tree = $('#tree').dynatree("getTree");
+                tree.reactivate();
+            },
+            error: function(data) {
+                alert('' + data.responseText);
+                var tree = $('#tree').dynatree("getTree");
+                tree.reactivate();
+            }
+        });
+
+    });
+    $('#cancel').button().click(function() {
+        var tree = $('#tree').dynatree("getTree");
+        tree.reactivate();
+    });
+    $('#reset').button().click(function() {
+        rotation = 0;
+        scale_factor = 1;
+        $('#scale_slider').slider("value", largest);
+        image.remove();
+        image = paper.image(original_image.attr("src"), offset_x, offset_y, 
+            width, height);
+        kill_selector();
+    });
+    $('#crop').button().click(function() {
+        kill_selector();
+        var box = image.getBBox();
+        var x = box.x + 10;
+        var y = box.y + 10;
+        var w = 200;
+        var h = 200;
+
+        if( w > box.width ) {
+            w = box.width - 20;
+        }
+        if( h > box.height ) {
+            h = box.height - 20;
+        }
+
+        create_selector(x, y, w, h);
+    });
+    $('#rotate').button().click(function() {
+        kill_selector();
+        rotation += 90;
+        if( rotation >= 360 )
+            rotation = 0;
+
+        image.transform('R' + rotation + 'S' + scale_factor);
+    });
+});
+</script>
+
+<div class="toolbar ui-widget-header ui-corner-all" style="height:45px;">
+    <div id="folder_toolbar">
+        <button id="save">Save</button>
+        <button id="cancel">Cancel</button>
+        <div id="middle_actions">
+            <button id="reset">Reset</button>
+            <button id="crop">Choose Crop</button>
+            <button id="rotate"></button>
+        </div>
+        <div id="right_actions">
+            <div id="scale_slider"></div>
+        </div>
+    </div>
+</div>
+
+<link type="text/css" rel="stylesheet" href="/static/css/image_editor.css" />
+
+<div class="node">
+    <img id="image" style="display:none" src="{{spec.uncached_url}}">
+    <div id="holder">
+    </div>
+</div>
