@@ -7,6 +7,10 @@ Pacakges
         ckeditor
         Valums File Uploader
 
+    django-fts has been adapted.  Original source:
+        - BSD license
+        - https://code.google.com/p/django-fts/
+
 Widgets
 ~~~~~~~
     jQuery and jQuery UI

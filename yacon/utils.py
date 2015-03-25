@@ -121,95 +121,22 @@ class QuerySetChain(object):
             return islice(self._all(), index, index+1).next()
 
 
-class HighlightedSearch(object):
-    def __init__(self):
-        self.fragments = []
-        self.highlighted = []
-
-    def add_fragment(self, fragment, highlighted):
-        if highlighted:
-            self.fragments.append(fragment)
-            self.highlighted.append(len(self.fragments) - 1)
-        else:
-            words = fragment.split()
-            self.fragments.extend(words)
-
-    def summary(self, size_limit):
-        keeping = []
-        size = 0
-        last_index = 0
-        for i in self.highlighted:
-            if i < last_index:
-                # we've wrapped past things included already, just keep moving
-                continue
-
-            backward = i - 5
-            if backward < 0:
-                backward = 0
-
-            for j in range(backward, i):
-                term = self.fragments[j]
-                size += len(term) + 1
-                keeping.append(term)
-
-            term = self.fragments[i]
-            keeping.append("<span class='fts_highlight'>%s</span>" % term)
-            size += len(term)
-
-            forward = i + 5
-            if forward > len(self.fragments):
-                forward = len(self.fragments)
-
-            for j in range(i + 1, forward):
-                term = self.fragments[j]
-                size += len(term) + 1
-                keeping.append(term)
-
-            keeping.append('...')
-            size += 3
-
-            last_index = forward
-
-            if size > size_limit:
-                break
-
-        return ' '.join(keeping)
-
-
 class SummarizedPage(object):
     """Holder for Page objects with ability to return portions of its content
     for displaying summaries."""
 
-    def __init__(self, page, block_key, summary_size, block=None,
-            highlighted=False):
+    def __init__(self, page, block_key, summary_size, block=None):
         self.page = page
         self.block = block
         self.block_key = block_key
         self.summary_size = summary_size
-        self.highlighted = highlighted
-
-    @classmethod
-    def factory_from_highlighted_blocks(cls, blocks, summary_size):
-        items = []
-        for block in blocks:
-            pages = block.page_set.all()
-            for page in pages:
-                sp = SummarizedPage(page, block.block_type.key, summary_size,
-                    block=block, highlighted=True)
-                items.append(sp)
-
-        return items
 
     @property 
     def summary(self):
         value = ''
-        if self.block and self.highlighted:
-            value = self.summarize_highlighted(self.block.content_highlight, 
-                self.summary_size)
-        else:
-            blocks = self.page.get_blocks(self.block_key)
-            if len(blocks) != 0:
-                value = self.summarize(blocks[0].content, self.summary_size)
+        blocks = self.page.get_blocks(self.block_key)
+        if len(blocks) != 0:
+            value = self.summarize(blocks[0].content, self.summary_size)
 
         return value
 
@@ -228,44 +155,6 @@ class SummarizedPage(object):
 
         subtext = subtext[:index]
         return subtext
-
-    @classmethod
-    def summarize_highlighted(cls, text, size_limit):
-        # need to strip out all the html tags except for the <span> matching
-        # tags
-        # split everything up by tags
-        pieces = []
-        last_start = 0
-        for match in re.finditer(r'<[^<]+?>', text):
-            before = text[last_start:match.start()]
-            if before:
-                pieces.append(before)
-
-            pieces.append(match.group(0))
-            last_start = match.end()
-
-        pieces.append(text[last_start:])
-
-        # remove any tags that are not our span tag
-        search = HighlightedSearch()
-        span_stack = 0
-        highlight_on = False
-        for piece in pieces:
-            if piece == "<span class='fts_highlight'>":
-                highlight_on = True
-            elif piece.startswith('<span'):
-                span_stack += 1
-            elif piece.startswith('</span>'):
-                if span_stack == 0:
-                    highlight_on = False
-                else:
-                    span_stack -= 1
-            elif piece.startswith('<'):
-                pass
-            else:
-                search.add_fragment(piece, highlight_on)
-
-        return search.summary(size_limit)
 
 # ============================================================================
 # File Browser Tools
