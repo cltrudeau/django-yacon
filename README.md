@@ -1,7 +1,8 @@
 # YACon
 
-yacon: a sweet tasting root plant grown in the Andes
-YACon: Yet Another CONtent management system
+__yacon__: a sweet tasting root plant grown in the Andes
+
+__YACon__: Yet Another CONtent management system
 
 YACon was created for a client that had particular needs for a CMS that
 weren't easily addressed with existing software at the time.  It is a little
