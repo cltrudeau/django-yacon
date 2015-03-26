@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/css/article.css" />
+{% endblock css %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/JavaScript">
+        var config_file_overwrite = '/static/js/yacon_ckeditor_config.js';
+
+        var edit_preconditions = function() {
+            article_div_height = $('#article').height();
+            article_div_width = $('#article').width();
+        };
+    </script>
+
+    {% include "blocks/includes/create_or_edit.html" %}
+{% endblock scripts %}
+
+{% block create_controls %}
+    {% include "blocks/includes/create_form.html" %}
+{% endblock create_controls %}

@@ -1,0 +1,43 @@
+{% extends "content/article_base.html" %}
+{% load yacon_tags %}
+
+{% block scripts %}
+    {{block.super}}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#remove_page_button').click(function(){
+                var action = confirm('Delete page?  This action cannot be '
+                    + ' undone');
+                if( action ) {
+                    window.location.href = '/yacon/remove_page/{{page.id}}/';
+                }
+            });
+        });
+    </script>
+{% endblock scripts %}
+
+{% block content %}
+<div id="article">
+    <div id="article_title">
+        <h2> 
+            {% if edit_permission %}
+                {% editable_page_title page %}
+            {% else %}
+                {{page.title}} 
+            {% endif %}
+        </h2>
+    </div>
+    <div id="article">
+        {% if edit_permission %}
+            {% editable_block_by_key "general" %}
+        {% else %}
+            {% block_by_key "general" %}
+        {% endif %}
+    </div>
+    <div id="remove_page">
+        {% if edit_permission and not create_mode %}
+            <button id="remove_page_button">Delete</button>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

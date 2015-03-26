@@ -1,0 +1,46 @@
+{% extends "sub_with_2.html" %}
+{% load yacon_tags %}
+{% load pagination_tags %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/css/listings.css" />
+{% endblock css %}
+
+{% block sub1_doubleleft %}
+    <div id="subtitle">
+        <span class="orange">Yacon</span>NEWS
+    </div>
+{% endblock sub1_doubleleft %}
+
+{% block sub2_left %}
+    <div id="sort_by">
+    </div>
+{% endblock sub2_left %}
+
+{% block sub2_right %}
+    {% autopaginate news_items 5 %}
+    <div id="paginator">
+        {% paginate %}
+    </div>
+{% endblock sub2_right %}
+
+{% block content %}
+    {% summarize_pages news_items 'news' 350 %}
+<div id="news_listings">
+    {% for item in summaries %}
+        <div class="news_listing {% if forloop.last %}noborder{% endif %}">
+            <div class="news_listing_box">
+                <div class="news_listing_title">
+                    <a href="{{item.page.uri}}" class="orange">
+                        {{item.page.title}}</a>
+                </div>
+                <div class="news_listing_summary">
+                    {{item.summary|safe}}
+                    &nbsp;
+                    <a href="{{item.page.uri}}" class="orange">More</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}

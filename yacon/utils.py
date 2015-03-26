@@ -532,3 +532,13 @@ def get_node(name):
         return tx.node
     except NodeTranslation.DoesNotExist:
         return None
+
+
+def get_profile(user):
+    try:
+        attr = conf.custom.user_curator.profile_class.__name__.lower()
+        return getattr(user, attr)
+    except:
+        pass
+
+    return None

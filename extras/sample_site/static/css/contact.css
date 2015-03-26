@@ -1,0 +1,71 @@
+.yacon_editable_content {
+    min-height:30px !important;
+}
+
+.staff_member_listing {
+    float:left;
+    width:100%;
+}
+.staff_member_left,
+.staff_member_right {
+    float:left;
+    width:33%;
+    font-size:16px;
+    min-height:110px;
+}
+.staff_photo {
+    float:left;
+    width:15%;
+    margin-top:10px;
+    margin-left:10px;
+}
+.staff_box {
+    float:left;
+    width:30%;
+    font-size:14px; 
+    margin-top:15px;
+    margin-left:5px;
+    overflow:hidden;
+}
+
+.staff_name {
+    margin-bottom:5px;
+}
+.staff_name a {
+    font-weight:bold; 
+    color:#FF8000; 
+}
+#contact_form {
+    float:left;
+    width:100%;
+    margin-top:15px;
+}
+#contact_layout td, th {
+    padding-top:4px;
+    padding-left:5px;
+}
+#contact_layout th {
+    width:110px;
+    vertical-align:top;
+    text-align:right;
+}
+#submit_row {
+    text-align:right;
+}
+#contact_submit {
+    background-color:#ddd;
+    color:#FF8000;
+    font-size:18px;
+    margin-bottom:5px;
+}
+#id_subject,
+#id_reply_to{
+    width:397px;
+}
+#id_message {
+    width:400px;
+}
+#contact_layout ul {
+    list-style-type: none;
+    color:#FF8000;
+}

@@ -7,7 +7,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
-from yacon.utils import FileSpec
+from yacon.utils import FileSpec, get_profile
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +48,9 @@ def profile_required(target):
     @wraps(target)
     def wrapper(*args, **kwargs):
         request = args[0]
-        try:
-            request.profile = request.user.get_profile()
+        profile = get_profile(request.user)
+        if profile:
             return target(*args, **kwargs)
-        except ObjectDoesNotExist:
-            pass
 
         raise Http404('no profile for user')
     return wrapper

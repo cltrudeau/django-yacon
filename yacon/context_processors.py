@@ -12,6 +12,7 @@ def processor(request):
     data = {
         'admin_enabled': 'django.contrib.admin' in settings.INSTALLED_APPS,
         'conf':conf,
+        'request':request,
     }
 
     if hasattr(request, 'user'):

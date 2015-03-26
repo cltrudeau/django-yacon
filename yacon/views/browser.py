@@ -201,7 +201,11 @@ def tree_top(request):
     if not request.user.is_superuser:
         restricted = request.user.username
 
-    tree = build_filetree(expanded, restricted)
+    try:
+        tree = build_filetree(expanded, restricted)
+    except OSError:
+        tree = ['File error, is MEDIA_ROOT set?']
+
     return HttpResponse(json.dumps(tree), content_type='application/json')
 
 

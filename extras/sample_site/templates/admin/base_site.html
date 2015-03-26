@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+
+{% block extrahead %}
+    {% if conf.site.local_jquery %}
+        <script type="text/JavaScript" src="/static/js/jquery-1.7.2.min.js">
+        </script>
+    {% else %}
+        <script type="text/JavaScript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+        </script>
+    {% endif %}
+    <script type="text/JavaScript"
+        src="/static/js/jquery-ui-1.8.19.custom.min.js">
+    </script>
+    <link type="text/css" rel="stylesheet"
+        href="/static/css/smoothness/jquery-ui-1.8.19.custom.css" />
+
+    <!-- tab nav -->
+    <script type="text/JavaScript" src="/static/js/jquery-tab-nav.js">
+    </script>
+    <link type="text/css" rel="stylesheet" 
+        href="/static/css/jquery-tab-nav.css" />	
+
+<script type="text/JavaScript">                                              
+    $(document).ready(function(){                                            
+        $('#navbar').prependTo('body');
+        $('#navbar').tabnav();
+        $('#navbar').tabnav('select_by_id', 'nav_admin');
+    });                                                                      
+</script>
+{% endblock %}
+{% block pretitle %}
+    <div id="navbar">
+        {% include "nexus/includes/nav.html" %}
+    </div>
+{% endblock %}

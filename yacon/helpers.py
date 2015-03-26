@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from yacon import conf
 from yacon.models.site import Site
 from yacon.models.pages import PageType, BlockType
+from yacon.utils import get_profile
 
 logger = logging.getLogger(__name__)
 
@@ -92,11 +93,8 @@ def permission_to_edit_page(request, page, context={}):
     """Calls user.permission_to_edit_page() on the user in the request, or
     returns False if no user in the request."""
     if hasattr(request, 'user') and request.user.is_authenticated():
-        try:
-            profile = request.user.get_profile()
+        profile = get_profile(request.user)
+        if profile:
             return profile.permission_to_edit_page(page, context)
-        except ObjectDoesNotExist:
-            return False
 
     return False
-

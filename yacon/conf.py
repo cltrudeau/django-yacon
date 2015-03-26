@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 SITE = {
     'static_serve':False,
-    'ajax_edit_enabled':False,
     'tests_enabled':False,
     'examples_enabled':False,
     'local_jquery':False,

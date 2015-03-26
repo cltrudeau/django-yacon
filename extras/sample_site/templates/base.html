@@ -1,0 +1,131 @@
+{% load i18n %}
+{% load yacon_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>
+        {% if page %}
+            YaconSampleSite: {{page.title}}
+        {% else %}
+            YaconSampleSite {% if title %}: {{title}} {% endif %}
+        {% endif %}
+    </title>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml;
+        charset=utf-8" />
+    <script type="text/JavaScript"
+        src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+    </script>
+    <link rel="stylesheet" type="text/css" href="/static/css/screen.css" />
+
+    {% block css %}
+    {% endblock css %}
+    {% block scripts %}
+    {% endblock scripts %}
+</head>
+<body>
+<div id="outer">
+    <div id="header" class="master_border">
+        <div id="masthead">
+            <div id="masthead_link">
+                <a href="/">YaconSampleSite.com</a>
+            </div>
+            <div id="login_box">
+                {% if not authenticated %}
+                <form id="login_form" action="/accounts/login/" method="post"/>
+                    {% csrf_token %}
+                    <label>Username</label>
+                    <input type="text" class="text" name="username" value=""/>
+                    &nbsp;
+                    <label>Password</label>
+                    <input type="password" class="text" name="password" 
+                        value=""/>
+                    <input type="submit" class="submit" name="login" 
+                        value="Login"/>
+                    <input type="hidden" name="next" value="/"/>
+                </form>
+                {% else %}
+                    <ul id="user_menu">
+                        <li><a href="/accounts/logout/?next=/">Logout</a></li>
+                        {% if superuser %}
+                        <li><a href="/yacon/nexus/">Nexus</a>&nbsp;|&nbsp;</li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div id="top_nav_row">
+            <div id="brand_logo">
+                <a href="/" class="logo">
+                    <img src="/static/images/yacon.png"/>
+                </a>
+            </div>
+            <div id="top_nav">
+                <ul>
+                    {% if menu_name %}
+                        {% menu menu_name "&nbsp;|" %}
+                    {% endif %}
+                </ul>
+            </div>
+        </div><!-- #top_nav_row -->
+    </div><!-- #header -->
+    <div id="columns_holder_left_mid_right" class="master_border">
+        <div id="columns_holder_left_mid">
+            <div id="columns_holder_left">
+                <div id="column_left">
+                    <div id="subheadings">
+                        {% block subheadings %}
+                        {% endblock subheadings %}
+                    </div>
+                    <div id="create_controls">
+                        {% block create_controls %}
+                        {% endblock create_controls %}
+                    </div>
+                    <div id="content">
+                        {% block content %}
+                        {% endblock content %}
+                    </div>
+                </div>
+                <div id="column_mid">
+                    <div class="latest_news">
+                        {% if news %}
+                            <h3>Recent News</h3>
+                            {% for item in news %}
+                                <h4>
+                                    <a href="{{item.page.uri}}">
+                                        {{item.page.title}}</a>
+                                </h4>
+                                <p>
+                                    {{item.summary|safe}}&nbsp;
+                                    <a href="{{item.page.uri}}">More</a>
+                                </p>
+                            {% endfor %}
+                            <br/>
+                            <a href="/main/news_listing/">More News</a>
+                        {% endif %}
+                    </div>
+                </div> <!-- column_mid: news -->
+                <div id="column_right">
+                    {% if advertisement %}
+                        <img src="{{advertisement}}"/>
+                    {% endif %}
+                </div> <!-- column_right: ad -->
+            </div>
+        </div>
+    </div>
+    <div id="footer" class="master_border">
+        <div id="footer_menu1">
+            <ul>
+                <li class="heading"><a href="/">YaconSampleSite.com</a></li> 
+                {% if menu_name %}
+                    {% menu menu_name %}
+                {% endif %}
+            </ul>
+        </div>
+        <div id="footer_spacer">
+            <br/>
+        </div>
+    </div><!-- #footer -->
+</div><!-- #outer -->
+</body>
+</html>

@@ -1,0 +1,155 @@
+/* ====================================================================== */
+/* Blog Listing */
+
+#blog_listings {
+    width:100%;
+}
+.blog_listing {
+    float:left;
+    border-bottom:1px solid #999999; 
+    font-size:16px; 
+    width:100%;
+}
+.blog_listing_photo {
+    float:left;
+    width:15%; 
+    height:110px;
+    margin-top:10px;
+    margin-left:10px;
+}
+.blog_listing_box {
+    float:left;
+    width:78%; 
+    margin-left:10px;
+}
+.blog_listing_title {
+    height:20px; 
+    margin-top:10px;
+    margin-bottom:5px;
+    font-weight:bold; 
+    font-size:20px
+}
+.blog_listing_summary {
+}
+.blog_listing_footer {
+    font-weight:bold;
+    margin-top:10px;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+#empty_listing {
+    margin-top:10px;
+    margin-left:10px;
+}
+#empty_listing a {
+    text-decoration:underline;
+}
+
+/* ====================================================================== */
+/* Partners/Residence Listing */
+
+.residence_listing {
+    float:left;
+    border-bottom:1px solid #999999; 
+    font-size:16px; 
+    width:100%;
+}
+.residence_listing_logo {
+    float:left;
+    width:40%; 
+    min-height:50px;
+}
+.residence_logo_text {
+    float:left;
+    margin-top:20px;
+    margin-left:20px;
+}
+.residence_listing_box {
+    float:left;
+    width:60%; 
+    margin-top:10px;
+}
+.residence_address {
+    margin-top:10px;
+}
+.residence_telephone {
+    margin-top:10px;
+}
+
+/* ====================================================================== */
+/* Member/Residents Listing */
+
+.resident_listing {
+    float:left;
+    width:100%;
+    min-height:110px;
+    border-bottom:1px solid #999999; 
+}
+
+.person_left,
+.person_mid,
+.person_right {
+    float:left;
+    width:33%;
+    font-size:16px;
+    min-height:110px;
+}
+
+.person_left,
+.person_mid {
+    border-right:1px solid #999999; 
+}
+
+.person_photo {
+    float:left;
+    width:40%;
+    margin-top:10px;
+    margin-left:10px;
+}
+.person_box {
+    float:left;
+    width:50%;
+    font-size:14px; 
+    margin-top:15px;
+    margin-left:5px;
+    overflow:hidden;
+}
+
+.person_username,
+.person_place,
+.person_since,
+.person_date {
+    margin-bottom:5px;
+}
+.person_username a {
+    font-weight:bold; 
+    color:#FF8000; 
+}
+
+/* ====================================================================== */
+/* News Listing */
+
+#news_listings {
+    width:100%;
+}
+.news_listing {
+    float:left;
+    border-bottom:1px solid #999999; 
+    font-size:16px; 
+    width:100%;
+}
+.news_listing_box {
+    float:left;
+    margin-left:10px;
+    margin-bottom:10px;
+}
+.news_listing_title {
+    height:20px; 
+    margin-top:10px;
+    margin-bottom:5px;
+    font-weight:bold; 
+    font-size:20px
+}
+.news_listing_summary {
+}

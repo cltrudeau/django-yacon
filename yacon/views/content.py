@@ -14,7 +14,7 @@ from yacon.forms import CreatePageForm
 from yacon.helpers import prepare_context, permission_to_edit_page
 from yacon.models.hierarchy import BadSlug, Node
 from yacon.models.pages import Block, Page, PageType, MetaPage
-from yacon.utils import JSONResponse
+from yacon.utils import JSONResponse, get_profile
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +61,8 @@ def _create_page_from_node(request, data, node, page_type_id, language_code,
     else:
         lang = langs[0]
 
-    try:
-        profile = request.user.get_profile()
-    except:
+    profile = get_profile(request.user)
+    if not profile:
         raise Http404('user had no profile')
 
     if not profile.permission_to_create_page(page_type, node):
@@ -239,3 +238,13 @@ def replace_title(request):
         'page_id':page.id,
     }
     return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+
+
+@login_required
+def remove_page(request, page_id):
+    page = get_object_or_404(Page, id=page_id)
+    if not permission_to_edit_page(request, page):
+        raise Http404('permission problem')
+
+    page.delete()
+    return HttpResponseRedirect('/')

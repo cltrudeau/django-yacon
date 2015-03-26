@@ -1,0 +1,33 @@
+{% if is_paginated %}
+{% load i18n %}
+<div class="pagination">
+    <div id="paginator_prev">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{{ getvars }}{{ hashtag }}" class="prev">PREV</a>
+        {% endif %}
+    </div>
+    <div id="paginator_numbers">
+    {% for holder in pageholders %}
+        {% if holder.page %}
+            {% ifequal holder.page page_obj.number %}
+                <span class="current page orange">{{ holder.page }}</span>
+            {% else %}
+                <a href="?page={{ holder.page }}{{ getvars }}{{ hashtag }}" class="page">{{ holder.page }}</a>
+            {% endifequal %}
+            {% if not forloop.last and not holder.before_elipses %}
+            |
+            {% endif %}
+        {% else %}
+            <span class="paginator_elipses">
+            ...
+            </span>
+        {% endif %}
+    {% endfor %}
+    </div>
+    <div id="paginator_next">
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{{ getvars }}{{ hashtag }}" class="next">NEXT</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

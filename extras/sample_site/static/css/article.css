@@ -1,0 +1,88 @@
+/* ====================================================================== */
+/* Article General */
+
+#article a {
+    text-decoration:underline;
+}
+
+#article h2 {
+    color:#FF8000;
+    font-size:28px; 
+}
+
+#article p {
+    color:#000;
+    font-size:18px;
+}
+
+#remove_page_button {
+    background-color:#eaeaea;
+    color:#FF8000;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.yacon_editable_content {
+    min-height:300px;
+}
+
+#create_controls {
+    margin-top:10px;
+    margin-left:10px;
+}
+
+#new_page_submit {
+    background-color:#ddd;
+    color:#FF8000;
+    font-size:18px;
+    margin-bottom:5px;
+}
+#new_page_form #id_title {
+    font-size:28px; 
+}
+#new_page_form th {
+    padding-right:5px;
+}
+#new_page_form label {
+    color:#FF8000;
+    font-size:28px; 
+}
+
+#newsletter_subscribe_button {
+    background-color:#eaeaea;
+    color:#FF8000;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:5px;
+    margin-bottom:5px;
+}
+
+#more_news_link {
+    text-decoration:none !important;
+    font-weight:bold;
+    color:#FF8000;
+}
+
+/* ====================================================================== */
+/* Blog Article */
+
+#blog_user_photo {
+    float:left;
+}
+#blog_title {
+    float:left;
+    margin-left:10px;
+}
+#blog {
+    clear:both;
+}
+#owner_links {
+    margin-top:3px;
+    line-height:1.5em !important;
+}
+#owner_links a {
+    font-family:Tahoma, Geneva, sans-serif; 
+    font-size:10pt;
+    font-weight:bold;
+}

@@ -1,0 +1,15 @@
+{% extends "content/article_base.html" %}
+{% load yacon_tags %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css" />
+{% endblock css %}
+
+{% block content %}
+<div id="home_container">
+    <div id="welcome">
+        {% block_by_key "home" %}
+    </div>
+</div>
+
+{% endblock content %}

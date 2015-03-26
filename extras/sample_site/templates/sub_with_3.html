@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block subheadings %}
+    <div id="subheading1">
+        <div id="sub1_left">
+            {% block sub1_left %}
+            {% endblock sub1_left %}
+        </div>
+        <div id="sub1_mid">
+            {% block sub1_mid %}
+            {% endblock sub1_mid %}
+        </div>
+        <div id="sub1_right">
+            {% block sub1_right %}
+            {% endblock sub1_right %}
+        </div>
+    </div>
+    <div id="subheading2">
+        <div id="sub2_left">
+            {% block sub2_left %}
+            {% endblock sub2_left %}
+        </div>
+        <div id="sub2_right">
+            {% block sub2_right %}
+            {% endblock sub2_right %}
+        </div>
+    </div>
+{% endblock subheadings %}

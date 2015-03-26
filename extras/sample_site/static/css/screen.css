@@ -1,0 +1,615 @@
+/* ===================================================================== */
+/* Reset */
+/* ===================================================================== */
+html, body, div, span, h1, h2, h3, p, pre, a, img, strong, b, i, ul, li, 
+form, label, {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* ===================================================================== */
+/* Framework */
+/* ===================================================================== */
+
+/* --------------------------------------------------------------------- */
+/* Global */
+
+body {
+    width:100%;
+    background:#fff;
+    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif; 
+}
+a {
+    text-decoration:none;
+    color:#000;
+}
+input.submit {
+    background:none; 
+    border:none; 
+    cursor:pointer; 
+}
+
+.master_border {
+    border-left:3px solid #000; 
+    border-right:3px solid #000;
+}
+
+#outer {
+    position:relative;
+    margin:0 auto;
+    width:1040px;
+}
+
+/* --------------------------------------------------------------------- */
+/* Header */
+
+#header {
+    clear:both;
+    float:left;
+    width:100%;
+    border-bottom:3px solid #000;
+}
+
+/* Masthead */
+#masthead {
+    height:40px;
+    background-color:#000;
+    font-size:12px;
+    color:#fff;
+}
+#masthead a {
+    color:#fff; 
+}
+#masthead_link {
+    position:absolute;
+    left:20px;
+    top:13px;
+}
+#masthead_link a {
+    color:#fff; 
+    font-size:13px;
+}
+#login_box {
+    position:absolute;
+    right:10px;
+    top:10px;
+    display:block;
+    width:470px;
+}
+#login_box input.text {
+    font-size:10px;
+}
+#login_box input.submit {
+    color: #fff;
+    font-size:12px;
+}
+#user_menu {
+    display:block; 
+    text-align:right;
+}
+#user_menu li {
+    display:block; 
+    float:right;
+}
+
+/* Top Nav */
+#top_nav_row {
+    height:80px;
+}
+#brand_logo {
+    /* width 25% - 1% left */
+    float:left;
+    width:24%;
+    margin-left:1%;
+    overflow:hidden;
+}
+#wordslogo {
+    margin-top:23px;
+    margin-bottom:5px;
+    font-size:28px;
+    font-weight:bold;
+}
+#top_nav {
+    /* width 58% - 1% left */
+    /* left 1% more than 25% brand_logo */
+    float:right;
+    width:57%;
+    margin-left:1%;
+    margin-top:30px;
+}
+#top_nav ul li {
+    display:block; 
+    float: left; 
+    font-size:18px;
+    text-transform:uppercase;
+    margin: 0 5px;
+}
+#top_nav ul li a {
+    color:#000;
+}
+#top_nav ul li.selected a {
+    color:#FF8000; font-weight: bold;
+}
+
+#search_site {        /* width 17% - 1% right */
+    float:left;
+    margin-left:1%;
+    margin-top:28px;
+    width:16%;
+}
+#search_site form label {
+    color:#888; 
+    padding-left: 4px; 
+    padding-top: 3px;
+}
+#search_site input.text {
+    font-size:14px; 
+    width:150px;
+}
+#search_site input.submit {
+    font-size:16px; 
+    margin-left:0px; 
+    text-transform:uppercase; 
+    font-weight:bold;
+}
+
+/* --------------------------------------------------------------------- */
+/* Columns */
+
+/* column container */
+#columns_holder_left_mid_right { /* colmask */
+    position:relative;     /* This fixes the IE7 overflow hidden bug */
+    clear:both;
+    float:left;
+    width:100%;            /* width of whole page */
+    overflow:hidden;       /* This chops off any overhanging divs */
+}
+/* common column settings */
+#columns_holder_left_mid,  /* colright, colmid, colleft */
+#columns_holder_left {
+    float:left;
+    width:100%;                /* width of page */
+    position:relative;
+    border-right:3px solid #000;
+}
+#column_left,
+#column_mid,
+#column_right {        /* col1, col2, col3 */
+    float:left;
+    position:relative;
+    padding:0;         /* no padding on columns, make them narrower instead */ 
+    overflow:hidden;
+}
+
+#columns_holder_left_mid {
+    right:18%;     /* width of the right column */
+}
+#columns_holder_left {
+    right:15%;     /* width of the middle column */
+}
+#column_left {
+    width:67%;     /* width left col content (col width - padding both sides) */
+    left:33%;      /* mid + right column width + left padding of left column */
+    height:100%;
+}
+#column_mid {
+    width:13%;     /* width mid col content (col width - padding both sides) */
+    left:34%;      /* width of right col + (mid column + L + R padding) 
+                      + (left column left padding) */
+                        /* 25 + (25 + 2 + 2) + (2) */
+                        /* 18 + (15 + 1 + 1) + (0) */
+}
+#column_right {
+    width:16%;    /* width right col content (col width - padding both sides) */
+    left:36%;     /* (100% - left col width) + (mid column + L + R padding) 
+                     + (left col L + R padding) 
+                     + (right col + L padding) */
+                        /* (100 - 50) + (2 + 2) + (2 + 2) + (2) */
+                        /* (100 - 67) + (1 + 1) + (0 + 0) + (1) */
+}
+
+/* --------------------------------------------------------------------- */
+/* Content */
+
+#content {
+    min-height:600px;
+}
+#content h1 {
+    margin-top: 7px;
+    margin-bottom: 10px;
+}
+#content p {
+    margin-bottom: 1.5em;
+    line-height: 1.2em;
+}
+#content ol {
+    list-style: decimal;
+}
+#content ul {
+    list-style: disc inside none;
+}
+
+#article {
+    width:96%;
+    margin:2%;
+}
+
+#subheading1,
+#subheading2 {
+    font-size:14px; 
+    border-bottom:1px solid #999999; 
+}
+
+#subheading1 {
+    height: 80px;
+}
+
+#subheading2 {
+    height: 40px;
+}
+
+#sub1_left,
+#sub1_mid,
+#sub1_right {
+    float:left;
+    width:33%;
+}
+#sub1_left{
+    margin-left:1%;
+}
+#sub1_doubleleft {
+    margin-left:1%;
+    float:left;
+    width:66%;
+}
+
+#sub2_left {
+    float:left;
+    width:44%;
+    margin-left:1%;
+}
+
+#sub2_right {
+    float:left;
+    width:54%;
+    margin-right:1%;
+}
+
+/* Search in Subheader */
+#search_special {
+    width:95%;
+    margin-top:30px;
+    margin-left:4%;
+}
+#search_special input {
+    width:200px;
+}
+#search_special label {
+    color:#888; 
+    margin-left: 4px; 
+    margin-top: 3px;
+}
+
+/* Content Tags in Subheader */
+#subtitle {
+    font-size:20px;
+    font-weight:bold;
+    margin-top:30px;
+}
+#slogan {
+    margin-top:25px;
+    margin-left:20px;
+}
+#sort_by{
+    font-size:16px;
+    font-weight:bold;
+    margin-top:10px;
+}
+#sort_by a {
+    color:#000;
+}
+
+
+/* Pagination */
+#paginator {
+    font-size:16px; 
+    font-weight:bold;
+    margin-top:10px;
+}
+#paginator a {
+    color:#000;
+}
+#paginator_prev {
+    float:left;
+    width:15%;
+    min-height:1px;
+}
+#paginator_next {
+    float:left;
+    width:15%;
+    text-align:right;
+}
+#paginator_numbers {
+    float:left;
+    width:70%;
+    letter-spacing:-2px; 
+    text-align:center;
+}
+
+.paginator_elipses {
+    letter-spacing:normal !important;
+}
+
+.orange {
+    color:#FF8000 !important;
+}
+
+/* --------------------------------------------------------------------- */
+/* Login Screen */
+
+#login {
+    margin-top:20px;
+    margin-left:10px;
+    line-height:1.5em;
+}
+#login h3 {
+    margin-bottom:20px;
+}
+#login_button,
+#reset_button {
+    background-color:#eee;
+    color:#FF8000;
+    font-size:18px;
+}
+#password_forgotten {
+    margin-top:20px;
+}
+#password_forgotten a {
+    text-decoration:underline;
+}
+.errorlist li {
+    color:red;
+    list-style:none;
+}
+
+/* --------------------------------------------------------------------- */
+/* Yacon Editable */
+
+.yacon_title_editable .yacon_editable_content {
+    display:inline;
+}
+.yacon_title_editable button {
+    background-color:#eaeaea;
+    color:#FF8000;
+    font-size:18px;
+    font-weight:bold;
+}
+.yacon_title_editable input {
+    background-color:#fff;
+    color:#FF8000;
+    font-size:28px; 
+    font-weight:bold;
+    width:500px;
+}
+.yacon_editable button {
+    background-color:#eaeaea;
+    color:#FF8000;
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* --------------------------------------------------------------------- */
+/* Footer */
+
+#footer {
+    clear:both;
+    float:left;
+    width:100%;
+    background-color:#000; 
+    color:#fff; 
+    font-size:13px;
+    border-top:3px solid #000;
+    border-bottom:3px solid #000;
+}
+#footer_menu1 {
+    float:left;
+    width:25%;
+    margin-left:1%;
+}
+#footer_menu2 {
+    float:left;
+    width:20%;
+    margin-left:1%;
+}
+#footer_spacer {
+    float:left;
+    width:17%;
+}
+#join_newsletter {
+    float:left;
+    width:36%;
+    margin-top:1%;
+}
+#like_on_facebook {
+    position:relative;
+    margin-top:7px;
+    height:30px;
+}
+#like_on_facebook_text {
+    position:absolute;
+    top:10px;
+    height:30px;
+}
+#like_on_facebook_link {
+    position:absolute;
+    top:7px;
+    left:140px;
+    height:30px;
+}
+#follow_on_twitter {
+    position:relative;
+    margin-top:7px;
+    height:30px;
+}
+#follow_on_twitter_text {
+    position:absolute;
+    top:10px;
+    height:30px;
+}
+#follow_on_twitter_link {
+    position:absolute;
+    top:7px;
+    left:140px;
+    height:30px;
+}
+
+#footer a {
+    color:#fff;
+}
+#footer form label {
+    padding-right:10px;
+}
+#footer form input.submit {
+    color:#fff;
+}
+#footer ul {
+    margin:0 0 0 20px; 
+    padding:15px 0; 
+    font-size:15px;
+}
+#footer ul li {
+    text-transform:uppercase; 
+    margin-bottom:2px;
+}
+#footer ul li.heading {
+    text-transform:none; 
+    margin-bottom:4px; 
+    font-size:13px;
+}
+
+/* ===================================================================== */
+/* Content */
+/* ===================================================================== */
+
+.latest_news {
+    font-family:Tahoma, Geneva, sans-serif; 
+    padding-top:10px;
+}
+.latest_news h3 {
+    text-transform:uppercase; 
+    font-size:14px; 
+}
+.latest_news h4 {
+    color:#FF8000; 
+    font-size:14px; 
+    margin-bottom:3px; 
+    margin-top:14px;
+}
+.latest_news p {
+    font-size:12px; 
+    margin:0px;
+}
+.latest_news a {
+    color:#FF8000; 
+}
+
+.latest_tweets {
+    font-family:Tahoma, Geneva, sans-serif; 
+    padding-top:25px;
+}
+.latest_tweets h3 {
+    text-transform:uppercase; 
+    font-size:14px; 
+}
+.latest_tweets p {
+    font-size:12px; 
+    margin-top:2px;
+}
+.latest_tweets a {
+    color:#FF8000; 
+}
+
+/* --------------------------------------------------------------------- */
+/* Comment section */
+#comments {
+    border-top:1px solid #000; 
+}
+#comments_holder h3 {
+    color:#FF8000; 
+    margin-top:10px;
+    margin-bottom:4px;
+}
+.comment {
+    margin-top:10px;
+    margin-bottom:10px;
+    border-bottom:1px solid #999999; 
+}
+.comment_user {
+    height:30px;
+}
+.comment_user_avatar {
+    float:left;
+    width:30px;
+}
+.comment_user_info {
+    float:left;
+    color:#FF8000;
+    margin-left:5px;
+    margin-top:7px;
+    width:530px
+}
+.comment_flag {
+    float:left;
+    width:100px;
+    font-size:12px;
+}
+.comment_footer {
+    font-size:14px;
+    margin-top:5px;
+    margin-bottom:10px;
+}
+.comment_text {
+    clear:both;
+    margin-top:7px;
+    margin-left:10px;
+}
+#comments_form th,
+#comments_form td {
+    padding-top:5px;
+    padding-right:5px;
+}
+#comments_form th {
+    vertical-align:top;
+    text-align:right;
+}
+#comments_form h3 {
+    margin-top:15px;
+    margin-bottom:10px;
+    color:#FF8000;
+}
+#comments_form .error {
+    color:#FF0000;
+    font-size:14px;
+}
+#comments_form .submit-post {
+    background-color:#eee;
+    color:#FF8000;
+    font-size:18px;
+}
+
+.fts_highlight {
+    background-color:#FFFF80;
+    font-style:italic;
+}

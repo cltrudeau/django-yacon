@@ -21,14 +21,13 @@ SECRET_KEY = ')k@ykqs^15v(sfl7vumv4uyf^em#p_9t5-hphqrk)1cg@xr81w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'uploads'))
 
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'app',
     'yacon',
 )
 
@@ -48,6 +48,20 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'yacon.pagination.middleware.PaginationMiddleware',
+)
+
+from django.conf import global_settings
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS  + (
+    'yacon.context_processors.processor',
+)
+
+TEMPLATE_DIRS = (
+    os.path.abspath(os.path.join(BASE_DIR, 'templates')),
+)
+
+STATICFILES_DIRS = (
+    os.path.abspath(os.path.join(BASE_DIR, 'static')),
 )
 
 ROOT_URLCONF = 'sample_site.urls'
@@ -83,3 +97,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+YACON = {
+    'custom': {
+        'page_context':'app.dynamic.page_context',
+    },
+}

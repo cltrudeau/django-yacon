@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.conf.urls.defaults import patterns
-from django.views.generic.simple import redirect_to, direct_to_template
+from django.conf.urls import patterns
+from django.views.generic import TemplateView, RedirectView
 
 from yacon import conf
 
@@ -27,15 +27,15 @@ urlpatterns = patterns('yacon.views.browser',
     (r'^browser/user_upload_file/$', 'user_upload_file'),
 )
 
-if conf.site.ajax_edit_enabled:
-    urlpatterns += patterns('yacon.views.content',
-        (r'^fetch_block/(\d+)/$', 'fetch_block'),
-        (r'^replace_block/$', 'replace_block'),
-        (r'^replace_title/$', 'replace_title'),
-        (r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
-        (r'^create_page_from_node/(\d+)/(\d+)/([^/]*)/([^/]*)/$', 
-            'create_page_from_node'),
-    )
+urlpatterns += patterns('yacon.views.content',
+    (r'^fetch_block/(\d+)/$', 'fetch_block'),
+    (r'^replace_block/$', 'replace_block'),
+    (r'^replace_title/$', 'replace_title'),
+    (r'^remove_page/(\d+)/$', 'remove_page'),
+    (r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
+    (r'^create_page_from_node/(\d+)/(\d+)/([^/]*)/([^/]*)/$', 
+        'create_page_from_node'),
+)
 
 if conf.site.static_serve and \
         (conf.nexus.enabled or conf.site.examples_enabled):
@@ -52,14 +52,14 @@ if conf.site.static_serve and \
 if conf.nexus.enabled:
     # nexus tabs
     urlpatterns += patterns('yacon.views.nexus',
-        (r'^$', redirect_to, {'url':'/yacon/nexus/control_panel/'}),
-        (r'^nexus/$', redirect_to, {'url':'/yacon/nexus/control_panel/'}),
+        (r'^$', RedirectView.as_view(url='/yacon/nexus/control_panel/')),
+        (r'^nexus/$', RedirectView.as_view(url='/yacon/nexus/control_panel/')),
 
         # some of the JS is templated in order to be able to dynamically 
         #disable features
-        (r'^nexus/site_control/$', direct_to_template, 
-            {'template':'nexus/templated_js/site_control.js',
-            'mimetype':'application/javascript'}),
+        (r'^nexus/site_control/$', TemplateView.as_view(
+            template_name='nexus/templated_js/site_control.js',
+            content_type='application/javascript')),
     )
 
     # -------------------
@@ -165,8 +165,8 @@ if conf.nexus.enabled:
     # -------------------
     # Users Panel
     urlpatterns += patterns('yacon.views.nexus',
-        (r'^nexus/users_panel/$', redirect_to, 
-            {'url':'/yacon/nexus/users/list_users/'}),
+        (r'^nexus/users_panel/$', RedirectView.as_view(
+            url='/yacon/nexus/users/list_users/')),
     )
 
     urlpatterns += patterns('yacon.views.users_panel',
@@ -185,5 +185,5 @@ if conf.nexus.enabled:
 
 if conf.site.examples_enabled:
     urlpatterns += patterns('',
-        (r'^(examples/uploads/.+\.html)$', direct_to_template),
+        (r'^(examples/uploads/.+\.html)$', Templateview.as_view()),
     )
