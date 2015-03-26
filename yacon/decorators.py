@@ -4,7 +4,6 @@ import logging
 from functools import wraps
 
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
 from yacon.utils import FileSpec, get_profile
@@ -121,8 +120,8 @@ def verify_file_url(parm, is_file):
                 request.spec = spec
                 return target(*args, **kwargs)
 
-            logger.error('user %s attempted to access node %s',
-                request.user.username, node)
+            logger.error('user %s attempted to access %s',
+                request.user.username, url)
 
             raise Http404('permission denied')
 

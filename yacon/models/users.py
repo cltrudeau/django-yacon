@@ -114,6 +114,5 @@ class UserProfileBase(TimeTrackedModel):
 
 
 class UserProfile(UserProfileBase):
-    
     class Meta:
         app_label = 'yacon'

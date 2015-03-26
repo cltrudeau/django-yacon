@@ -7,7 +7,6 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 from yacon.models.pages import Page, PageType, Block
-from yacon.utils import QuerySetChain
 
 logger = logging.getLogger(__name__)
 

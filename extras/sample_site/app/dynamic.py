@@ -2,15 +2,10 @@
 #
 # Dynamic content block rendering methods
 
-import logging, random, os
-
-from django.conf import settings
-from django.core.mail import EmailMessage
-from django.template import RequestContext
-from django.template.loader import render_to_string
+import logging
 
 from yacon.models.pages import Page, PageType
-from yacon.utils import SummarizedPage, FileSpec
+from yacon.utils import SummarizedPage
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +20,6 @@ def page_context(request, uri, context):
     every page displayed."""
     global NEWS_PAGE_TYPE
 
-    parts = uri.split('/')
     menu_name = 'Menu'
 
     # find the latest news

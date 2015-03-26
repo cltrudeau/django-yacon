@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.conf.urls import patterns
 from django.views.generic import TemplateView, RedirectView
 
@@ -185,5 +184,5 @@ if conf.nexus.enabled:
 
 if conf.site.examples_enabled:
     urlpatterns += patterns('',
-        (r'^(examples/uploads/.+\.html)$', Templateview.as_view()),
+        (r'^(examples/uploads/.+\.html)$', TemplateView.as_view()),
     )

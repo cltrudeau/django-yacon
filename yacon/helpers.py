@@ -1,8 +1,6 @@
 # yacon.helpers.py
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist
-
 from yacon import conf
 from yacon.models.site import Site
 from yacon.models.pages import PageType, BlockType

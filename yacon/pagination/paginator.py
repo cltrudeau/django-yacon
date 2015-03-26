@@ -81,8 +81,7 @@ class InfinitePage(Page):
         Checks for one more item than last on this page.
         """
         try:
-            next_item = self.paginator.object_list[
-                self.number * self.paginator.per_page]
+            self.paginator.object_list[self.number * self.paginator.per_page]
         except IndexError:
             return False
         return True
@@ -157,7 +156,7 @@ class FinitePage(InfinitePage):
         Checks for one more item than last on this page.
         """
         try:
-            next_item = self.paginator.object_list[self.paginator.per_page]
+            self.paginator.object_list[self.paginator.per_page]
         except IndexError:
             return False
         return True

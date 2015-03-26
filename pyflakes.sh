@@ -2,4 +2,4 @@
 
 echo "============================================================"
 echo "== pyflakes =="
-pyflakes . | grep -v migration | grep -v wsgi | grep -v filebrowser | grep -v playground
+pyflakes . | grep -v migration | grep -v wsgi | grep -v filebrowser | grep -v 3rdparty
