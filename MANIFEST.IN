@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include yacon/static *
+recursive-include yacon/templates *
