@@ -414,7 +414,7 @@ def image_edit_save(request):
         img = img.crop(box)
         changed = True
         
-    if not changed or len(conf.site.auto_thumbnails) == 0:
+    if not changed:
         return HttpResponse()
 
     # image changed, saved the new one and update any thumbnails
