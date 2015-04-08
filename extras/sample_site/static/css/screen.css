@@ -324,32 +324,7 @@ input.submit {
 
 /* Pagination */
 #paginator {
-    font-size:16px; 
-    font-weight:bold;
     margin-top:10px;
-}
-#paginator a {
-    color:#000;
-}
-#paginator_prev {
-    float:left;
-    width:15%;
-    min-height:1px;
-}
-#paginator_next {
-    float:left;
-    width:15%;
-    text-align:right;
-}
-#paginator_numbers {
-    float:left;
-    width:70%;
-    letter-spacing:-2px; 
-    text-align:center;
-}
-
-.paginator_elipses {
-    letter-spacing:normal !important;
 }
 
 .orange {
@@ -387,9 +362,6 @@ input.submit {
 /* --------------------------------------------------------------------- */
 /* Yacon Editable */
 
-.yacon_title_editable .yacon_editable_content {
-    display:inline;
-}
 .yacon_title_editable button {
     background-color:#eaeaea;
     color:#FF8000;

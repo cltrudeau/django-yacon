@@ -1,17 +1,11 @@
-- .yacon_editable* should be in yacon.css
+- ckeditor config 404
+- ckeditor load takes forever
 
 
 OLD FROM SL:
-    Image Editor
-        - restrict crop to image
-
-
     - test user_image_upload
     - follow up on several ??? notes
     - iframe upload will not have the name correct
 
     - no way of adding menu item translations
     - add way of moving a menu item into a folder
-
-
-

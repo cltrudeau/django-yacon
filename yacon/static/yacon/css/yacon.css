@@ -1,0 +1,55 @@
+/* --------------------------------------------------------------------- */
+/* Yacon Editable */
+
+.yacon_title_editable .yacon_editable_content {
+    display:inline;
+}
+.yacon_title_editable button {
+    background-color:#A0A0A0;
+    color:#ffffff;
+    font-size:23px;
+    font-weight:bold;
+}
+.yacon_title_editable input {
+    background-color:#A0A0A0;
+    color:#ffffff;
+    font-size:28px; 
+    font-weight:bold;
+    width:500px;
+}
+.yacon_editable button {
+    background-color:#A0A0A0;
+    color:#ffffff;
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* --------------------------------------------------------------------- */
+/* Pagination */
+#paginator {
+    font-size:16px; 
+    font-weight:bold;
+}
+#paginator a {
+    color:#000;
+}
+#paginator_prev {
+    display:inline;
+    margin-right:5px;
+}
+#paginator_next {
+    text-align:right;
+    display:inline;
+    margin-left:10px;
+}
+#paginator_numbers {
+    text-align:center;
+    display:inline;
+}
+#paginator_numbers .current{
+    color:#428bca;
+}
+
+.paginator_elipses {
+    color:#428bca;
+}
