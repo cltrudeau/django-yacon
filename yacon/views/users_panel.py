@@ -37,7 +37,7 @@ def list_users(request):
         'default_sort':'user__username',
     }
 
-    return render_to_response('nexus/list_users.html', data, 
+    return render_to_response('yacon/nexus/list_users.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -64,7 +64,7 @@ def edit_user(request, profile_id):
         'form':form,
     }
 
-    return render_to_response('nexus/edit_user.html', data, 
+    return render_to_response('yacon/nexus/edit_user.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -90,7 +90,7 @@ def add_user(request):
         form = USER_CURATOR.add_form_class()
 
     data['form'] = form
-    return render_to_response('nexus/edit_user.html', data, 
+    return render_to_response('yacon/nexus/edit_user.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -113,7 +113,7 @@ def user_password(request, profile_id):
         'clear_autocomplete':True,
     }
 
-    return render_to_response('nexus/edit_user.html', data, 
+    return render_to_response('yacon/nexus/edit_user.html', data, 
         context_instance=RequestContext(request))
 
 

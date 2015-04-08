@@ -31,7 +31,7 @@ def site_info(request, site_id):
         'site':site,
         'alternate_languages':site.alternate_language.all(),
     }
-    return render_to_response('nexus/ajax/site_info.html', data,
+    return render_to_response('yacon/nexus/ajax/site_info.html', data,
         context_instance=RequestContext(request))
 
 
@@ -80,7 +80,7 @@ def node_info(request, node_id):
 
         data['path_items'].append(item)
 
-    return render_to_response('nexus/ajax/node_info.html', data, 
+    return render_to_response('yacon/nexus/ajax/node_info.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -128,7 +128,7 @@ def metapage_info(request, metapage_id):
         'menuitem':menuitem,
     }
 
-    return render_to_response('nexus/ajax/metapage_info.html', data, 
+    return render_to_response('yacon/nexus/ajax/metapage_info.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -172,7 +172,7 @@ def list_languages(request, site_id):
 
 @superuser_required
 def menus_control(request):
-    return render_to_response('nexus/ajax/menus_control.html', {}, 
+    return render_to_response('yacon/nexus/ajax/menus_control.html', {}, 
         context_instance=RequestContext(request))
 
 
@@ -185,7 +185,7 @@ def menu_info(request, menu_id):
         'menu':menu,
     }
 
-    return render_to_response('nexus/ajax/menu_info.html', data, 
+    return render_to_response('yacon/nexus/ajax/menu_info.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -250,7 +250,7 @@ def menuitem_info(request, menuitem_id):
         'translated_items':translated_items,
     }
 
-    return render_to_response('nexus/ajax/item_info.html', data, 
+    return render_to_response('yacon/nexus/ajax/item_info.html', data, 
         context_instance=RequestContext(request))
 
 

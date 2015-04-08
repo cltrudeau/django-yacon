@@ -57,7 +57,7 @@ if conf.nexus.enabled:
         # some of the JS is templated in order to be able to dynamically 
         #disable features
         (r'^nexus/site_control/$', TemplateView.as_view(
-            template_name='nexus/templated_js/site_control.js',
+            template_name='yacon/nexus/templated_js/site_control.js',
             content_type='application/javascript')),
     )
 

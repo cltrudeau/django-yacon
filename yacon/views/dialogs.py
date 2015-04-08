@@ -211,8 +211,8 @@ def remove_folder_warn(request, node_id):
         'aliases':aliases,
     }
 
-    return render_to_response('nexus/ajax/remove_folder_warning.html', data,
-        context_instance=RequestContext(request))
+    return render_to_response('yacon/nexus/ajax/remove_folder_warning.html', 
+        data, context_instance=RequestContext(request))
 
 
 @superuser_required
@@ -306,7 +306,7 @@ def remove_page_warn(request, metapage_id):
         'aliases':alias_list,
     }
 
-    return render_to_response('nexus/ajax/remove_page_warning.html', data,
+    return render_to_response('yacon/nexus/ajax/remove_page_warning.html', data,
         context_instance=RequestContext(request))
 
 
@@ -457,7 +457,7 @@ def remove_path_warn(request, translation_id):
         'nodes':nodes,
     }
 
-    return render_to_response('nexus/ajax/remove_path_warning.html', data,
+    return render_to_response('yacon/nexus/ajax/remove_path_warning.html', data,
         context_instance=RequestContext(request))
 
 
@@ -482,7 +482,7 @@ def edit_path_warn(request, translation_id):
         'nodes':nodes,
     }
 
-    return render_to_response('nexus/ajax/edit_path_warning.html', data,
+    return render_to_response('yacon/nexus/ajax/edit_path_warning.html', data,
         context_instance=RequestContext(request))
 
 
@@ -542,7 +542,7 @@ def remove_menu_warn(request, menu_id):
         'items': items_string,
     }
 
-    return render_to_response('nexus/ajax/remove_menu_warning.html', data,
+    return render_to_response('yacon/nexus/ajax/remove_menu_warning.html', data,
         context_instance=RequestContext(request))
 
 
@@ -560,8 +560,8 @@ def remove_menuitem_warn(request, menuitem_id):
         'items': items_string,
     }
 
-    return render_to_response('nexus/ajax/remove_menuitem_warning.html', data,
-        context_instance=RequestContext(request))
+    return render_to_response('yacon/nexus/ajax/remove_menuitem_warning.html', 
+        data, context_instance=RequestContext(request))
 
 
 @superuser_required

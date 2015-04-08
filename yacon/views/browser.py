@@ -134,7 +134,7 @@ def ckeditor_browser(request):
         'base_template':'browser_base.html',
         'popup':True,
     }
-    return render_to_response('browser/browser.html', data, 
+    return render_to_response('yacon/browser/browser.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -155,7 +155,7 @@ def popup_browser(request, callback):
         'base_template':'browser_base.html',
         'popup':True,
     }
-    return render_to_response('browser/browser.html', data, 
+    return render_to_response('yacon/browser/browser.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -169,7 +169,7 @@ def root_control(request, tree_type):
         'tree_type':tree_type,
         'is_superuser':request.user.is_superuser,
     }
-    return render_to_response('browser/root_control.html', data, 
+    return render_to_response('yacon/browser/root_control.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -236,6 +236,9 @@ def show_folder(request):
     image_only = request.session.get('image_only', False)
     popup = request.session.get('popup', False)
     base_url = settings.MEDIA_URL
+    if not base_url:
+        logger.warning('MEDIA_URL is not set.  Uploads will not show properly')
+
     if spec.file_type == 'private':
         base_url = conf.site.private_upload
 
@@ -282,7 +285,7 @@ def show_folder(request):
         'popup':popup,
     }
 
-    return render_to_response('browser/show_folder.html', data, 
+    return render_to_response('yacon/browser/show_folder.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -321,7 +324,7 @@ def remove_folder_warn(request):
         'node':request.GET['node'],
     }
 
-    return render_to_response('browser/remove_folder_warning.html', 
+    return render_to_response('yacon/browser/remove_folder_warning.html', 
         data, context_instance=RequestContext(request))
 
 
@@ -373,10 +376,10 @@ def image_edit(request):
         'spec':request.spec, # verify_file_url puts this in the request
     }
     if not os.path.exists(request.spec.full_filename):
-        return render_to_response('browser/image_edit_error.html', data, 
+        return render_to_response('yacon/browser/image_edit_error.html', data, 
             context_instance=RequestContext(request))
 
-    return render_to_response('browser/image_edit.html', data, 
+    return render_to_response('yacon/browser/image_edit.html', data, 
         context_instance=RequestContext(request))
 
 

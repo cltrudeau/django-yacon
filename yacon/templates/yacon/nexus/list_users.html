@@ -1,4 +1,4 @@
-{% extends "nexus_base.html" %}
+{% extends "yacon/nexus_base.html" %}
 {% load pagination_tags %}
 
 {% block scripts %}
@@ -26,12 +26,12 @@
     </div>
     <table>
         <thead>
-            {% include "nexus/includes/users_header.html" %}
+            {% include "yacon/nexus/includes/users_header.html" %}
         </thead>
         <tbody>
         {% for profile in profiles %}
             <tr class="{% cycle 'odd' 'even' %}">
-                {% include "nexus/includes/users_row.html" %}
+                {% include "yacon/nexus/includes/users_row.html" %}
             </tr>
         {% endfor %}
         </tbody>

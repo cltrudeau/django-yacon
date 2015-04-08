@@ -26,6 +26,7 @@ TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'uploads'))
+MEDIA_URL = '/media/'
 
 # Application definition
 INSTALLED_APPS = (
@@ -91,6 +92,31 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'escaped': {
+            'format':'\033[1m%(funcName)s\033[0m: %(message)s',
+        },
+    },
+    'handlers': {
+        'default': {
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter':'escaped',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers':['default'],
+            'propagate': False,
+            'level':'DEBUG',
+        },
+    },
+}
 
 
 # Static files (CSS, JavaScript, Images)

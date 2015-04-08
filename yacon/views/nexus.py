@@ -25,7 +25,7 @@ def control_panel(request):
         'title':'Control Panel',
     }
 
-    return render_to_response('nexus/control_panel.html', data, 
+    return render_to_response('yacon/nexus/control_panel.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -37,7 +37,7 @@ def config_panel(request):
         'langs':langs,
     }
 
-    return render_to_response('nexus/config_panel.html', data, 
+    return render_to_response('yacon/nexus/config_panel.html', data, 
         context_instance=RequestContext(request))
 
 
@@ -48,7 +48,7 @@ def config_panel(request):
 def uploads_panel(request):
     data = {
         'title':'Uploads',
-        'base_template':'nexus_base.html',
+        'base_template':'yacon/nexus_base.html',
         'choose_mode':'view',
         'popup':False,
     }
@@ -56,5 +56,5 @@ def uploads_panel(request):
     request.session['image_only'] = False
     request.session['popup'] = False
 
-    return render_to_response('browser/browser.html', data, 
+    return render_to_response('yacon/browser/browser.html', data, 
         context_instance=RequestContext(request))

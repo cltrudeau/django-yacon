@@ -22,16 +22,18 @@ logger = logging.getLogger(__name__)
 
 # templates for blocks
 templates = {
-    'editable': loader.get_template('blocks/editable.html'),
-    'title_editable': loader.get_template('blocks/title_editable.html'),
-    'createable': loader.get_template('blocks/createable.html'),
-    'page_last_updated': loader.get_template('blocks/page_last_updated.html'),
+    'editable': loader.get_template('yacon/blocks/editable.html'),
+    'title_editable': loader.get_template('yacon/blocks/title_editable.html'),
+    'createable': loader.get_template('yacon/blocks/createable.html'),
+    'page_last_updated': loader.get_template(
+        'yacon/blocks/page_last_updated.html'),
 
     # errors
     'no_such_block_type': 
-        loader.get_template('blocks/errors/no_such_block_type.html'),
-    'no_such_block': loader.get_template('blocks/errors/no_such_block.html'),
-    'exception': loader.get_template('blocks/errors/exception.html'),
+        loader.get_template('yacon/blocks/errors/no_such_block_type.html'),
+    'no_such_block': loader.get_template(
+        'yacon/blocks/errors/no_such_block.html'),
+    'exception': loader.get_template('yacon/blocks/errors/exception.html'),
 }
 
 

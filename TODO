@@ -1,10 +1,21 @@
-Image Editor
-    - restrict crop to image
+- move all templates into yacon namespace
+- fix ckeditor defaults, currently points to js/yacon_ should be js/yacon/
+- .yacon_editable* should be in yacon.css
+- names of buttons should be in config
+    - what about multi-lingual?
 
 
-- test user_image_upload
-- follow up on several ??? notes
-- iframe upload will not have the name correct
+OLD FROM SL:
+    Image Editor
+        - restrict crop to image
 
-- no way of adding menu item translations
-- add way of moving a menu item into a folder
+
+    - test user_image_upload
+    - follow up on several ??? notes
+    - iframe upload will not have the name correct
+
+    - no way of adding menu item translations
+    - add way of moving a menu item into a folder
+
+
+
