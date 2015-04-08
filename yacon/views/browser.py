@@ -2,7 +2,7 @@
 #
 # File Browser Views
 
-import os, logging, json, shutil, operator
+import os, logging, json, shutil, operator, urllib
 from io import FileIO, BufferedWriter
 from PIL import Image
 
@@ -259,7 +259,7 @@ def show_folder(request):
             stub.ext = pieces[-1]
 
         filename = os.path.join(spec.relative_dir, x)
-        stub.url = base_url + filename
+        stub.url = urllib.quote(base_url + filename)
 
         if stub.ext in conf.site.image_extensions:
             images.append(stub)
