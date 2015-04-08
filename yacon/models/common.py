@@ -27,7 +27,6 @@ class Language(TimeTrackedModel):
 
     http://www.i18nguy.com/unicode/language-identifiers.html
     """
-
     name = models.CharField(max_length=25)
     identifier = models.CharField(max_length=25, unique=True)
 

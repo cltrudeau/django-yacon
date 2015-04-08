@@ -542,3 +542,16 @@ def get_profile(user):
         pass
 
     return None
+
+
+def get_system_text(lang_code, key):
+    try:
+        return conf.site.text[lang_code][key]
+    except KeyError:
+        # fall through to default handling
+        pass
+
+    try:
+        return conf.TEXT[key]
+    except KeyError:
+        return 'Text Error for key %s' % key

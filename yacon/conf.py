@@ -21,6 +21,7 @@ SITE = {
     'auto_thumbnails':{},
     'image_extensions':['jpg', 'jpeg', 'png', 'gif'],
     'logout_url':'/accounts/logout/',
+    'text':{},
 }
 
 NEXUS = {
@@ -32,6 +33,15 @@ CUSTOM = {
     # 'page_context' handled specially
     # 'user_curator' handled specially
     'extra_admin_nav':[],
+}
+
+TEXT = {
+    'content_edit_button':'Edit Content',
+    'content_save_button':'Save',
+    'content_cancel_button':'Cancel',
+    'title_edit_button':'Edit',
+    'title_save_button':'Save',
+    'title_cancel_button':'Cancel',
 }
 
 # ============================================================================

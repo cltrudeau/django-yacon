@@ -1,9 +1,12 @@
 <div class="yacon_editable" id="block_{{block.id}}">
     <div class="yacon_ajax_error"></div>
     <div class="yacon_ajax_csrf">{{csrf_token}}</div>
-    <button class="yacon_editable_edit">Edit Content</button>
-    <button class="yacon_editable_done">Save</button>
-    <button class="yacon_editable_cancel">Cancel</button>
+    <button class="yacon_editable_edit">{{button_text.content_edit_button}}
+    </button>
+    <button class="yacon_editable_done">{{button_text.content_save_button}}
+    </button>
+    <button class="yacon_editable_cancel">{{button_text.content_cancel_button}}
+    </button>
     <div class="yacon_editable_content">
         {% if content %}
             {{content}}

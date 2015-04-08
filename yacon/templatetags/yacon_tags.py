@@ -11,7 +11,7 @@ from django.template import loader
 from yacon import conf
 from yacon.models.pages import BlockType
 from yacon.models.hierarchy import Menu
-from yacon.utils import SummarizedPage
+from yacon.utils import SummarizedPage, get_system_text
 
 register = template.Library()
 logger = logging.getLogger(__name__)
@@ -202,6 +202,13 @@ def editable_block_by_key(context, key):
     "blocks/editable.html".  Wrapper content is loaded using the django
     template loader so it can be overloaded.
     """
+    page = context['page']
+    context['button_text'] = {}
+    tags = ['content_edit_button', 'content_save_button',
+        'content_cancel_button']
+    for tag in tags:
+        context['button_text'][tag] = get_system_text(page.language.code, tag)
+
     create_mode = context.get('create_mode', False)
     if create_mode:
         page_type = context['page_type']
@@ -236,6 +243,11 @@ def editable_page_title(context, page):
     "blocks/title_editable.html" and is loaded using the django template 
     loader so it can be overloaded.
     """
+    page = context['page']
+    context['button_text'] = {}
+    tags = ['title_edit_button', 'title_save_button', 'title_cancel_button']
+    for tag in tags:
+        context['button_text'][tag] = get_system_text(page.language.code, tag)
     create_mode = context.get('create_mode', False)
     if create_mode:
         # don't show this tag when in create mode, handled by create form

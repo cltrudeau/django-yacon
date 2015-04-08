@@ -1,7 +1,4 @@
-- fix ckeditor defaults, currently points to js/yacon_ should be js/yacon/
 - .yacon_editable* should be in yacon.css
-- names of buttons should be in config
-    - what about multi-lingual?
 
 
 OLD FROM SL:
