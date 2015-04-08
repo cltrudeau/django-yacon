@@ -129,7 +129,7 @@ def _valum_widget(url, node, extensions=None, on_complete=''):
 
     return \
 """
-    <script src="/static/js/valum_uploader/fileuploader.js" ></script>
+    <script src="/static/yacon/js/valum_uploader/fileuploader.js" ></script>
 
     <script type="text/JavaScript">
         $(document).ready(function(){
@@ -146,8 +146,8 @@ def _valum_widget(url, node, extensions=None, on_complete=''):
         });
     </script>
 
-    <link href="/static/js/valum_uploader/fileuploader.css" media="screen" 
-        rel="stylesheet" type="text/css" />
+    <link href="/static/yacon/js/valum_uploader/fileuploader.css" 
+      media="screen" rel="stylesheet" type="text/css"/>
 
     <div id="file-uploader">       
     </div>
@@ -348,7 +348,7 @@ def tsort(context, name):
         lines.append('class="selected" ')
 
     lines.extend([
-        'src="/static/icons/fatcow/sort_down.png">',
+        'src="/static/yacon/icons/fatcow/sort_down.png">',
         '</a>',
         '<a href="%s?sort=%s&direction=rev">' % (request.path, name),
         '<img '
@@ -358,7 +358,7 @@ def tsort(context, name):
         lines.append('class="selected" ')
 
     lines.extend([
-        'src="/static/icons/fatcow/sort_up.png">',
+        'src="/static/yacon/icons/fatcow/sort_up.png">',
         '</a>',
     ])
 

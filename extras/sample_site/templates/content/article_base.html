@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/css/article.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/article.css"/>
 {% endblock css %}
 
 {% block scripts %}
     {{ block.super }}
 
     <script type="text/JavaScript">
-        var config_file_overwrite = '/static/js/yacon_ckeditor_config.js';
+        var config_file_overwrite = '/static/yacon/js/yacon_ckeditor_config.js';
 
         var edit_preconditions = function() {
             article_div_height = $('#article').height();

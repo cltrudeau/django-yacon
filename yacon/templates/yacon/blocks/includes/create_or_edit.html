@@ -3,15 +3,16 @@
         display, create or edit content
     {% endcomment %}
 
-    <script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>
-    <script type="text/javascript" src="/static/ckeditor/adapters/jquery.js">
+    <script type="text/javascript" src="/static/yacon/ckeditor/ckeditor.js">
     </script>
-    <script type="text/javascript" src="/static/js/yacon/content_utils.js">
-    </script>
+    <script type="text/javascript" 
+      src="/static/yacon/ckeditor/adapters/jquery.js"></script>
+    <script type="text/javascript" 
+      src="/static/yacon/js/yacon/content_utils.js"></script>
     {% if create_mode %}
-        <script type="text/javascript" src="/static/js/yacon/createable.js">
-        </script>
+        <script type="text/javascript" 
+          src="/static/yacon/js/yacon/createable.js"></script>
     {% else %}
-        <script type="text/javascript" src="/static/js/yacon/editable.js">
+        <script type="text/javascript" src="/static/yacon/js/yacon/editable.js">
         </script>
     {% endif %}

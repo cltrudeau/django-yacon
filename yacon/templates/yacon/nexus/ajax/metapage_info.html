@@ -1,5 +1,5 @@
 <script type="text/JavaScript">
-    var CKEDITOR_BASEPATH = '/static/ckeditor/';
+    var CKEDITOR_BASEPATH = '/static/yacon/ckeditor/';
 
     $(document).ready(function(){
         $('#metapage_toolbar').show();
@@ -23,10 +23,12 @@
         {% endif %}
     });
 </script>
-<script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>
-<script type="text/javascript" src="/static/ckeditor/adapters/jquery.js">
+<script type="text/javascript" src="/static/yacon/ckeditor/ckeditor.js">
 </script>
-<script type="text/javascript" src="/static/js/yacon/content_utils.js"></script>
+<script type="text/javascript" src="/static/yacon/ckeditor/adapters/jquery.js">
+</script>
+<script type="text/javascript" src="/static/yacon/js/yacon/content_utils.js">
+</script>
 
 <div class="node" id="{{page.id}}">
     <h2> MetaPage{% if default_page %}: {{default_page.title}}{% endif %} 

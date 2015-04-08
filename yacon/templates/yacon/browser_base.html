@@ -5,29 +5,31 @@
     <title>File Browser</title>
     <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
     {% if settings.YACON_USE_LOCAL_JQUERY %}
-        <script type="text/JavaScript" src="/static/js/jquery-1.7.2.min.js">
-        </script>
+        <script type="text/JavaScript" 
+          src="/static/yacon/js/jquery-1.7.2.min.js"></script>
     {% else %}
         <script type="text/JavaScript"
             src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
         </script>
     {% endif %}
     <script type="text/JavaScript" 
-        src="/static/js/jquery-ui-1.8.19.custom.min.js">
+        src="/static/yacon/js/jquery-ui-1.8.19.custom.min.js">
     </script>
     <link type="text/css" rel="stylesheet" 
-        href="/static/css/smoothness/jquery-ui-1.8.19.custom.css" />	
+        href="/static/yacon/css/smoothness/jquery-ui-1.8.19.custom.css" />	
 
-    <script type="text/JavaScript" src="/static/js/yacon/utils.js"></script>
+    <script type="text/JavaScript" src="/static/yacon/js/yacon/utils.js">
+    </script>
 
     {% block css %}
     {% endblock css %}
     {% block scripts %}
     {% endblock scripts %}
 
-    <link rel="stylesheet" type="text/css" href="/static/css/browser.css"/>
     <link rel="stylesheet" type="text/css" 
-        href="/static/css/browser_popup.css"/>
+      href="/static/yacon/css/browser.css"/>
+    <link rel="stylesheet" type="text/css" 
+        href="/static/yacon/css/browser_popup.css"/>
 </head>
 <body>
     <div id="content">

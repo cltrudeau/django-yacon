@@ -1,5 +1,5 @@
 function get_ckeditor_config(div) {
-    var config_file = '/static/js/yacon/ckeditor_config.js';
+    var config_file = '/static/yacon/js/yacon/ckeditor_config.js';
     if( typeof config_file_overwrite == 'string' ) {
         config_file = config_file_overwrite;
     }
