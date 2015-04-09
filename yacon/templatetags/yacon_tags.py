@@ -203,11 +203,15 @@ def editable_block_by_key(context, key):
     template loader so it can be overloaded.
     """
     page = context['page']
+    code = ''
+    if page:
+        code = page.language.code
+
     context['button_text'] = {}
     tags = ['content_edit_button', 'content_save_button',
         'content_cancel_button']
     for tag in tags:
-        context['button_text'][tag] = get_system_text(page.language.code, tag)
+        context['button_text'][tag] = get_system_text(code, tag)
 
     create_mode = context.get('create_mode', False)
     if create_mode:
@@ -244,10 +248,15 @@ def editable_page_title(context, page):
     loader so it can be overloaded.
     """
     page = context['page']
+    page = context['page']
+    code = ''
+    if page:
+        code = page.language.code
+
     context['button_text'] = {}
     tags = ['title_edit_button', 'title_save_button', 'title_cancel_button']
     for tag in tags:
-        context['button_text'][tag] = get_system_text(page.language.code, tag)
+        context['button_text'][tag] = get_system_text(code, tag)
     create_mode = context.get('create_mode', False)
     if create_mode:
         # don't show this tag when in create mode, handled by create form

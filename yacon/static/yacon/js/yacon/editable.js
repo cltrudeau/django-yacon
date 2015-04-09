@@ -1,15 +1,15 @@
 var old_html = Array();
 
-function buttons_edit_mode(div, name) {
-    $(name + '_edit').hide();
-    $(name + '_cancel').show();
-    $(name + '_done').show();
+function buttons_edit_mode(block, name) {
+    block.find(name + '_edit').hide();
+    block.find(name + '_cancel').show();
+    block.find(name + '_done').show();
 }
 
-function buttons_save_mode(div, name) {
-    $(name + '_edit').show();
-    $(name + '_cancel').hide();
-    $(name + '_done').hide();
+function buttons_save_mode(block, name) {
+    block.find(name + '_edit').show();
+    block.find(name + '_cancel').hide();
+    block.find(name + '_done').hide();
 }
 
 function page_last_updated(page_set) {
@@ -19,6 +19,10 @@ function page_last_updated(page_set) {
             $(this).html(page_set[i][1]);
         });
     }
+}
+
+function first_editor() {
+    return CKEDITOR.instances[Object.keys(CKEDITOR.instances)[0]];
 }
 
 $(document).ready(function() {
@@ -34,56 +38,56 @@ $(document).ready(function() {
 
     // register click handler for all edit buttons
     $('.yacon_editable_edit').click(function(event) {
-        if( typeof edit_preconditions == 'function' ) {
-            edit_preconditions();
-        }
-        var div = $(this).parent();
-        buttons_edit_mode(div, '.yacon_editable');
-        var config = get_ckeditor_config(div);
+        var button = $(this);
+        button.append('<span class="spinner">&nbsp;&nbsp;' + 
+            '<img height="25" src="/static/yacon/images/uploads/loading.gif">'
+            + '</span>');
+        var block = $(this).parent().parent();
+        old_html[block[0].id] = block.children(
+            '.yacon_editable_content').html();
+        var to_edit = block.children('.yacon_editable_content');
+        to_edit.attr('contenteditable', true);
 
-        old_html[div[0].id] = div.children('.yacon_editable_content').html();
-        div.children('.yacon_editable_content').ckeditor(config);
-        if( typeof edit_postconditions == 'function' ) {
-            edit_postconditions();
-        }
+        CKEDITOR.inline(to_edit[0], {
+            startupFocus:true,
+            on: {
+                instanceReady:function(ev) {
+                    buttons_edit_mode(block, '.yacon_editable');
+                    button.find('.spinner').remove();
+                }
+            },
+        });
     });
 
     // register click handler for all done buttons
     $('.yacon_editable_done').click(function(event) {
-        if( typeof done_preconditions == 'function' ) {
-            done_preconditions();
-        }
-        var div = $(this).parent();
-        var block_id = div.attr('id');
-        var csrf = div.children('.yacon_ajax_csrf').html();
-        var editor = div.children('.yacon_editable_content').ckeditorGet();
+        var block = $(this).parent().parent();
+        var csrf = block.find('.yacon_ajax_csrf').html();
         $.ajax({
             url:'/yacon/replace_block/',
             success: function(data) {
                 if(data == null || data['success'] != true ) {
-                    div.children('.yacon_ajax_error').html('<p>An error ' 
+                    block.find('.yacon_ajax_error').html('<p>An error ' 
                         + 'occurred submitting, please try again.</p>');
-
                 } 
                 else {
-                    buttons_save_mode(div, '.yacon_editable');
-                    div.children('.yacon_ajax_error').hide();
+                    block.find('.yacon_ajax_error').hide();
                     page_last_updated(data['last_updated_list']);
-                    editor.destroy();
+                    first_editor().destroy();
 
-                    if( typeof done_postconditions == 'function' ) {
-                        done_postconditions();
-                    }
+                    var to_edit = block.children('.yacon_editable_content');
+                    to_edit.attr('contenteditable', false);
+                    buttons_save_mode(block, '.yacon_editable');
                 }
             },
             error: function() {
-                div.children('.yacon_ajax_error').html(
+                block.find('.yacon_ajax_error').html(
                     '<p>An error occurred submitting, please try again.</p>');
             },
             type:'POST',
             data: {
-                'block_id':block_id,
-                'content':editor.getData(),
+                'block_id':block[0].id,
+                'content':first_editor().getData(),
                 'csrfmiddlewaretoken':csrf
             }
         });
@@ -91,18 +95,16 @@ $(document).ready(function() {
 
     // register click handler for all cancel buttons
     $('.yacon_editable_cancel').click(function(event) {
-        if( typeof cancel_preconditions == 'function' ) {
-            cancel_preconditions();
-        }
-        var div = $(this).parent();
-        buttons_save_mode(div, '.yacon_editable');
-        div.children('.yacon_ajax_error').hide();
-        var editor = div.children('.yacon_editable_content').ckeditorGet();
-        editor.destroy();
-        div.children('.yacon_editable_content').html(old_html[div[0].id]);
-        if( typeof cancel_postconditions == 'function' ) {
-            cancel_postconditions();
-        }
+        var block = $(this).parent().parent();
+        buttons_save_mode(block, '.yacon_editable');
+
+        block.find('.yacon_ajax_error').hide();
+        first_editor().destroy();
+
+        var to_edit = block.children('.yacon_editable_content');
+        to_edit.attr('contenteditable', false);
+
+        block.find('.yacon_editable_content').html(old_html[block[0].id]);
     });
 
     // ======================================================================

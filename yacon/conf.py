@@ -39,7 +39,7 @@ TEXT = {
     'content_edit_button':'Edit Content',
     'content_save_button':'Save',
     'content_cancel_button':'Cancel',
-    'title_edit_button':'Edit',
+    'title_edit_button':'Edit Title',
     'title_save_button':'Save',
     'title_cancel_button':'Cancel',
 }

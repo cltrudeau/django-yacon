@@ -1,6 +1,12 @@
 /* --------------------------------------------------------------------- */
 /* Yacon Editable */
 
+.yacon_ajax_error {
+    display:none;
+}
+.yacon_ajax_csrf {
+    display:none;
+}
 .yacon_title_editable .yacon_editable_content {
     display:inline;
 }
