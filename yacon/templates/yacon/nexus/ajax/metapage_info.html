@@ -1,5 +1,7 @@
 <script type="text/JavaScript">
     $(document).ready(function(){
+        window.CKEDITOR_BASEPATH = '/static/yacon/ckeditor/';
+
         $('#metapage_toolbar').show();
 
         {% if metapage.has_missing_translations %}

@@ -81,12 +81,11 @@ function edit_block(block_id) {
         dataType: "json",
         success: function(data) {
             $('#block_id').html(block_id);
-            var div = $('.yacon_editable_content')
-            div.html(data);
+            var textarea = $('#edit_block_dialog textarea')
+            textarea.attr('contenteditable', true);
+            textarea.html(data);
+            CKEDITOR.replace(textarea[0]);
             $('#edit_block_dialog').dialog('open');
-
-            var config = get_ckeditor_config(div);
-            div.ckeditor(config);
         }
     });
 }

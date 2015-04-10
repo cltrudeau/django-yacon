@@ -175,7 +175,7 @@ function load_metapage_dialogs() {
     create_dialog_full('#edit_block_dialog', 'Edit Block', 'Save',
         function() { // on press of "ok"
             var block_id = $('#block_id').html();
-            var editor = $('.yacon_editable_content').ckeditorGet();
+            var editor = CKEDITOR.instances[Object.keys(CKEDITOR.instances)[0]];
             var csrf = $('#csrf_token input').val();
             $.ajax({
                 url:'/yacon/replace_block/',
