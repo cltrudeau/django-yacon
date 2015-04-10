@@ -191,6 +191,27 @@ function load_metapage_dialogs() {
             });
         }
     );
+
+    create_dialog_full('#edit_owner_dialog', 'Edit Owner', 'Save',
+        function() { // on press of "ok"
+            var page_id = $('#page_id').html();
+            var owner_id = $('#owners').val();
+            console.debug('got owner: ' + owner_id);
+            var csrf = $('#csrf_token input').val();
+            $.ajax({
+                url:'/yacon/replace_owner/',
+                success: function(data) {
+                    refresh_tree();
+                },
+                type:'POST',
+                data: {
+                    'page_id':page_id,
+                    'owner_id':owner_id,
+                    'csrfmiddlewaretoken':csrf,
+                }
+            });
+        }
+    );
 }
 
 function load_inline_dialogs() {

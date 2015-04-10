@@ -1,6 +1,4 @@
 <script type="text/JavaScript">
-    var CKEDITOR_BASEPATH = '/static/yacon/ckeditor/';
-
     $(document).ready(function(){
         $('#metapage_toolbar').show();
 
@@ -24,8 +22,6 @@
     });
 </script>
 <script type="text/javascript" src="/static/yacon/ckeditor/ckeditor.js">
-</script>
-<script type="text/javascript" src="/static/yacon/ckeditor/adapters/jquery.js">
 </script>
 <script type="text/javascript" src="/static/yacon/js/yacon/content_utils.js">
 </script>
@@ -104,6 +100,9 @@ onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|esca
                 </li>
                 <li>
                     Owner: {{default_page.owner}}
+                    <a href="#" 
+                        onclick="return edit_owner({{default_page.id}});">
+                        (edit)</a>
                 </li>
                 {% if default_page.all_blocks %}
                 <li>
@@ -168,7 +167,9 @@ onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|esca
                     Last Updated: {{page.updated}}
                 </li>
                 <li>
-                    Owner: {{default_page.owner}}
+                    Owner: {{page.owner}}
+                    <a href="#" onclick="return edit_owner({{page.id}});">
+                        (edit)</a>
                 </li>
                 {% if page.all_blocks %}
                 <li>

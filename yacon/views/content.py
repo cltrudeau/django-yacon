@@ -4,6 +4,7 @@
 import logging, urllib
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.forms.util import ErrorList
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -202,6 +203,63 @@ def replace_block(request):
     }
     response = JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
     return response
+
+
+@login_required
+def fetch_owners(request, page_id):
+    """Ajax view for getting users."""
+    if not request.user.is_superuser:
+        raise Http404('permission denied')
+
+    page = get_object_or_404(Page, id=page_id)
+    owners = []
+    for user in User.objects.all():
+        owners.append([user.id, user.username])
+
+    result = {
+        'selected':page.owner.id if page.owner else 0,
+        'owners':owners,
+    }
+    return JSONResponse(result)
+
+
+@login_required
+@post_required
+def replace_owner(request):
+    """Ajax view for change a page's owner."""
+    if not request.REQUEST.has_key('page_id'):
+        raise Http404('replace_page requires "page_id" parameter')
+
+    if not request.REQUEST.has_key('owner_id'):
+        raise Http404('replace_page requires "owner_id" parameter')
+
+    page = get_object_or_404(Page, id=request.POST['page_id'])
+
+    # check permissions
+    if not request.user.is_superuser:
+        # only admin can change ownership
+        raise Http404('permission denied')
+
+    owner_id = request.POST['owner_id']
+    if owner_id == '0':
+        owner = None
+    else:
+        try:
+            owner = User.objects.get(id=owner_id)
+        except User.ObjectDoesNotExist:
+            raise Http404('no such user id %s' % owner_id)
+
+    page.owner = owner
+    page.save()
+
+    result = {
+        'success':True,
+        'last_updated':formats.date_format(page.last_updated, 
+            'DATETIME_FORMAT'),
+        'page_id':page.id,
+    }
+    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+
 
 
 @login_required

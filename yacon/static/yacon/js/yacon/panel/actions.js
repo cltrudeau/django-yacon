@@ -90,3 +90,26 @@ function edit_block(block_id) {
         }
     });
 }
+
+function edit_owner(page_id) {
+    $.ajax({
+        url: "/yacon/fetch_owners/" + page_id + "/",
+        dataType: "json",
+        success: function(data) {
+            $('#page_id').html(page_id);
+            var select = $('#owners');
+            select.html('');
+            select.append(
+                $('<option>').attr('value', '0').text('')
+            );
+            $(data['owners']).each(function() {
+                select.append(
+                    $('<option>').attr('value', this[0]).text(this[1])
+                );
+            });
+            select.val(data['selected']);
+
+            $('#edit_owner_dialog').dialog('open');
+        }
+    });
+}
