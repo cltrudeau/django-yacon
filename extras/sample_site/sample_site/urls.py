@@ -13,9 +13,14 @@ urlpatterns = patterns('',
     url(r'admin/logout/$', logout, {'next_page':'/'}),
     url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^yacon/', include('yacon.urls')),
-    url(r'^$', 'yacon.views.content.display_page'),
-    url(r'^(.*)/$', 'yacon.views.content.display_page'),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
         'document_root': settings.MEDIA_ROOT, }),
+
+    url(r'^pmedia/(.*)$', 'yacon.views.content.django_private_serve'),
+
+    url(r'^yacon/', include('yacon.urls')),
+    url(r'^$', 'yacon.views.content.display_page'),
+
+    # URL Eater, should always be last
+    url(r'^(.*)/$', 'yacon.views.content.display_page'),
 )

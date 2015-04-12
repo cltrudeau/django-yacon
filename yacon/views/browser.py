@@ -183,7 +183,7 @@ def upload_file(request):
 @login_required
 @csrf_exempt
 def user_upload_file(request):
-    prefix = 'users/%s' % request.user.username
+    prefix = 'users/%s' % request.user.id
     spec = _handle_upload(request, prefix=prefix)
     return HttpResponse(spec.json_results)
 
@@ -199,7 +199,7 @@ def tree_top(request):
 
     restricted = None
     if not request.user.is_superuser:
-        restricted = request.user.username
+        restricted = request.user.id
 
     try:
         tree = build_filetree(expanded, restricted)
@@ -240,7 +240,7 @@ def show_folder(request):
         logger.warning('MEDIA_URL is not set.  Uploads will not show properly')
 
     if spec.file_type == 'private':
-        base_url = conf.site.private_upload
+        base_url = conf.site.private_upload_url
 
     relative_url = base_url + spec.relative_dir + '/'
 

@@ -263,10 +263,21 @@ class FileSpec(object):
         if user.is_superuser:
             return True
 
-        # user is normal user, verify spec against the user's username
-        name = 'users/%s' % user.username
+        # user is normal user, verify spec against the user's id
+        name = 'users/%s' % user.id
         if self.relative_dir.startswith(name):
             return True
+
+        if self.relative_dir.startswith('groups/'):
+            pieces = self.relative_dir.split('/')
+            from yacon.models.groupsq import GroupOfGroups
+            try:
+                group = GroupOfGroups.objects.get(id=pieces[1])
+                if group.has_user(user):
+                    return True
+
+            except GroupOfGroups.DoesNotExist:
+                return False
 
         return False
 

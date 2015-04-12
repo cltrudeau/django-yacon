@@ -62,9 +62,9 @@ def verify_node(parm, is_file):
     then this spec is put into the request (arg0).  
 
     If the user is a superuser then the permissions are granted.  If not, the
-    node is checked against the user in the request.  A user is only granted
-    permission if the node is in under one of "public:users/X" or 
-    "private:users/X", where X is the username found in the request.
+    node is checked against the user in the request.  See the
+    FileSpec.allowed_for_user() method for rules on whether a user can see a
+    file node.
     
     The "is_file" parameter is a boolean, True indicates the node is a file.
     """
@@ -99,9 +99,8 @@ def verify_file_url(parm, is_file):
     then this spec is put into the request (arg0).  
 
     If the user is a superuser then the permissions are granted.  If not, the
-    file is checked against the user in the request.  A user is only granted
-    permission if the file is in under one of "public:users/X" or 
-    "private:users/X", where X is the username found in the request.
+    file is checked against the user in the request.  See
+    FileSpec.allowed_for_user() for the rules on whether is granted permission.
 
     The "is_file" parameter is a boolean, True indicates the url is for a file.
     """

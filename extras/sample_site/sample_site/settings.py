@@ -25,7 +25,7 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'uploads'))
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'uploads', 'public'))
 MEDIA_URL = '/media/'
 
 # Application definition
@@ -125,6 +125,11 @@ LOGGING = {
 STATIC_URL = '/static/'
 
 YACON = {
+    'site':{
+        'private_upload':os.path.abspath(os.path.join(BASE_DIR, 'uploads', 
+            'private')),
+        'private_upload_url':'/pmedia/',
+    },
     'custom': {
         'page_context':'app.dynamic.page_context',
     },

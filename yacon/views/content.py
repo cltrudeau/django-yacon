@@ -9,6 +9,7 @@ from django.forms.util import ErrorList
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import formats
+from django.views import static
 
 from yacon import conf
 from yacon.decorators import post_required
@@ -17,7 +18,7 @@ from yacon.helpers import prepare_context, permission_to_edit_page
 from yacon.models.common import PagePermissionTypes
 from yacon.models.hierarchy import BadSlug, Node
 from yacon.models.pages import Block, Page, PageType, MetaPage
-from yacon.utils import JSONResponse, get_profile
+from yacon.utils import FileSpec, JSONResponse, get_profile
 
 logger = logging.getLogger(__name__)
 
@@ -403,3 +404,31 @@ def replace_node_perm(request):
         'node_id':node.id,
     }
     return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+
+# ============================================================================
+# Private Media Serve
+#
+# This really should be replaced with 
+
+# ============================================================================
+
+@login_required
+def django_private_serve(request, uri):
+    """This method is used to static serve files using the permission
+    mechanism built into yacon.  This view really shouldn't be used as it is
+    very inefficient.  
+
+    Views for Apache XSendFile and/or Nginx X-Accel-Redirect headers should be
+    added at some point.  See:
+    https://www.chicagodjango.com/blog/permission-based-file-serving/
+    """
+    try:
+        spec = FileSpec.factory_from_url(request.path, ensure_file=True)
+    except AttributeError:
+        raise Http404()
+
+    if not spec.allowed_for_user(request.user):
+        return HttpResponseRedirect('/yacon/denied/')
+
+    # if you get here then the user is allowed, spit out the file
+    return static.serve(request, uri, conf.site.private_upload)
