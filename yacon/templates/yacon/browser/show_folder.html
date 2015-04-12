@@ -39,6 +39,7 @@
         // elements otherwise
         $('.filename').unbind('click');
         $('.image_edit').unbind('click');
+        $('.file_expand').unbind('click');
 
         // browser can be started in different modes that change what happens
         // when you click on an file name
@@ -73,6 +74,27 @@
                 + $(this).attr('href')); 
             return false;
         });
+
+        $('.file_expand').click(function() {
+            var node = active_node();
+            $.ajax({
+                url: "/yacon/browser/file_expand/?file=" + $(this).attr('href'),
+                dataType: "json",
+                success: function(data) {
+                    if( data['success'] ) {
+                      alert('File expansion complete');
+                    }
+                    else {
+                      alert('File expansion failed with message: ' + 
+                        data['msg']);
+                    }
+
+                    refresh_tree();
+                }
+            });
+
+            return false;
+        });
     }
 
     function prepare_page() {
@@ -86,12 +108,12 @@
         // loop through and populate our listing of images and files
         {% if images %}
             {% for image in images %}
-                add_image('{{image.name}}', '{{image.url}}');
+                add_image('{{image.basename}}', '{{image.url}}');
             {% endfor %}
         {% endif %}
         {% if files %}
             {% for file in files %}
-                add_file('{{file.name}}', '{{file.url}}');
+                add_file('{{file.basename}}', '{{file.url}}', '{{file.is_archive}}');
             {% endfor %}
         {% endif %}
 
@@ -213,8 +235,8 @@
                         'href="' + url + '">' + name + '</a><br/>' +
                     '<input type="checkbox" name="item" value="' + name + '">' +
                     '<a target="_blank" class="filename" ' +
-                        'href="' + url + '">view</a>&nbsp;' +
-                    '<a class="image_edit" href="' + url + '">edit</a>' +
+                        'href="' + url + '">(view)</a>&nbsp;' +
+                    '<a class="image_edit" href="' + url + '">(edit)</a>' +
                 '</div>' +
             '</div>';
         div.append(html);
@@ -227,7 +249,7 @@
         register_selection_handlers();
     }
 
-    function add_file(name, url) {
+    function add_file(name, url, archive) {
         $('#empty_folder').hide();
         $('#not_empty_folder').show();
 
@@ -244,13 +266,16 @@
                 '<div class="file_box hover_box">' +
                     '<input type="checkbox" name="item" value="' + name + '">' +
                     '<a target="_blank" class="filename" ' +
-                        'href="' + url + '">' + name + '</a>' +
-                '</div>' +
-            '</div>';
+                        'href="' + url + '">' + name + '</a>';
+
+        if( archive == 'True' ) { // compare to python's truth value
+          html += '<br/><a class="file_expand" href="' + url + '">(expand)</a>';
+        }
+        html += '</div></div>';
         div.append(html);
         // file names are in a bounding box, have mouse over show the whole
         // thing
-        $('#filee_holder_' + holder_counter + ' .hover_box').hover(hover_on, 
+        $('#file_holder_' + holder_counter + ' .hover_box').hover(hover_on, 
             hover_off);
         holder_counter++;
         register_selection_handlers();

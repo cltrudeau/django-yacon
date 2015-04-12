@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from yacon import conf
 from yacon.decorators import verify_node, verify_file_url
-from yacon.utils import FileSpec, files_subtree, build_filetree
+from yacon.utils import FileSpec, files_subtree, build_filetree, JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -250,18 +250,10 @@ def show_folder(request):
         if os.path.isdir(os.path.join(spec.full_dir, x)):
             continue
 
-        stub = StubFile()
-        stub.name = x
-        stub.lower_name = x.lower()
-        pieces = x.split('.')
-        stub.ext = ''
-        if len(pieces) > 1:
-            stub.ext = pieces[-1]
+        stub = FileSpec.factory_from_path('%s/%s' % (spec.full_dir, x))
+        stub.lower_name = stub.basename.lower()
 
-        filename = os.path.join(spec.relative_dir, x)
-        stub.url = urllib.quote(base_url + filename)
-
-        if stub.ext in conf.site.image_extensions:
+        if stub.is_image:
             images.append(stub)
         else:
             if not image_only:
@@ -429,3 +421,29 @@ def image_edit_save(request):
             'generation'), e.message)
 
     return HttpResponse()
+
+
+@login_required
+@verify_file_url('file', True)
+def file_expand(request):
+    data = {
+        'spec':request.spec, # verify_file_url puts this in the request
+    }
+    if not os.path.exists(request.spec.full_filename):
+        result = {
+            'success':False,
+            'msg':'Bad filename',
+        }
+    else:
+        try:
+            request.spec.expand_file()
+            result = {
+                'success':True,
+            }
+        except Exception as e:
+            result = {
+                'success':False,
+                'msg':e.message,
+            }
+
+    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})

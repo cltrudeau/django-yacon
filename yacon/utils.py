@@ -1,8 +1,9 @@
 # yacon.utils.py
-import logging, json, inspect, urllib, os, locale, re, time
+import logging, json, inspect, urllib, os, locale, re, time, tarfile
 from datetime import datetime
 from itertools import islice, chain
 from PIL import Image
+from zipfile import ZipFile
 
 from django.conf import settings
 from django.http import HttpResponse, Http404
@@ -251,7 +252,13 @@ class FileSpec(object):
         self.basename = filename
         if '.' in filename:
             pieces = filename.split('.')
-            self.extension = pieces[-1]
+
+            if len(pieces) > 2 and (
+                    pieces[-1] in conf.site.compress_extensions):
+                self.extension = '.'.join(pieces[-2:])
+            else: # only one extension 
+                self.extension = pieces[-1]
+
         self.relative_filename = os.path.join(self.relative_dir, filename)
         self.full_filename = os.path.join(self.full_dir, self.basename)
         if os.path.isdir(self.full_filename):
@@ -322,9 +329,37 @@ class FileSpec(object):
         im.thumbnail((width, height), Image.ANTIALIAS)
         im.save(image_name, 'png')
 
+    def expand_file(self):
+        if not self.is_archive:
+            return
+
+        if self.extension in conf.site.zip_extensions:
+            with ZipFile(self.full_filename) as f:
+                f.extractall(self.full_dir)
+        else:
+            # tar extension
+            with tarfile.open(self.full_filename) as f:
+                # unlike ZipFile, TarFile isn't safe
+                for name in f.getnames():
+                    if '..' in name or name[0] == '/':
+                        logger.warn('Ignoring tar with unsafe files: %s', 
+                            self.full_filename)
+                        return
+
+                f.extractall(self.full_dir)
+
     @property
     def is_private(self):
         return self.file_type == 'private'
+
+    @property
+    def is_image(self):
+        return self.extension in conf.site.image_extensions
+
+    @property
+    def is_archive(self):
+        return (self.extension in conf.site.zip_extensions or \
+            self.extension in conf.site.tar_extensions)
 
     @property
     def title(self):
