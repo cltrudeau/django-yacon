@@ -10,9 +10,11 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import formats
 
+from yacon import conf
 from yacon.decorators import post_required
 from yacon.forms import CreatePageForm
 from yacon.helpers import prepare_context, permission_to_edit_page
+from yacon.models.common import PagePermissionTypes
 from yacon.models.hierarchy import BadSlug, Node
 from yacon.models.pages import Block, Page, PageType, MetaPage
 from yacon.utils import JSONResponse, get_profile
@@ -28,6 +30,43 @@ PAGE_CONTEXT = None
 # Generic Page Display Views
 # ============================================================================
 
+def _check_perms(page, request):
+    """Security logic for the viewing of a page.  Returns a tuple of (allowed,
+    redirect).  
+    
+    :param page: page being checked
+    :param request: view request object
+    
+    :returns: (allowed, redirect) where allowed is True if the user is allowed
+        to view the page, and redirect is the value to return (i.e. an
+        HTTPResponseRedirect object) to handle when the allowed value is
+        False.
+    """
+    perm = page.metapage.effective_permission
+    if perm == PagePermissionTypes.PUBLIC:
+        return (True, None)
+
+    user = getattr(request, 'user', None)
+    if not user or not user.is_authenticated():
+        # user is not auth'd, send them to the login page
+        if '%s' in conf.site.login_redirect:
+            return (False, HttpResponseRedirect(
+                conf.site.login_redirect % request.path))
+        else:
+            return (False, HttpResponseRedirect(conf.site.login_redirect))
+
+    if user.is_superuser:
+        return (True, None)
+
+    if perm == PagePermissionTypes.LOGIN:
+        return (True, None)
+
+    if perm == PagePermissionTypes.OWNER and user == page.metapage.owner:
+        return (True, None)
+
+    return (False, HttpResponseRedirect('/yacon/denied/'))
+
+
 def display_page(request, uri=''):
     """Default page rendering method for the CMS.  Uses the request object to
     determine what site is being displayed and the uri passed in to find an
@@ -38,6 +77,11 @@ def display_page(request, uri=''):
     if page == None:
         # no such page found for uri
         raise Http404('CMS did not contain a page for uri: %s' % uri)
+
+    # check page permissions
+    allow, redirect = _check_perms(page, request)
+    if not allow:
+        return redirect
 
     data.update({
         'page':page,
@@ -155,7 +199,7 @@ def fetch_block(request, block_id):
     if not request.user.is_superuser:
         # one of the pages associated with the block must belong to the user
         # logged in 
-        pages = block.page_set.filter(owner=request.user)
+        pages = block.page_set.filter(metapage__owner=request.user)
         if len(pages) == 0:
             raise Http404('permission denied')
 
@@ -183,7 +227,7 @@ def replace_block(request):
     if not request.user.is_superuser:
         # one of the pages associated with the block must belong to the user
         # logged in 
-        pages = block.page_set.filter(owner=request.user)
+        pages = block.page_set.filter(metapage__owner=request.user)
         if len(pages) == 0:
             raise Http404('permission denied')
 
@@ -206,19 +250,20 @@ def replace_block(request):
 
 
 @login_required
-def fetch_owners(request, page_id):
-    """Ajax view for getting users."""
+def fetch_owner(request, metapage_id):
+    """Ajax view for getting owner of metapage and all possible users that
+    could own it."""
     if not request.user.is_superuser:
         raise Http404('permission denied')
 
-    page = get_object_or_404(Page, id=page_id)
-    owners = []
+    metapage = get_object_or_404(MetaPage, id=metapage_id)
+    users = []
     for user in User.objects.all():
-        owners.append([user.id, user.username])
+        users.append([user.id, user.username])
 
     result = {
-        'selected':page.owner.id if page.owner else 0,
-        'owners':owners,
+        'selected':metapage.owner.id if metapage.owner else 0,
+        'users':users,
     }
     return JSONResponse(result)
 
@@ -227,13 +272,13 @@ def fetch_owners(request, page_id):
 @post_required
 def replace_owner(request):
     """Ajax view for change a page's owner."""
-    if not request.REQUEST.has_key('page_id'):
-        raise Http404('replace_page requires "page_id" parameter')
+    if not request.REQUEST.has_key('metapage_id'):
+        raise Http404('replace_page requires "metapage_id" parameter')
 
     if not request.REQUEST.has_key('owner_id'):
         raise Http404('replace_page requires "owner_id" parameter')
 
-    page = get_object_or_404(Page, id=request.POST['page_id'])
+    metapage = get_object_or_404(MetaPage, id=request.POST['metapage_id'])
 
     # check permissions
     if not request.user.is_superuser:
@@ -249,14 +294,12 @@ def replace_owner(request):
         except User.ObjectDoesNotExist:
             raise Http404('no such user id %s' % owner_id)
 
-    page.owner = owner
-    page.save()
+    metapage.owner = owner
+    metapage.save()
 
     result = {
         'success':True,
-        'last_updated':formats.date_format(page.last_updated, 
-            'DATETIME_FORMAT'),
-        'page_id':page.id,
+        'metapage_id':metapage.id,
     }
     return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
 
@@ -306,3 +349,57 @@ def remove_page(request, page_id):
 
     page.delete()
     return HttpResponseRedirect('/')
+
+
+@login_required
+@post_required
+def replace_metapage_perm(request):
+    """Ajax view for submitting metapage permission changes."""
+    if not request.REQUEST.has_key('metapage_id'):
+        raise Http404('replace_title requires "metapage_id" parameter')
+
+    if not request.REQUEST.has_key('perm'):
+        raise Http404('replace_title requires "perm" parameter')
+
+    metapage = get_object_or_404(MetaPage, id=request.POST['metapage_id'])
+
+    # check permissions
+    if not request.user.is_superuser:
+        # page must belong to logged in user
+        if metapage.owner != request.user:
+            raise Http404('permission denied')
+
+    metapage.permission = request.POST['perm']
+    metapage.save()
+
+    result = {
+        'success':True,
+        'metapage_id':metapage.id,
+    }
+    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+
+
+@login_required
+@post_required
+def replace_node_perm(request):
+    """Ajax view for submitting node permission changes."""
+    if not request.REQUEST.has_key('node_id'):
+        raise Http404('replace_title requires "node_id" parameter')
+
+    if not request.REQUEST.has_key('perm'):
+        raise Http404('replace_title requires "perm" parameter')
+
+    node = get_object_or_404(Node, id=request.POST['node_id'])
+
+    # check permissions
+    if not request.user.is_superuser:
+        raise Http404('permission denied')
+
+    node.permission = request.POST['perm']
+    node.save()
+
+    result = {
+        'success':True,
+        'node_id':node.id,
+    }
+    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})

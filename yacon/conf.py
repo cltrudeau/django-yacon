@@ -21,6 +21,7 @@ SITE = {
     'auto_thumbnails':{},
     'image_extensions':['jpg', 'jpeg', 'png', 'gif'],
     'logout_url':'/accounts/logout/',
+    'login_redirect':'/accounts/login/?next=%s',
     'text':{},
 }
 

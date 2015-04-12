@@ -107,7 +107,7 @@ class UserProfileBase(TimeTrackedModel):
         """Returns True if this user is allowed to edit the given page.  Base
         implementation returns True if the user is the owner or a superuser.
         """
-        if self.user.is_superuser or self.user == page.owner:
+        if self.user.is_superuser or self.user == page.metapage.owner:
             return True
 
         return False

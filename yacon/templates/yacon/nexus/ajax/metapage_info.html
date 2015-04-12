@@ -57,11 +57,23 @@
             Page Type: {{metapage.page_type.name}}
         </li>
         <li>
+            Permission: {{metapage.permission_string}}
+            <a href="#" onclick="return edit_metapage_perm({{metapage.id}}, '{{metapage.permission}}');">
+              (edit)</a>
+        </li>
+        <li>
+            Effective Permission: {{metapage.effective_permission_string}}
+        </li>
+        <li>
             {% if metapage.page_type.template %}
                 Template: {{metapage.page_type.template}}
             {% else %}
                 Dynamic Module: {{metapage.page_type.dynamic}}
             {% endif %}
+        </li>
+        <li>
+            Owner: {{metapage.owner}}
+            <a href="#" onclick="return edit_owner({{metapage.id}});">(edit)</a>
         </li>
         <li>
             In Menu: 
@@ -99,12 +111,6 @@ onclick="remove_page_translation({{default_page.id}}, '{{default_page.title|esca
                 </li>
                 <li>
                     Last Updated: {{default_page.updated}}
-                </li>
-                <li>
-                    Owner: {{default_page.owner}}
-                    <a href="#" 
-                        onclick="return edit_owner({{default_page.id}});">
-                        (edit)</a>
                 </li>
                 {% if default_page.all_blocks %}
                 <li>

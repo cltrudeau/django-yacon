@@ -8,8 +8,6 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 
 from yacon import conf
-from yacon.models.hierarchy import NodeTranslation
-from yacon.models.pages import PageType, BlockType
 
 logger = logging.getLogger(__name__)
 locale.setlocale(locale.LC_ALL, '')
@@ -510,28 +508,6 @@ def get_user_attributes(obj, exclude_methods=True):
             pass
 
     return results
-
-
-def get_page_type(name):
-    try:
-        return PageType.objects.get(name=name)
-    except PageType.DoesNotExist:
-        return None
-
-
-def get_block_type(key):
-    try:
-        return BlockType.objects.get(key=key)
-    except BlockType.DoesNotExist:
-        return None
-
-
-def get_node(name):
-    try:
-        tx = NodeTranslation.objects.get(name=name)
-        return tx.node
-    except NodeTranslation.DoesNotExist:
-        return None
 
 
 def get_profile(user):

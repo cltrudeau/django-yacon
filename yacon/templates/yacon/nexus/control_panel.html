@@ -91,24 +91,44 @@
     </div>
 </div>
 
-<!-- Dialog Boxes -->
+<!-- === Dialog Boxes === -->
+<!-- common hidden divs for dialogs -->
+<div id="csrf_token" style="display:none;">{%csrf_token%}</div>
+<div id="metapage_id" style="display:none;"></div>
+<div id="block_id" style="display:none;"></div>
+<div id="metapage_id" style="display:none;"></div>
+<div id="node_id" style="display:none;"></div>
+
 <div id="remove_folder_dialog">
 </div>
 
 <div id="remove_page_dialog">
 </div>
 
-<div id="csrf_token" style="display:none;">{%csrf_token%}</div>
-
 <div id="edit_block_dialog">
-    <div id="block_id" style="display:none;"></div>
     <textarea class="yacon_editable_content">
     </textarea>
 </div>
 
 <div id="edit_owner_dialog">
-    <div id="page_id" style="display:none;"></div>
     <select id="owners">
+    </select>
+</div>
+
+<div id="edit_metapage_perm">
+    <select class="perms">
+      <option value="pub">Public</option>
+      <option value="inh">Inherit</option>
+      <option value="log">Login</option>
+      <option value="own">Owner</option>
+    </select>
+</div>
+
+<div id="edit_node_perm">
+    <select class="perms">
+      <option value="pub">Public</option>
+      <option value="inh">Inherit</option>
+      <option value="log">Login</option>
     </select>
 </div>
 

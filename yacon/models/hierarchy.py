@@ -6,7 +6,7 @@ from django.template.defaultfilters import slugify
 
 from treebeard.mp_tree import MP_Node
 
-from yacon.models.common import Language, TimeTrackedModel
+from yacon.models.common import Language, TimeTrackedModel, NodePermissionTypes
 from yacon.models.pages import Page, MetaPage
 from yacon.definitions import SLUG_LENGTH
 
@@ -55,6 +55,8 @@ class Node(BaseNode):
     around formatting of slugs, etc.  
     """
     site = models.ForeignKey('yacon.Site')
+    permission = models.CharField(max_length=3, choices=NodePermissionTypes,
+        default=NodePermissionTypes.INHERIT)
 
     class Meta:
         app_label = 'yacon'
@@ -117,7 +119,8 @@ class Node(BaseNode):
 
     # -----------------------------------------------------------------------
     # Factory/Fetch Methods
-    def create_child(self, name, slug, translations={}):
+    def create_child(self, name, slug, translations={},
+            permission=NodePermissionTypes.INHERIT):
         """Creates a Node object as a child of this Node.  Name and slug for
         the default language are passed in.  An optional dictionary of
         Language objects mapped to name/slug tuples can be used to
@@ -144,7 +147,7 @@ class Node(BaseNode):
             self.validate_slug(slug)
 
         # no bad slugs, create the child node
-        child = self.add_child(site=self.site)
+        child = self.add_child(site=self.site, permission=permission)
 
         # add translations to child
         for key, value in translations.items():
@@ -260,6 +263,40 @@ class Node(BaseNode):
         """
         tx = NodeTranslation.objects.get(node=self, slug=find_slug)
         return tx.language
+
+    @property
+    def effective_permission(self):
+        """Returns the effective permission value of this Node, one of either
+        the node's permission attribute, or if the attribute is INHERIT, it
+        returns the inherited value.
+        
+        :returns: NodePermissionType Enum value
+        """
+        if self.permission != NodePermissionTypes.INHERIT:
+            return self.permission
+
+        # our permission value is inherit, need to determine what we're
+        # inheriting
+        if self.is_root():
+            return NodePermissionTypes.PUBLIC
+
+        node = self.get_parent()
+        while(node):
+            if node.permission != NodePermissionTypes.INHERIT:
+                return node.permission
+
+            if node.is_root():
+                return NodePermissionTypes.PUBLIC
+
+            node = self.get_parent()
+
+    @property
+    def permission_string(self):
+        return NodePermissionTypes.get_value(self.permission)
+
+    @property
+    def effective_permission_string(self):
+        return NodePermissionTypes.get_value(self.effective_permission)
 
     # -----------------------------------------------------------------------
     # Tree Walking Methods

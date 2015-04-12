@@ -6,10 +6,12 @@
 import random
 
 from django.db import transaction
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.template.defaultfilters import slugify
 
-from yacon.models.common import Language
+from yacon.models.common import (Language, NodePermissionTypes,
+    PagePermissionTypes)
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage
 from yacon.models.hierarchy import Menu
@@ -89,6 +91,9 @@ Duis aute irure dolor in reprehenderit
         main = site.doc_root.create_child('Main', 'main')
         news = main.create_child('News', 'news')
 
+        private = site.doc_root.create_child('Private', 'private',
+            permission=NodePermissionTypes.LOGIN)
+
         # create templates for our content
         pt_news_listing = create_dynamic_page_type('News Listing Type', 
             'app.views.news_listing' )
@@ -118,3 +123,14 @@ Duis aute irure dolor in reprehenderit
             title = 'News %s' % x
             MetaPage.create_page(news, pt_news, title, slugify(title),
                 { bt_news:random_paragraphs() })
+
+        # create permission test pages
+        MetaPage.create_page(private, pt_general, 'Owner only', 'owner-only',
+            { bt_general:'Only the owner or superusers should see this' },
+            owner=User.objects.get(username='user1'),
+            permission=PagePermissionTypes.OWNER)
+        MetaPage.create_page(private, pt_general, 'Login required', 'login-req',
+            { bt_general:'Anyone with a login should see this' },
+            permission=PagePermissionTypes.LOGIN)
+        MetaPage.create_page(private, pt_general, 'Inherit', 'inherit',
+            { bt_general:'LOGIN perm inherited from Node' })

@@ -9,7 +9,7 @@ from django.template import RequestContext
 from yacon.definitions import (SLUG_LENGTH, TITLE_LENGTH, ALLOWED_TAGS,
     ALLOWED_ATTRIBUTES, ALLOWED_STYLES)
 from yacon.loaders import dynamic_load
-from yacon.models.common import Language, TimeTrackedModel
+from yacon.models.common import Language, TimeTrackedModel, PagePermissionTypes
 from yacon.sanitizer import SanitizedTextField
 
 logger = logging.getLogger(__name__)
@@ -214,7 +214,6 @@ class Page(TimeTrackedModel):
     language = models.ForeignKey(Language, related_name='+')
     slug = models.CharField(max_length=SLUG_LENGTH)
     title = models.CharField(max_length=TITLE_LENGTH, blank=True, null=True)
-    owner = models.ForeignKey(User, null=True)
 
     metapage = models.ForeignKey('yacon.MetaPage')
 
@@ -303,7 +302,7 @@ class Page(TimeTrackedModel):
         if language:
             kwargs['language'] = language
         if owner:
-            kwargs['owner'] = owner
+            kwargs['metapage__owner'] = owner
 
         pages = Page.objects.filter(**kwargs)
         return pages
@@ -432,6 +431,10 @@ class MetaPage(TimeTrackedModel):
     alias = models.ForeignKey('yacon.MetaPage', blank=True, null=True)
     is_node_default = models.BooleanField(default=False)
 
+    owner = models.ForeignKey(User, null=True)
+    permission = models.CharField(max_length=3, choices=PagePermissionTypes,
+        default=PagePermissionTypes.INHERIT)
+
     class Meta:
         app_label = 'yacon'
         verbose_name = 'MetaPage'
@@ -466,7 +469,7 @@ class MetaPage(TimeTrackedModel):
 
     @classmethod
     def create_page(cls, node, page_type, title, slug, block_hash, owner=None,
-            auto_slug=False):
+            auto_slug=False, permission=PagePermissionTypes.INHERIT):
         """Creates, saves and returns a MetaPage object with a corresponding 
         Page object in the Site default language.
 
@@ -485,11 +488,11 @@ class MetaPage(TimeTrackedModel):
         translation = Translation(language=node.site.default_language,
             title=title, slug=slug, block_hash=block_hash)
         return cls.create_translated_page(node, page_type, [translation],
-            owner, auto_slug)
+            owner, auto_slug, permission=permission)
 
     @classmethod
     def create_translated_page(cls, node, page_type, translations, owner=None,
-            auto_slug=False):
+            auto_slug=False, permission=PagePermissionTypes.INHERIT):
         """Creates, saves and returns a MetaPage object with multiple
         Page object translations.
 
@@ -506,13 +509,14 @@ class MetaPage(TimeTrackedModel):
         :raises: BadSlug, if any of the slugs are not valid
         """
         # create the MetaPage
-        metapage = MetaPage(node=node, _page_type=page_type)
+        metapage = MetaPage(node=node, _page_type=page_type, owner=owner,
+            permission=permission)
         metapage.save()
 
         for tx in translations:
             slug = node.validate_slug(tx.slug, auto_slug)
             page = Page.objects.create(metapage=metapage, title=tx.title, 
-                slug=slug, language=tx.language, owner=owner)
+                slug=slug, language=tx.language)
 
             # add the content to the translation
             for key, value in tx.block_hash.items():
@@ -567,6 +571,25 @@ class MetaPage(TimeTrackedModel):
             return default_page.title
 
         return None
+
+    @property
+    def effective_permission(self):
+        """Returns the effective permission for this MetaPage.  It is one of
+        either the permission attribute, or if that is INHERIT, then it
+        returns the effective permsission of our node."""
+        if self.permission != PagePermissionTypes.INHERIT:
+            return self.permission
+
+        # inherit means we get our permission from our node
+        return self.node.effective_permission
+
+    @property
+    def permission_string(self):
+        return PagePermissionTypes.get_value(self.permission)
+
+    @property
+    def effective_permission_string(self):
+        return PagePermissionTypes.get_value(self.effective_permission)
 
     # -------------------------------------------
     # Alias Methods

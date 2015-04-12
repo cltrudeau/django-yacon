@@ -28,14 +28,20 @@ urlpatterns = patterns('yacon.views.browser',
 
 urlpatterns += patterns('yacon.views.content',
     (r'^fetch_block/(\d+)/$', 'fetch_block'),
-    (r'^fetch_owners/(\d+)/$', 'fetch_owners'),
+    (r'^fetch_owner/(\d+)/$', 'fetch_owner'),
     (r'^replace_block/$', 'replace_block'),
     (r'^replace_owner/$', 'replace_owner'),
     (r'^replace_title/$', 'replace_title'),
+    (r'^replace_metapage_perm/$', 'replace_metapage_perm'),
+    (r'^replace_node_perm/$', 'replace_node_perm'),
     (r'^remove_page/(\d+)/$', 'remove_page'),
     (r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
     (r'^create_page_from_node/(\d+)/(\d+)/([^/]*)/([^/]*)/$', 
         'create_page_from_node'),
+)
+
+urlpatterns += patterns('',
+    (r'^denied/$', TemplateView.as_view(template_name='yacon/denied.html')),
 )
 
 if conf.site.static_serve and \

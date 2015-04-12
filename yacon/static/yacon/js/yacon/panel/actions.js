@@ -90,18 +90,18 @@ function edit_block(block_id) {
     });
 }
 
-function edit_owner(page_id) {
+function edit_owner(metapage_id) {
     $.ajax({
-        url: "/yacon/fetch_owners/" + page_id + "/",
+        url: "/yacon/fetch_owner/" + metapage_id + "/",
         dataType: "json",
         success: function(data) {
-            $('#page_id').html(page_id);
+            $('#metapage_id').html(metapage_id);
             var select = $('#owners');
             select.html('');
             select.append(
                 $('<option>').attr('value', '0').text('')
             );
-            $(data['owners']).each(function() {
+            $(data['users']).each(function() {
                 select.append(
                     $('<option>').attr('value', this[0]).text(this[1])
                 );
@@ -111,4 +111,16 @@ function edit_owner(page_id) {
             $('#edit_owner_dialog').dialog('open');
         }
     });
+}
+
+function edit_metapage_perm(metapage_id, perm) {
+    $('#metapage_id').html(metapage_id);
+    $('#edit_metapage_perm .perms').val(perm);
+    $('#edit_metapage_perm').dialog('open');
+}
+
+function edit_node_perm(node_id, perm) {
+    $('#node_id').html(node_id);
+    $('#edit_node_perm .perms').val(perm);
+    $('#edit_node_perm').dialog('open');
 }

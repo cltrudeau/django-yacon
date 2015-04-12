@@ -194,9 +194,8 @@ function load_metapage_dialogs() {
 
     create_dialog_full('#edit_owner_dialog', 'Edit Owner', 'Save',
         function() { // on press of "ok"
-            var page_id = $('#page_id').html();
+            var metapage_id = $('#metapage_id').html();
             var owner_id = $('#owners').val();
-            console.debug('got owner: ' + owner_id);
             var csrf = $('#csrf_token input').val();
             $.ajax({
                 url:'/yacon/replace_owner/',
@@ -205,8 +204,48 @@ function load_metapage_dialogs() {
                 },
                 type:'POST',
                 data: {
-                    'page_id':page_id,
+                    'metapage_id':metapage_id,
                     'owner_id':owner_id,
+                    'csrfmiddlewaretoken':csrf,
+                }
+            });
+        }
+    );
+
+    create_dialog_full('#edit_node_perm', 'Edit Permissions', 'Save',
+        function() { // on press of "ok"
+            var node_id = $('#node_id').html();
+            var perm = $('#edit_node_perm .perms').val();
+            var csrf = $('#csrf_token input').val();
+            $.ajax({
+                url:'/yacon/replace_node_perm/',
+                success: function(data) {
+                    refresh_tree();
+                },
+                type:'POST',
+                data: {
+                    'node_id':node_id,
+                    'perm':perm,
+                    'csrfmiddlewaretoken':csrf,
+                }
+            });
+        }
+    );
+
+    create_dialog_full('#edit_metapage_perm', 'Edit Permissions', 'Save',
+        function() { // on press of "ok"
+            var metapage_id = $('#metapage_id').html();
+            var perm = $('#edit_metapage_perm .perms').val();
+            var csrf = $('#csrf_token input').val();
+            $.ajax({
+                url:'/yacon/replace_metapage_perm/',
+                success: function(data) {
+                    refresh_tree();
+                },
+                type:'POST',
+                data: {
+                    'metapage_id':metapage_id,
+                    'perm':perm,
                     'csrfmiddlewaretoken':csrf,
                 }
             });

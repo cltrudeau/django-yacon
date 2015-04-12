@@ -36,6 +36,14 @@
             Last Updated: {{node.updated}}
         </li>
         <li>
+            Permission: {{node.permission_string}}
+            <a href="#" onclick="return edit_node_perm({{node.id}}, '{{node.permission}}');">
+              (edit)</a>
+        </li>
+        <li>
+            Effective Permission: {{node.effective_permission_string}}
+        </li>
+        <li>
             Node Paths and Default Pages:
         </li>
         <ul>
