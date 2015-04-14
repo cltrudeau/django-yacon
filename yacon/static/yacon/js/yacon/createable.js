@@ -18,5 +18,8 @@ $(document).ready(function() {
         );
     });
     $('#article').hide();
-    CKEDITOR.replaceAll();
+    CKEDITOR.replaceAll({
+        filebrowserBrowseUrl:'/yacon/ckeditor_browser/',
+        filebrowserUploadUrl:'/yacon/ckeditor_browser/?image_only=1',
+    });
 });

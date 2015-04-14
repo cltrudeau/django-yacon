@@ -131,7 +131,7 @@ def ckeditor_browser(request):
     request.session['popup'] = True
     data = {
         'title':'Uploads',
-        'base_template':'browser_base.html',
+        'base_template':'yacon/browser_base.html',
         'popup':True,
     }
     return render_to_response('yacon/browser/browser.html', data, 
@@ -152,7 +152,7 @@ def popup_browser(request, callback):
     request.session['popup'] = True
     data = {
         'title':'File Browser',
-        'base_template':'browser_base.html',
+        'base_template':'yacon/browser_base.html',
         'popup':True,
     }
     return render_to_response('yacon/browser/browser.html', data, 

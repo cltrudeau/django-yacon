@@ -84,7 +84,10 @@ function edit_block(block_id) {
             var textarea = $('#edit_block_dialog textarea')
             textarea.attr('contenteditable', true);
             textarea.html(data);
-            CKEDITOR.replace(textarea[0]);
+            CKEDITOR.replace(textarea[0], {
+                filebrowserBrowseUrl:'/yacon/ckeditor_browser/',
+                filebrowserUploadUrl:'/yacon/ckeditor_browser/?image_only=1',
+            });
             $('#edit_block_dialog').dialog('open');
         }
     });

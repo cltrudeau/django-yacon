@@ -50,6 +50,8 @@ $(document).ready(function() {
 
         CKEDITOR.inline(to_edit[0], {
             startupFocus:true,
+            filebrowserBrowseUrl:'/yacon/ckeditor_browser/',
+            filebrowserUploadUrl:'/yacon/ckeditor_browser/?image_only=1',
             on: {
                 instanceReady:function(ev) {
                     buttons_edit_mode(block, '.yacon_editable');

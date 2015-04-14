@@ -160,7 +160,6 @@ def paginate(context, window=DEFAULT_WINDOW, hashtag=''):
         pages = [page_obj.number]
         difference = 1
         total_digits = _num_digits(page_obj.number)
-        #import pudb; pudb.set_trace()
         while(True):
             # figure out how much extra we're adding due to elipses on the
             # left and right sides

@@ -288,7 +288,7 @@ class Node(BaseNode):
             if node.is_root():
                 return NodePermissionTypes.PUBLIC
 
-            node = self.get_parent()
+            node = node.get_parent()
 
     @property
     def permission_string(self):
