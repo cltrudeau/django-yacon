@@ -434,6 +434,7 @@ class MetaPage(TimeTrackedModel):
     owner = models.ForeignKey(User, null=True)
     permission = models.CharField(max_length=3, choices=PagePermissionTypes,
         default=PagePermissionTypes.INHERIT)
+    hidden = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'yacon'

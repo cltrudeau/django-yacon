@@ -172,4 +172,34 @@ $(document).ready(function() {
         div.children('.yacon_editable_content').html(old_html[div[0].id]);
     });
 
+    // register click handler for page visible button
+    $('.yacon_page_visible').click(function(event) {
+        var button = $(this);
+        var div = $(this).parent();
+        var page_id = div.attr('id');
+        var csrf = div.children('.yacon_ajax_csrf').html();
+
+        $.ajax({
+            url:'/yacon/flip_page_visible/',
+            success: function(data) {
+                if(data == null || data['success'] != true ) {
+                    div.children('.yacon_ajax_error').html('<p>An error ' 
+                        + 'occurred submitting, please try again.</p>');
+
+                } 
+                else {
+                    button.text(data['text']);
+                }
+            },
+            error: function() {
+                div.children('.yacon_ajax_error').html(
+                    '<p>An error occurred submitting, please try again.</p>');
+            },
+            type:'POST',
+            data: {
+                'page_id':page_id,
+                'csrfmiddlewaretoken':csrf
+            }
+        });
+    });
 });

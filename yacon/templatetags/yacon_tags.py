@@ -254,7 +254,8 @@ def editable_page_title(context, page):
         code = page.language.code
 
     context['button_text'] = {}
-    tags = ['title_edit_button', 'title_save_button', 'title_cancel_button']
+    tags = ['title_edit_button', 'title_save_button', 'title_cancel_button',
+        'show_page', 'hide_page']
     for tag in tags:
         context['button_text'][tag] = get_system_text(code, tag)
     create_mode = context.get('create_mode', False)

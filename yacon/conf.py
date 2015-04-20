@@ -46,6 +46,8 @@ TEXT = {
     'title_edit_button':'Edit Title',
     'title_save_button':'Save',
     'title_cancel_button':'Cancel',
+    'hide_page':'Hide Page',
+    'show_page':'Make Visible',
 }
 
 # ============================================================================

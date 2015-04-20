@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Constants
 
 PAGE_CONTEXT = None
+MSG_404 = 'CMS did not contain a page for uri: %s'
 
 # ============================================================================
 # Generic Page Display Views
@@ -44,11 +45,15 @@ def _check_perms(page, request):
         False.
     """
     perm = page.metapage.effective_permission
-    if perm == PagePermissionTypes.PUBLIC:
+    if perm == PagePermissionTypes.PUBLIC and not page.metapage.hidden:
         return (True, None)
 
     user = getattr(request, 'user', None)
     if not user or not user.is_authenticated():
+        if page.metapage.hidden:
+            # they're not auth'd and the page is hidden
+            raise Http404(MSG_404 % request.path)
+
         # user is not auth'd, send them to the login page
         if '%s' in conf.site.login_redirect:
             return (False, HttpResponseRedirect(
@@ -59,7 +64,7 @@ def _check_perms(page, request):
     if user.is_superuser:
         return (True, None)
 
-    if perm == PagePermissionTypes.LOGIN:
+    if perm == PagePermissionTypes.LOGIN and not page.metapage.hidden:
         return (True, None)
 
     if perm == PagePermissionTypes.OWNER and user == page.metapage.owner:
@@ -77,7 +82,7 @@ def display_page(request, uri=''):
     
     if page == None:
         # no such page found for uri
-        raise Http404('CMS did not contain a page for uri: %s' % uri)
+        raise Http404(MSG_404 % request.path)
 
     # check page permissions
     allow, redirect = _check_perms(page, request)
@@ -338,6 +343,43 @@ def replace_title(request):
         'last_updated':formats.date_format(page.last_updated, 
             'DATETIME_FORMAT'),
         'page_id':page.id,
+    }
+    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+
+
+@login_required
+@post_required
+def flip_page_visible(request):
+    """Ajax view for submitting edits to a block."""
+    if not request.REQUEST.has_key('page_id'):
+        raise Http404('flip_page_visible requires "page_id" parameter')
+
+    try:
+        # page parameter is 'page_X' where X is the id we're after
+        page_id = request.POST['page_id'][5:]
+        page = Page.objects.get(id=page_id)
+    except Page.DoesNotExist:
+        raise Http404('no page with id "%s"' % page_id)
+
+    # check permissions
+    if not request.user.is_superuser:
+        # page must belong to logged in user
+        if page.owner != request.user:
+            raise Http404('permission denied')
+
+    # change visibility
+    page.metapage.hidden = not page.metapage.hidden
+    page.metapage.save()
+    text = conf.TEXT['hide_page']
+    if page.metapage.hidden:
+        text = conf.TEXT['show_page']
+
+    result = {
+        'success':True,
+        'last_updated':formats.date_format(page.last_updated, 
+            'DATETIME_FORMAT'),
+        'page_id':page.id,
+        'text':text,
     }
     return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
 
