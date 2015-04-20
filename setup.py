@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-yacon',
-    version='0.5.1',
+    version='0.5.2',
     description='Django based Content Managment building framework',
     long_description=('Yacon is a django app for building websites based on '
         'a CMS.  Yacon provides methods for managing hierarchical, '

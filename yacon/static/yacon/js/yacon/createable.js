@@ -8,8 +8,6 @@ $(document).ready(function() {
     $('.yacon_title_editable_done').hide();
     $('.yacon_title_editable_cancel').hide();
 
-    debugger;
-
     // create textareas in the form for each block
     $('.yacon_editable').each(function() {
         var key = $(this).attr('data-key');
