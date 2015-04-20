@@ -1,17 +1,19 @@
 <div class="yacon_title_editable" id="page_{{page.id}}">
   <button class="yacon_page_visible">
     {% if page.metapage.hidden %}
-      {{button_text.show_page}}
+      {{button_text.show_page|safe}}
     {% else %}
-      {{button_text.hide_page}}
+      {{button_text.hide_page|safe}}
     {% endif %}
   </button>
   <div class="yacon_editable_content">{{page.title}}</div>
   <div class="yacon_ajax_csrf">{{csrf_token}}</div>
-  <button class="yacon_title_editable_edit">{{button_text.title_edit_button}}
+  <button class="yacon_title_editable_edit">
+    {{button_text.title_edit_button|safe}}
   </button>
-  <button class="yacon_title_editable_done">{{button_text.title_save_button}}
+  <button class="yacon_title_editable_done">
+    {{button_text.title_save_button|safe}}
   </button>
   <button class="yacon_title_editable_cancel">
-    {{button_text.title_cancel_button}}</button>
+    {{button_text.title_cancel_button|safe}}</button>
 </div>
