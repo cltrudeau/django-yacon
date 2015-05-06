@@ -78,6 +78,9 @@
         </div>
         <div id="menu_toolbar">
             <button id="remove_menu_warn">Remove Menu</button>
+            <button id="add_metapage_menuitem">Add Metapage Item</button>
+            <button id="add_link_menuitem">Add Link Item</button>
+            <button id="add_header_menuitem">Add Header Item</button>
         </div>
         <div id="menuitem_toolbar">
             <button id="remove_menuitem_warn">Remove MenuItem</button>
@@ -349,6 +352,40 @@
 <div id="remove_menu_dialog">
 </div>
 
+<div id="add_link_menuitem_dialog">
+  <form id="add_link_menuitem_form">
+    <table class="dialog_form_table">
+      <tr>
+        <th> 
+            <label for="add_link_menuitem_link">Link Contents</label>
+        </th>
+        <td> 
+          <input type="text" name="name" 
+                id="add_link_menuitem_link"/> 
+        </td>
+      </tr>
+      <tr>
+        <th> 
+            <label for="add_link_menuitem_translation_lang">Language</label>
+        </th>
+        <td>
+            <select id="add_link_menuitem_translation_lang">
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <th> 
+            <label for="add_link_menuitem_translation_name">Display Name</label>
+        </th>
+        <td> 
+          <input type="text" name="name" 
+                id="add_link_menuitem_translation_name"/> 
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+
 <div id="remove_menuitem_dialog">
 </div>
 
@@ -378,6 +415,32 @@
             </tr>
         </table>
     </form>
+</div>
+
+<div id="add_header_menuitem_dialog">
+  <form id="add_header_menuitem_form">
+    <table class="dialog_form_table">
+      <tr>
+        <th> 
+            <label for="add_header_menuitem_translation_lang">Language</label>
+        </th>
+        <td>
+            <select id="add_header_menuitem_translation_lang">
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <th> 
+            <label for="add_header_menuitem_translation_name">Display Name
+            </label>
+        </th>
+        <td> 
+          <input type="text" name="name" 
+                id="add_header_menuitem_translation_name"/> 
+        </td>
+      </tr>
+    </table>
+  </form>
 </div>
 
 <div id="add_menuitem_dialog">

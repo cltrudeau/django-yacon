@@ -99,6 +99,25 @@ function load_menu_toolbars() {
         }
     });
 
+    $('#add_metapage_menuitem').button().click(function() {
+        alert('To add a menuitem associated with a metapage, use the ' +
+            'site tree to find the menuitem and click "Add to Menu" ');
+    });
+
+    $('#add_link_menuitem').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_link_menuitem_dialog').dialog("open");
+        }
+    });
+
+    $('#add_header_menuitem').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            $('#add_header_menuitem_dialog').dialog("open");
+        }
+    });
+
     $('#remove_menuitem_warn').button().click(function() {
         var node_id = active_node_id();
         if( node_id != null ) {

@@ -365,6 +365,45 @@ def add_menu(request, site_id, name):
 
 
 @superuser_required
+def add_link_menuitem(request, menu_id, lang, name):
+    """Adds a link only menu item."""
+    menu = get_object_or_404(Menu, id=menu_id)
+    name = urllib.unquote(name)
+    link = urllib.unquote(request.GET['link'])
+
+    data = {}
+    try:
+        langs = menu.site.get_languages(lang)
+        if len(langs) == 0:
+            raise ValueError('Bad language selected')
+
+        menu.create_child(link=link, translations={langs[0]:name})
+    except ValueError, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@superuser_required
+def add_header_menuitem(request, menu_id, lang, name):
+    """Adds a header only menu item."""
+    menu = get_object_or_404(Menu, id=menu_id)
+    name = urllib.unquote(name)
+
+    data = {}
+    try:
+        langs = menu.site.get_languages(lang)
+        if len(langs) == 0:
+            raise ValueError('Bad language selected')
+
+        menu.create_child(translations={langs[0]:name})
+    except ValueError, e:
+        data['error'] = e.message
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@superuser_required
 def add_menuitem_translation(request, menuitem_id, lang, name):
     """Adds a translation to the given menu item."""
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)

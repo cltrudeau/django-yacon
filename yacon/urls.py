@@ -105,6 +105,8 @@ if conf.nexus.enabled:
         (r'^nexus/control/move_menuitem_down/(\d+)/$', 'move_menuitem_down'),
         (r'^nexus/control/toggle_menuitem_requires_login/(\d+)/$',
             'toggle_menuitem_requires_login'),
+        (r'^nexus/control/toggle_menuitem_requires_admin/(\d+)/$',
+            'toggle_menuitem_requires_admin'),
     )
 
     # control panel, dialogs
@@ -144,6 +146,10 @@ if conf.nexus.enabled:
 
         # menu dialogs
         (r'^nexus/control/add_menu/(\d+)/(.*)/$', 'add_menu'),
+        (r'^nexus/control/add_link_menuitem/(\d+)/(.*)/(.*)/$',
+            'add_link_menuitem'),
+        (r'^nexus/control/add_header_menuitem/(\d+)/(.*)/(.*)/$',
+            'add_header_menuitem'),
         (r'^nexus/control/remove_menu_warn/(\d+)/$', 'remove_menu_warn'),
         (r'^nexus/control/remove_menu/(\d+)/$', 'remove_menu'),
 

@@ -198,6 +198,14 @@ def toggle_menuitem_requires_login(request, menuitem_id):
 
 
 @superuser_required
+def toggle_menuitem_requires_admin(request, menuitem_id):
+    menuitem = get_object_or_404(MenuItem, id=menuitem_id)
+    menuitem.requires_admin = not menuitem.requires_admin
+    menuitem.save()
+    return HttpResponse()
+
+
+@superuser_required
 def move_menuitem_out(request, menuitem_id):
     menuitem = get_object_or_404(MenuItem, id=menuitem_id)
     try:

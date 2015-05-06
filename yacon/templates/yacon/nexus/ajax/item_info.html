@@ -18,6 +18,18 @@
 
     }
 
+    function toggle_requires_admin(id) {
+        $.ajax({
+            url: "/yacon/nexus/control/toggle_menuitem_requires_admin/" + id 
+                + "/",
+            dataType: "json",
+            success: function(data) {
+                refresh_tree();
+            }
+        });
+
+    }
+
     $(document).ready(function(){
         $('#menuitem_toolbar').show();
 
@@ -77,9 +89,23 @@
             {% endif %}
         </li>
         <li>
+            Link: 
+            {% if menuitem.link %}
+                {{menuitem.link}}
+            {% else %}
+                <i>None</i>
+            {% endif %}
+        </li>
+        <li>
             Requires Login: {{menuitem.requires_login}} 
             <a href="javascript:void(0);" 
                 onclick="toggle_requires_login({{menuitem.id}})">
+                (toggle)</a>
+        </li>
+        <li>
+            Requires Admin: {{menuitem.requires_admin}} 
+            <a href="javascript:void(0);" 
+                onclick="toggle_requires_admin({{menuitem.id}})">
                 (toggle)</a>
         </li>
     </ul>
@@ -91,13 +117,16 @@
             {% if default_translation %}
                 "{{default_translation.name}}" 
                     ({{default_translation.language.code}})
-                {% if default_translation.page.uri %}
-                    <a href="{{default_translation.page.uri}}">(view)</a>&nbsp;
-                    <a href="javascript:void(0);"
-    onclick="remove_menuitem_translation({{default_translation.id}}, '{{default_translation.name|escapejs}}')">
-                        (delete)&nbsp;</a>
-                {% else %}
-                    (<i>unreachable</i>)&nbsp;
+                {% if default_translation.menuitem.metapage %}
+                  {% if default_translation.page.uri %}
+                      <a href="{{default_translation.page.uri}}">(view)</a>
+                      &nbsp;
+                      <a href="javascript:void(0);"
+      onclick="remove_menuitem_translation({{default_translation.id}}, '{{default_translation.name|escapejs}}')">
+                          (delete)&nbsp;</a>
+                  {% else %}
+                      (<i>unreachable</i>)&nbsp;
+                  {% endif %}
                 {% endif %}
             {% else %}
                     <i>No Default Translation 
@@ -109,15 +138,16 @@ onclick="rename_dialog({{default_translation.id|default:"''"}}, '{{default_trans
         </li>
         {% for item in translated_items %}
             <li> 
-                "{{item.name}}" 
-                    ({{item.language.code}})
-                {% if item.page.uri %}
-                    <a href="{{item.page.uri}}">(view)</a>&nbsp;
-                    <a href="javascript:void(0);"
-onclick="remove_menuitem_translation({{item.id}}, '{{item.name|escapejs}}')">
-                        (delete)</a>
-                {% else %}
-                    (<i>unreachable</i>)
+                "{{item.name}}" ({{item.language.code}})
+                {% if item.menuitem.metapage %}
+                  {% if item.page.uri %}
+                      <a href="{{item.page.uri}}">(view)</a>&nbsp;
+                      <a href="javascript:void(0);"
+  onclick="remove_menuitem_translation({{item.id}}, '{{item.name|escapejs}}')">
+                          (delete)</a>
+                  {% else %}
+                      (<i>unreachable</i>)
+                  {% endif %}
                 {% endif %}
                 <a href="javascript:void(0);"
                 onclick="rename_dialog({{item.id|default:"''"}}, '{{item.name|escapejs}}', '{{item.language.code|escapejs}}')">
