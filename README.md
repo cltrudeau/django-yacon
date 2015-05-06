@@ -42,3 +42,7 @@ In addition to the above, the following dependencies are accessed via CDN:
 
 - jquery-1.7.2
 - jquery-ui-1.8.19
+
+# Changes
+
+See ([CHANGES.md](https://github.com/cltrudeau/django-yacon/CHANGES.md)) 
