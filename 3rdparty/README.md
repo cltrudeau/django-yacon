@@ -4,8 +4,7 @@ reference and in some cases license compliance.  Packages are not served from
 this directory, but elsewhere (noted below) to minimize code exposed to the
 world and/or to track customizations as required.
 
-CKEditor
-~~~~~~~~
+#CKEditor
 
 CKEditor is redistributed with Yacon under the LGPL.  All contents are
 contained in this directory to meet licensing requirements.  
@@ -17,8 +16,8 @@ is kept to reduce exposure.
     http://ckeditor.com/license
 
 
-Valums File Uploader
-~~~~~~~~~~~~~~~~~~~~
+#Valums File Uploader
+
 Valums File Uploader is redistributed with Yacon under the LGPL.  The entire
 package is included in this sub-directory with a subset of the files mixed
 into the running packages.
@@ -26,8 +25,8 @@ into the running packages.
     Copyright 2010 Andrew Valums
         http://valums.com/ajax-upload/
 
-JCrop
-~~~~~
+#JCrop
+
 JCrop is redistributed with Yacon under the MIT license.  The entire package
 is included in this sub-directory with a subset of files mixed into the
 running packages.
@@ -35,8 +34,8 @@ running packages.
     Copyright (c) 2011 Tapmodo Interactive LLC
       http://github.com/tapmodo/Jcrop
 
-FTS Odeon
-~~~~~~~~~
+#FTS Odeon
+
 django-fts-odeon is redistributed with Yacon under a permissive license.  The
 entire package is included in this sub-directory with a subset of files mixed
 into the running packages with minor changes for integration.
@@ -47,8 +46,8 @@ into the running packages with minor changes for integration.
         contact: developers@od-eon.com
 
 
-django-html-sanitizer
-~~~~~~~~~~~~~~~~~~~~~
+#django-html-sanitizer
+
 django-html-sanitizer is redistributed with Yacon under a permissive license.
 The entire package is included in this sub-directory, the package included is 
 a fork of the original at the time of inclusion it was waiting on a
@@ -59,8 +58,8 @@ minor changes for integration.
     original: https://github.com/ui/django-html_sanitizer
     fork used: https://github.com/cltrudeau/django-html_sanitizer
 
-jquery-tab-nav
-~~~~~~~~~~~~~~
+#jquery-tab-nav
+
 jquery-tab-nav is redistributed with Yacon under the MIT license.  The entire
 package is included in this sub-directory with a subset of files mixed into
 the running packages.
@@ -69,8 +68,8 @@ the running packages.
     original: https://github.com/cltrudeau/jquery-tab-nav
 
 
-raphael-js
-~~~~~~~~~~
+#raphael-js
+
 raphael-js is redistributed with Yacon under the MIT license.  The minimized
 JS file is mixed into the running packages.
 
