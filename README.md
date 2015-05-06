@@ -28,14 +28,14 @@ Some of the features:
 
 YACon depends a great deal on different 3rd-party libraries.  Some of them are
 included in the repo (see 
-[3rdparty](https://github.com/cltrudeau/django-yacon/3rdparty)
+[3rdparty](https://github.com/cltrudeau/django-yacon/tree/master/3rdparty)
 ) in full for reference and have the pieces
 that were required copied into the static deployment directory.  This was done
 to make it fairly easy to deploy YACon.
 
 There are also a limited number of django libraries that are required.  See
 the 
-[requirements.txt](https://github.com/cltrudeau/django-yacon/requirements.txt)
+[requirements.txt](https://github.com/cltrudeau/django-yacon/blob/master/requirements.txt)
 file for a list.
 
 In addition to the above, the following dependencies are accessed via CDN:
@@ -45,4 +45,4 @@ In addition to the above, the following dependencies are accessed via CDN:
 
 # Changes
 
-See ([CHANGES.md](https://github.com/cltrudeau/django-yacon/CHANGES.md)) 
+See ([CHANGES.md](https://github.com/cltrudeau/django-yacon/blob/master/CHANGES.md)) 
