@@ -110,10 +110,18 @@ Duis aute irure dolor in reprehenderit
         menu = Menu.objects.create(name='Menu', site=site)
         mp = MetaPage.create_page(main, pt_general, 'About', 'about',
             { bt_general:'This is the about page' })
-        menu.create_child(mp, { english:'About' })
+        menu.create_child(mp, translations={ english:'About' })
+        menu.create_child(translations={ english:'Not a link' })
+        menu.create_child(link='http://cnn.com', translations={ 
+            english:'External Link' })
+        menu.create_child(link='http://cnn.com', translations={ 
+            english:'Only shows on login' }, requires_login=True)
+        menu.create_child(link='http://cnn.com', translations={ 
+            english:'Only shows for admin' }, requires_admin=True)
+
         mp = MetaPage.create_page(main, pt_general, 'Contact', 'contact',
             { bt_general:'This is the contact page' })
-        menu.create_child(mp, { english:'Contact' })
+        menu.create_child(mp, translations={ english:'Contact' })
 
         MetaPage.create_page(main, pt_news_listing, 'News', 
             'news_listing', {})

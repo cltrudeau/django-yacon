@@ -91,6 +91,13 @@ def _render_menuitem(menuitem, language, selected, last, separator, indent):
             content = '<i>empty translation (%s)</i>' % language.code
             if len(translations) != 0:
                 content = translations[0].name
+    elif menuitem.link:
+        if len(translations) == 0:
+            text = '<i>empty translation (%s)</i>' % language.code
+        else:
+            text = translations[0].name
+
+        content = '<a href="%s">%s</a>' % (menuitem.link, text)
     else:
         if len(translations) == 0:
             content = '<i>empty translation (%s)</i>' % language.code
@@ -311,6 +318,9 @@ def menu(context, name, separator=''):
         if item.requires_login and (not user or not user.is_authenticated()):
             # login required to see this item, there is no user in the session
             # or they're not authenticated, skip the item
+            continue
+
+        if item.requires_admin and (not user or not user.is_superuser):
             continue
 
         last = (item == items[-1])

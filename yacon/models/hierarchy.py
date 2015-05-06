@@ -382,8 +382,10 @@ class MenuItem(BaseNode):
     """
     metapage = models.OneToOneField('yacon.MetaPage', blank=True, null=True,
         unique=True)
+    link = models.TextField(blank=True)
     menu = models.ForeignKey('yacon.Menu')
     requires_login = models.BooleanField(default=False)
+    requires_admin = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'yacon'
@@ -391,9 +393,10 @@ class MenuItem(BaseNode):
     def __unicode__(self):
         return 'MenuItem(id=%s)' % self.id
 
-    def create_child(self, metapage, translations={}, requires_login=False):
-        child = self.add_child(metapage=metapage, menu=self.menu,
-            requires_login=requires_login)
+    def create_child(self, metapage=None, link='', translations={}, 
+            requires_login=False, requires_admin=False):
+        child = self.add_child(metapage=metapage, link=link, menu=self.menu,
+            requires_login=requires_login, requires_admin=requires_admin)
         for key, value in translations.items():
             MenuItemTranslation.objects.create(language=key, name=value, 
                 menuitem=child)
@@ -485,9 +488,10 @@ class Menu(TimeTrackedModel):
     def first_level(self):
         return MenuItem.objects.filter(menu=self, depth=1)
 
-    def create_child(self, metapage, translations={}, requires_login=False):
-        item = MenuItem.add_root(metapage=metapage, menu=self,
-            requires_login=requires_login)
+    def create_child(self, metapage=None, link='', translations={}, 
+            requires_login=False, requires_admin=False):
+        item = MenuItem.add_root(metapage=metapage, link=link, menu=self,
+            requires_login=requires_login, requires_admin=requires_admin)
         for key, value in translations.items():
             MenuItemTranslation.objects.create(language=key, name=value, 
                 menuitem=item)
