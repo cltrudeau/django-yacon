@@ -3,6 +3,7 @@ import logging
 
 from django.conf import settings
 from yacon import conf
+from yacon.models.site import Site
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ def processor(request):
         'admin_enabled': 'django.contrib.admin' in settings.INSTALLED_APPS,
         'conf':conf,
         'request':request,
+        'site':Site.get_site(request),
     }
 
     if hasattr(request, 'user'):

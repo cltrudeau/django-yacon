@@ -71,13 +71,11 @@ def prepare_context(request, uri=None):
     """Creates the base context for rendering a page, calls the custom page
     context function if defined.
     """
-    site = Site.get_site(request)
     if not uri:
         uri = request.get_full_path()
     
     data = {
-        'site':site,
-        'request':request,
+        'site':Site.get_site(request),
         'uri':uri,
     }
 
