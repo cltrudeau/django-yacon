@@ -1,3 +1,7 @@
+# 0.6.1
+
+- bug fix with menus and Site needing to be in the context
+
 # 0.6.0
 
 - add ability for menu items to be external links or text-only headers in
