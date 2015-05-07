@@ -28,6 +28,9 @@ class PageType(TimeTrackedModel):
     class Meta:
         app_label = 'yacon'
 
+    def __unicode__(self):
+        return 'PageType(%s)' % self.name
+
     def render(self, request, data):
         # if there is something in template, do a static render
         if self.template:
@@ -513,6 +516,14 @@ class MetaPage(TimeTrackedModel):
         metapage = MetaPage(node=node, _page_type=page_type, owner=owner,
             permission=permission)
         metapage.save()
+
+        # make sure no duplicates in Translations -- would like to enforce
+        # this at the database level but django is blowing up when trying to
+        # use unique_together here
+        langs = [tx.language for tx in translations]
+        unique = set(langs)
+        if len(langs) != len(unique):
+            raise AttributeError('Two translations had the same language')
 
         for tx in translations:
             slug = node.validate_slug(tx.slug, auto_slug)

@@ -240,6 +240,9 @@ input.submit {
 #content ul {
     list-style: disc inside none;
 }
+#content a {
+    text-decoration:underline !important;
+}
 
 #article {
     width:96%;

@@ -62,7 +62,7 @@ class Node(BaseNode):
         app_label = 'yacon'
 
     def __unicode__(self):
-        return 'Node: %s (%s)' % (self.name, self.slug)
+        return 'Node(%s:%s)' % (self.name, self.slug)
 
     # -----------------------------------------------------------------------
     # Utility Methods
