@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git tag `grep "version" setup.py | cut -d "'" -f 2`
+
 rm -rf build
 rm -rf dist
 python setup.py sdist
