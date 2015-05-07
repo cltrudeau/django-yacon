@@ -6,6 +6,7 @@ from django.db import models, IntegrityError, transaction
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+from yacon import conf
 from yacon.definitions import (SLUG_LENGTH, TITLE_LENGTH, ALLOWED_TAGS,
     ALLOWED_ATTRIBUTES, ALLOWED_STYLES)
 from yacon.loaders import dynamic_load
@@ -395,8 +396,12 @@ class Page(TimeTrackedModel):
         if not node_part:
             return None
 
-        return '//%s%s%s' % (self.metapage.node.site.domain, node_part, 
-            self.slug)
+        if conf.site.multisite:
+            return '//%s%s%s' % (self.metapage.node.site.domain, node_part, 
+                self.slug)
+
+        # single site, use a relative url
+        return '%s%s' % (node_part, self.slug)
 
     @property
     def lang_code(self):
@@ -473,7 +478,8 @@ class MetaPage(TimeTrackedModel):
 
     @classmethod
     def create_page(cls, node, page_type, title, slug, block_hash, owner=None,
-            auto_slug=False, permission=PagePermissionTypes.INHERIT):
+            auto_slug=False, permission=PagePermissionTypes.INHERIT,
+            hidden=False):
         """Creates, saves and returns a MetaPage object with a corresponding 
         Page object in the Site default language.
 
@@ -486,17 +492,22 @@ class MetaPage(TimeTrackedModel):
         :param auto_slug: [optional, default=False] True will automatically
             fix a slug that does not match the uniqueness property.  False
             raises an exception
+        :param permission: [optional, default=Inherit] access permissions of
+            page
+        :param hidden: [optional, default=False] if this page is hidden from
+            view
 
         :returns: MetaPage object
         """
         translation = Translation(language=node.site.default_language,
             title=title, slug=slug, block_hash=block_hash)
         return cls.create_translated_page(node, page_type, [translation],
-            owner, auto_slug, permission=permission)
+            owner, auto_slug, permission=permission, hidden=hidden)
 
     @classmethod
     def create_translated_page(cls, node, page_type, translations, owner=None,
-            auto_slug=False, permission=PagePermissionTypes.INHERIT):
+            auto_slug=False, permission=PagePermissionTypes.INHERIT, 
+            hidden=False):
         """Creates, saves and returns a MetaPage object with multiple
         Page object translations.
 
@@ -507,6 +518,10 @@ class MetaPage(TimeTrackedModel):
         :param auto_slug: [optional, default=False] True will automatically
             fix a slug that does not match the uniqueness property.  False
             raises an exception
+        :param permission: [optional, default=Inherit] access permissions of
+            page
+        :param hidden: [optional, default=False] if this page is hidden from
+            view
 
         :returns: MetaPage object
 
@@ -514,7 +529,7 @@ class MetaPage(TimeTrackedModel):
         """
         # create the MetaPage
         metapage = MetaPage(node=node, _page_type=page_type, owner=owner,
-            permission=permission)
+            permission=permission, hidden=hidden)
         metapage.save()
 
         # make sure no duplicates in Translations -- would like to enforce

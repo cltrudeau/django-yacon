@@ -72,6 +72,7 @@ class CreatePageForm(forms.Form):
     title = forms.CharField(max_length=TITLE_LENGTH)
     slug = forms.CharField(max_length=SLUG_LENGTH, required=False)
     auto_slug = forms.BooleanField(required=False)
+    hidden = forms.BooleanField(required=False)
 
     EXPECTED_FIELDS = ('title', 'slug', 'auto_slug', 'csrfmiddlewaretoken')
 

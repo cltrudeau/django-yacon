@@ -126,6 +126,7 @@ def _create_page_from_node(request, data, node, page_type_id, language_code,
             title = clean.pop('title', '')
             slug = clean.pop('slug', '')
             auto_slug = clean.pop('auto_slug', '')
+            hidden = clean.pop('hidden', False)
             if auto_slug:
                 slug = title
 
@@ -146,7 +147,8 @@ def _create_page_from_node(request, data, node, page_type_id, language_code,
             # created
             try:
                 metapage = MetaPage.create_page(node, page_type, title, slug,
-                    block_hash, owner=request.user, auto_slug=auto_slug)
+                    block_hash, owner=request.user, auto_slug=auto_slug,
+                    hidden=hidden)
                 page = metapage.get_translation(lang)
                 return HttpResponseRedirect(page.uri)
             except BadSlug:
