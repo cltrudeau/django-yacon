@@ -62,7 +62,7 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         name='Yacon Sample Site'
-        domain='yaconsamplesite.com:8000'
+        domain='localhost:8000'
 
         english = Language.factory(name='English', identifier='en')
         site = Site.create_site(name, domain, languages=[english, ])

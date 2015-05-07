@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 # Default Configuration Settings
 
 SITE = {
+    'multisite':False,
     'static_serve':False,
     'tests_enabled':False,
     'examples_enabled':False,

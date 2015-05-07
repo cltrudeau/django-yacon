@@ -4,6 +4,7 @@ import re, logging
 from django.db import models
 from django.shortcuts import get_object_or_404
 
+from yacon import conf
 from yacon.models.common import Language, TimeTrackedModel
 from yacon.models.pages import Page
 from yacon.models.hierarchy import Node, NodeTranslation
@@ -125,12 +126,21 @@ class Site(TimeTrackedModel):
 
     @classmethod
     def get_site(cls, request):
-        """Uses the domain information from an HttpRequest object to find the
-        corresponding site or raises a 404 if no matching site found"""
-        domain = request.META['HTTP_HOST']
-        logger.debug('using domain "%s"' % domain)
-        site = get_object_or_404(Site, domain=domain)
-        logger.debug('found site %s (id=%d)' % (site.name, site.id))
+        """If conf.site.multisite is True then uses the domain information
+        from an HttpRequest object to find the corresponding site or raises a
+        404 if no matching site found.
+
+        If conf.site.multisite is False then returns the first instance of a
+        Site object in the database.
+        """
+
+        if conf.site.multisite:
+            domain = request.META['HTTP_HOST']
+            logger.debug('using domain "%s"' % domain)
+            site = get_object_or_404(Site, domain=domain)
+            logger.debug('found site %s (id=%d)' % (site.name, site.id))
+        else:
+            site = Site.objects.first()
 
         return site
 
