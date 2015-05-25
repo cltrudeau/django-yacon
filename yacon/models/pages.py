@@ -16,6 +16,53 @@ from yacon.sanitizer import SanitizedTextField
 logger = logging.getLogger(__name__)
 
 # ============================================================================
+# Tag Management
+# ============================================================================
+
+class DuplicateTagException(Exception):
+    pass
+
+
+class Tag(TimeTrackedModel):
+    class Meta:
+        app_label = 'yacon'
+
+    @classmethod
+    def factory(cls, translations):
+        """Creates a Tag and its associated TagTranslation objects.
+
+        :param translation: dictionary mapping languages to tag text
+        """
+        with transaction.atomic():
+            tag = Tag.objects.create()
+            for lang, text in translations.items():
+                num = TagTranslation.objects.filter(language=lang,
+                    text=text).count()
+                if num:
+                    raise DuplicateTagException('%s exists already for %s' % (
+                        text, lang.code))
+
+                TagTranslation.objects.create(tag=tag, language=lang,
+                    text=text)
+
+        return tag
+
+    def __unicode__(self):
+        return 'Tag(id=%s)' % self.id
+
+
+class TagTranslation(TimeTrackedModel):
+    tag = models.ForeignKey(Tag)
+    language = models.ForeignKey(Language, related_name='+')
+    text = models.CharField(max_length=30)
+
+    class Meta:
+        app_label = 'yacon'
+
+    def __unicode__(self):
+        return 'Tag(id=%s, %s:%s)' % (self.id, self.language.code, self.text)
+
+# ============================================================================
 # Page Management Classes
 # ============================================================================
 
@@ -443,6 +490,8 @@ class MetaPage(TimeTrackedModel):
     permission = models.CharField(max_length=3, choices=PagePermissionTypes,
         default=PagePermissionTypes.INHERIT)
     hidden = models.BooleanField(default=False)
+
+    tags = models.ManyToManyField(Tag)
 
     class Meta:
         app_label = 'yacon'
