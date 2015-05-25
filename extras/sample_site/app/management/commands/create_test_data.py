@@ -13,7 +13,7 @@ from django.template.defaultfilters import slugify
 from yacon.models.common import (Language, NodePermissionTypes,
     PagePermissionTypes)
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage, Translation
+from yacon.models.pages import MetaPage, Translation, Tag
 from yacon.models.hierarchy import Menu
 from yacon.helpers import (create_page_type, create_dynamic_page_type, 
     create_block_type)
@@ -181,11 +181,18 @@ class Command(BaseCommand):
             Translation(italian, 'Plurilingue', 'plurilingue',
                 { bt_general:MULTILINGUAL_IT }),
         ]
-        MetaPage.create_translated_page(main, pt_general, translations)
+        mp = MetaPage.create_translated_page(main, pt_general, translations)
+        tag = Tag.factory({english:'translated', italian:'tradurre'})
+        mp.tags.add(tag)
+        stuff_tag = Tag.factory({english:'stuff'})
+        mp.tags.add(stuff_tag)
 
         menu = Menu.objects.create(name='Menu', site=site)
         mp = MetaPage.create_page(main, pt_general, 'About', 'about',
             { bt_general:'This is the about page' })
+        tag = Tag.factory({english:'about'})
+        mp.tags.add(tag)
+        mp.tags.add(stuff_tag)
 
         menu.create_child(mp, translations={ english:'About' })
         menu.create_child(translations={ english:'Not a link' })

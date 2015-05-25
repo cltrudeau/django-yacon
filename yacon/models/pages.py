@@ -358,6 +358,22 @@ class Page(TimeTrackedModel):
         pages = Page.objects.filter(**kwargs)
         return pages
 
+    @classmethod
+    def find_by_tag(cls, language, tag_text):
+        """Returns all of the pages with the given tag text
+
+        :param language: Language of the tag text and page
+        :param tag_text: tag text to look for
+
+        :returns: list of Pages
+        """
+        try:
+            tx = TagTranslation.objects.get(language=language, text=tag_text)
+            return Page.objects.filter(metapage__tags=tx.tag,
+                language=language)
+        except TagTranslation.DoesNotExist:
+            return []
+
     def other_translations(self):
         """Returns a list of Page objects that represent other translations
         for this page.
