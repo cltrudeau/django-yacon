@@ -89,6 +89,12 @@
             <button id="menuitem_move_up">Move Up</button>
             <button id="menuitem_move_down">Move Down</button>
         </div>
+        <div id="root_tag_toolbar">
+            <button id="add_tag">Add Tag</button>
+        </div>
+        <div id="tag_toolbar">
+            <button id="add_tag_translation">Add Translation</button>
+        </div>
     </div>
     <div id="node_container">
     </div>
@@ -501,6 +507,53 @@
         </table>
         <input type="hidden" id="rename_menuitem_translation_id" /> 
         <input type="hidden" id="rename_menuitem_translation_lang" /> 
+    </form>
+</div>
+
+<div id="add_tag_dialog">
+    <p>
+        Enter text for the new tag:
+    </p>
+    <form id="add_tag_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th><label for="add_tag_lang">Language</label></th>
+                <td>
+                    <select id="add_tag_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_tag_text">Text</label> </th>
+                <td> 
+                    <input type="text" name="text" id="add_tag_text" /> 
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="add_tag_translation_dialog">
+    <p>
+        Enter text for the new translation:
+    </p>
+    <form id="add_tag_translation_form">
+        <table class="dialog_form_table">
+            <tr>
+                <th><label for="add_tag_translation_lang">Language</label></th>
+                <td>
+                    <select id="add_tag_translation_lang">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th> <label for="add_tag_translation_text">Text</label> </th>
+                <td> 
+                    <input type="text" name="text" 
+                        id="add_tag_translation_text" /> 
+                </td>
+            </tr>
+        </table>
     </form>
 </div>
 {% endblock content %}

@@ -435,7 +435,7 @@ class MenuItem(BaseNode):
             return txs
 
         except MenuItemTranslation.DoesNotExist:
-            return None
+            return []
 
     def get_default_translation(self):
         """Returns the MenuItemTranslation object for the site default language
@@ -451,7 +451,7 @@ class MenuItem(BaseNode):
     @property
     def has_missing_translations(self):
         """Returns True if there are languages in the site that there are no
-        translations for in this metapage."""
+        translations for in this menu."""
         txs = self.menuitemtranslation_set.count()
         langs = self.menu.site.language_count()
 

@@ -24,17 +24,19 @@ class DuplicateTagException(Exception):
 
 
 class Tag(TimeTrackedModel):
+    site = models.ForeignKey('yacon.Site')
+
     class Meta:
         app_label = 'yacon'
 
     @classmethod
-    def factory(cls, translations):
+    def factory(cls, site, translations):
         """Creates a Tag and its associated TagTranslation objects.
 
         :param translation: dictionary mapping languages to tag text
         """
         with transaction.atomic():
-            tag = Tag.objects.create()
+            tag = Tag.objects.create(site=site)
             for lang, text in translations.items():
                 num = TagTranslation.objects.filter(language=lang,
                     text=text).count()
@@ -49,6 +51,54 @@ class Tag(TimeTrackedModel):
 
     def __unicode__(self):
         return 'Tag(id=%s)' % self.id
+
+    def display_text(self, language=None):
+        if not language:
+            language = self.site.default_language
+
+        try:
+            tx = TagTranslation.objects.get(tag=self, language=language)
+            return tx.text
+        except TagTranslation.DoesNotExist:
+            return None
+
+    def get_default_translation(self):
+        """Returns the TagTranslation object in the site's default language or
+        None.
+        """
+        try:
+            return TagTranslation.objects.get(tag=self,
+                language=self.site.default_language)
+        except TagTranslation.DoesNotExist:
+            return None
+
+    def get_translations(self, ignore_default=False):
+        """Returns a list of TagTranslations for this tag.  
+
+        :param ignore_default: [optional] if set to True the returned list
+            will not include the translation for the site's default language.
+            Defaults to False.
+
+        :returns: list of TagTranslation objects
+        """
+        try:
+            txs = TagTranslation.objects.filter(tag=self)
+            if ignore_default:
+                txs = txs.exclude(language=self.site.default_language)
+
+            return txs
+
+        except TagTranslation.DoesNotExist:
+            return []
+
+    @property
+    def has_missing_translations(self):
+        """Returns True if there are languages in the site that don't have a
+        translated version of this tag."""
+        txs = TagTranslation.objects.filter(tag=self).count()
+        langs = self.site.language_count()
+
+        return txs != langs
 
 
 class TagTranslation(TimeTrackedModel):

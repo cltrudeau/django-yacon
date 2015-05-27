@@ -5,6 +5,8 @@ function hide_all_toolbars() {
     $('#menucontrol_toolbar').hide();
     $('#menuitem_toolbar').hide();
     $('#site_toolbar').hide();
+    $('#tag_toolbar').hide();
+    $('#root_tag_toolbar').hide();
 }
 
 function load_folder_toolbar() {
@@ -220,6 +222,18 @@ function load_menucontrol_toolbar() {
     });
 }
 
+function load_tag_toolbar() {
+    // *** toolbar for when the tag folder is displayed
+    $('#add_tag').button().click(function() {
+        $('#add_tag_dialog').dialog("open");
+    });
+
+    // *** toolbar for when a tag is displayed
+    $('#add_tag_translation').button().click(function() {
+        $('#add_tag_translation_dialog').dialog("open");
+    });
+}
+
 function load_toolbars() {
     load_folder_toolbar();
     load_metapage_toolbar();
@@ -227,4 +241,5 @@ function load_toolbars() {
     load_site_toolbar();
     load_menucontrol_toolbar();
     load_menu_toolbars();
+    load_tag_toolbar();
 }

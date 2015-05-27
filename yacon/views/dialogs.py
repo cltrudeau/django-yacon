@@ -17,7 +17,7 @@ from yacon.models.common import Language
 from yacon.models.hierarchy import (Node, BadSlug, NodeTranslation, Menu,
     MenuItem, MenuItemTranslation)
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage, Page, PageType
+from yacon.models.pages import MetaPage, Page, PageType, Tag, TagTranslation
 
 logger = logging.getLogger(__name__)
 
@@ -691,4 +691,43 @@ def edit_site(request, site_id, name, domain, lang_identifier):
             data['error'] = 'An error occurred.  The database reported %s' % \
                 e.message
 
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@superuser_required
+def add_tag(request, site_id, lang, text):
+    """Adds a new Tag with the given translation text"""
+    site = get_object_or_404(Site, id=site_id)
+    text = urllib.unquote(text)
+
+    data = {}
+    langs = site.get_languages(lang)
+    if len(langs) == 0:
+        data['error'] = e.message
+    else:
+        try:
+            tx = TagTranslation.objects.get(tag__site=site, language=langs[0], 
+                text=text)
+
+            # a tag for this text already exists
+            data['error'] = 'A tag with this text already exists.'
+        except:
+            Tag.factory(site, {langs[0]:text})
+        
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@superuser_required
+def add_tag_translation(request, tag_id, lang, text):
+    """Adds a translation to the given Tag."""
+    tag = get_object_or_404(Tag, id=tag_id)
+    text = urllib.unquote(text)
+
+    data = {}
+    langs = tag.site.get_languages(lang)
+    if len(langs) == 0:
+        data['error'] = e.message
+    else:
+        TagTranslation.objects.create(tag=tag, language=langs[0], text=text)
+        
     return HttpResponse(json.dumps(data), content_type='application/json')

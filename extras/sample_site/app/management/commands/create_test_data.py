@@ -182,15 +182,17 @@ class Command(BaseCommand):
                 { bt_general:MULTILINGUAL_IT }),
         ]
         mp = MetaPage.create_translated_page(main, pt_general, translations)
-        tag = Tag.factory({english:'translated', italian:'tradurre'})
+        tag = Tag.factory(site, {english:'translated', italian:'tradurre'})
         mp.tags.add(tag)
-        stuff_tag = Tag.factory({english:'stuff'})
+        stuff_tag = Tag.factory(site, {english:'stuff'})
         mp.tags.add(stuff_tag)
+        tag = Tag.factory(site, {italian:'solo'})  # tag w/o default lang
+        mp.tags.add(tag)
 
         menu = Menu.objects.create(name='Menu', site=site)
         mp = MetaPage.create_page(main, pt_general, 'About', 'about',
             { bt_general:'This is the about page' })
-        tag = Tag.factory({english:'about'})
+        tag = Tag.factory(site, {english:'about'})
         mp.tags.add(tag)
         mp.tags.add(stuff_tag)
 

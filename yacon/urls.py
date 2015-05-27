@@ -107,6 +107,10 @@ if conf.nexus.enabled:
             'toggle_menuitem_requires_login'),
         (r'^nexus/control/toggle_menuitem_requires_admin/(\d+)/$',
             'toggle_menuitem_requires_admin'),
+        (r'^nexus/control/tags_control/$', 'tags_control'),
+        (r'^nexus/control/tag_info/(\d+)/$', 'tag_info'),
+        (r'^nexus/control/missing_tag_translations/(\d+)/$', 
+            'missing_tag_translations'),
     )
 
     # control panel, dialogs
@@ -165,6 +169,11 @@ if conf.nexus.enabled:
             'rename_menuitem_translation'),
         (r'^nexus/control/create_menuitem_translation/(\d+)/(.*)/(.*)/$', 
             'create_menuitem_translation'),
+
+        # tag dialogs
+        (r'^nexus/control/add_tag/(\d+)/(.*)/(.*)/$', 'add_tag'),
+        (r'^nexus/control/add_tag_translation/(\d+)/(.*)/(.*)/$', 
+            'add_tag_translation'),
     )
 
     # -------------------

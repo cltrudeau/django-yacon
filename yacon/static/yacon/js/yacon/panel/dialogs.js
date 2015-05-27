@@ -545,10 +545,83 @@ function load_menu_dialogs() {
     );
 }
 
+function load_tag_dialogs() {
+    create_dialog_using_tree('#add_tag_dialog', 'Add Tag', 'Add', 
+        function() { // url generator
+            var site_id = $('#site_select').val();
+            var lang = $('#add_tag_form #add_tag_lang').val();
+            var text = $('#add_tag_form input#add_tag_text').val();
+            return "/yacon/nexus/control/add_tag/" + site_id + "/" + lang + 
+                "/" + text + "/";
+        },
+        function(data) { // on success of ajax call
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something was wrong, show the user
+                alert(data['error']);
+            }
+        }
+    );
+    $('#add_tag_dialog').bind('dialogopen.yacon', function(event, 
+            ui) {
+        // ajax load the language listing when we pop the dialog
+        var site_id = $('#site_select').val();
+        $.ajax({
+            url: "/yacon/nexus/control/list_languages/" + site_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old translations, replace with what server sent
+                repopulate_select('#add_tag_lang', data);
+            }
+        });
+    });
+
+    create_dialog_using_tree('#add_tag_translation_dialog', 'Add Translation', 
+        'Add', function() { // url generator
+            var node_id = active_node_id();
+            var lang = $('#add_tag_translation_form #add_tag_translation_lang'
+                ).val();
+            var text = 
+                $('#add_tag_translation_form input#add_tag_translation_text'
+                    ).val();
+            return "/yacon/nexus/control/add_tag_translation/" + node_id + "/" 
+                + lang + "/" + text + "/";
+        },
+        function(data) { // on success of ajax call
+            if( data['error'] == null ) {
+                select_me = data['key'];
+                refresh_tree();
+            }
+            else {
+                // something was wrong with our slug, show the user
+                alert(data['error']);
+            }
+        }
+    );
+    $('#add_tag_translation_dialog').bind('dialogopen.yacon', function(event, 
+            ui) {
+        // ajax load the language listing when we pop the dialog
+        var node_id = active_node_id();
+        $.ajax({
+            url: "/yacon/nexus/control/missing_tag_translations/" 
+                + node_id + "/",
+            dataType: "json",
+            success: function(data) {
+                // remove old translations, replace with what server sent
+                repopulate_select('#add_tag_translation_lang', data);
+            }
+        });
+    });
+}
+
 function load_dialogs() {
     load_folder_dialogs();
     load_metapage_dialogs();
     load_inline_dialogs();
     load_site_dialogs();
     load_menu_dialogs();
+    load_tag_dialogs();
 }

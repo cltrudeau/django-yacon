@@ -14,7 +14,7 @@ from yacon.decorators import superuser_required
 from yacon.models.hierarchy import (Node, NodeTranslation, Menu,
     MenuItem, MenuItemTranslation)
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage
+from yacon.models.pages import MetaPage, Tag
 from yacon.utils import JSONResponse
 
 logger = logging.getLogger(__name__)
@@ -275,6 +275,50 @@ def missing_menuitem_translations(request, menuitem_id):
     for translation in MenuItemTranslation.objects.filter(menuitem=menuitem):
         if translation.language in langs:
             langs.remove(translation.language)
+
+    for lang in langs:
+        data[lang.identifier] = lang.name
+
+    return JSONResponse(data)
+
+# ============================================================================
+# Control Panel: Tag Selected Methods
+# ============================================================================
+
+@superuser_required
+def tags_control(request):
+    return render_to_response('yacon/nexus/ajax/tags_control.html', {}, 
+        context_instance=RequestContext(request))
+
+
+@superuser_required
+def tag_info(request, tag_id):
+    tag = get_object_or_404(Tag, id=tag_id)
+
+    data = {
+        'title':'Tag Info',
+        'tag':tag,
+        'default_translation':tag.get_default_translation(),
+        'tag_translations':tag.get_translations(ignore_default=True),
+    }
+
+    return render_to_response('yacon/nexus/ajax/tag_info.html', data,
+        context_instance=RequestContext(request))
+
+
+@superuser_required
+def missing_tag_translations(request, tag_id):
+    """Returns a JSON object hash of languages for which there are no
+    translations for this Tag."""
+    tag = get_object_or_404(Tag, id=tag_id)
+    data = {}
+    langs = [tag.site.default_language, ]
+    for lang in tag.site.alternate_language.all():
+        langs.append(lang)
+
+    for tx in tag.get_translations():
+        if tx.language in langs:
+            langs.remove(tx.language)
 
     for lang in langs:
         data[lang.identifier] = lang.name

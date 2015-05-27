@@ -1,0 +1,46 @@
+<script type="text/JavaScript">
+    $(document).ready(function(){
+        $('#tag_toolbar').show();
+
+        {% if tag.has_missing_translations %}
+            $('#add_tag_translation').show();
+        {% else %}
+            $('#add_tag_translation').hide();
+        {% endif %}
+    });
+</script>
+
+<div class="tag" id="{{tag.id}}">
+    <h2> Tag Info </h2>
+
+    <ul>
+        <li>
+            Tag ID: {{tag.id}}
+        </li>
+        <li>
+            Created: {{tag.created}}
+        </li>
+        <li>
+            Last Updated: {{tag.updated}}
+        </li>
+        <li>
+            Translations:
+        </li>
+        <ul>
+            <li>
+              {% if default_translation %}
+                {{default_translation.language.code}} : 
+                {{default_translation.text}}
+              {% else %}
+                <i>No Default Translation</i>
+              {% endif %}
+            </li>
+
+            {% for tx in tag_translations %}
+              <li>
+                  {{tx.language.code}} : {{tx.text}}
+              </li>
+            {% endfor %}
+        </ul>
+    </ul>
+</div>

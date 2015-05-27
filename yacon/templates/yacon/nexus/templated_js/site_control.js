@@ -73,6 +73,10 @@ function activate(node) {
         // load the menus page
         $("div#node_container").load('/yacon/nexus/control/menus_control/');
     }
+    else if( node_type == 'system' && node_id == 'tags') {
+        // load the tags page
+        $("div#node_container").load('/yacon/nexus/control/tags_control/');
+    }
     else {
         // non-system node, show the corresponding link
         $("div#node_container").load('/yacon/nexus/control/' + node_type 

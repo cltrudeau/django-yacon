@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from yacon.decorators import superuser_required
 from yacon.models.hierarchy import Node, Menu, MenuItem, MenuItemTranslation
 from yacon.models.site import Site
-from yacon.models.pages import MetaPage
+from yacon.models.pages import MetaPage, Tag
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +165,28 @@ def _build_dynatree(site, expanded):
         'children': menus,
     }
 
-    tree = [pages_node, menus_node]
+    tags = []
+    for tag in Tag.objects.filter(site=site):
+        title = tag.display_text(language)
+        if not title:
+            title = '<i>None</i>'
+
+        tags.append({
+            'title': title,
+            'key':'tag:%d' % tag.id,
+            'icon': 'fatcow/document_tag.png',
+            'expand': False,
+        })
+
+    tags_node = {
+        'title':'Tags',
+        'key':'system:tags',
+        'expand':False,
+        'icon': 'fatcow/folders_explorer.png',
+        'children': tags,
+    }
+
+    tree = [pages_node, menus_node, tags_node]
     return tree
 
 
