@@ -537,6 +537,19 @@ class Page(TimeTrackedModel):
 
         return latest
 
+    def tag_translations(self):
+        """Returns a list of TagTranslation objects for this Page."""
+        txs = []
+        for tag in self.metapage.tags.all():
+            try:
+                tx = TagTranslation.objects.get(tag=tag, language=self.language)
+                txs.append(tx)
+            except TagTranslation.DoesNotExist:
+                # no translation, ignore
+                pass
+
+        return txs
+
 
 class DoubleAliasException(Exception):
     pass

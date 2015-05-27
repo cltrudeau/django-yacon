@@ -8,11 +8,24 @@
 #article h2 {
     color:#FF8000;
     font-size:28px; 
+    display:inline-block;
 }
 
 #article p {
     color:#000;
     font-size:18px;
+}
+
+.tags {
+    display:inline-block;
+}
+
+.tags li {
+    display: inline;
+    background-color:#bbb;
+    color:#fff;
+    padding:0px 8px 0px 5px;
+    border-radius: 8px;
 }
 
 #remove_page_button {

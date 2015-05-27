@@ -26,6 +26,11 @@
                 {{page.title}} 
             {% endif %}
         </h2>
+        <ul class="tags">
+          {% for tx in page.tag_translations %}
+            <li>&middot; {{tx.text}}</li>
+          {% endfor %}
+        </ul>
     </div>
     <div id="article">
         {% if edit_permission %}
