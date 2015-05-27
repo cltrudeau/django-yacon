@@ -731,3 +731,21 @@ def add_tag_translation(request, tag_id, lang, text):
         TagTranslation.objects.create(tag=tag, language=langs[0], text=text)
         
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@superuser_required
+def remove_tag_translation(request, tx_id):
+    """Deletes given TagTranslation"""
+    tx = get_object_or_404(TagTranslation, id=tx_id)
+    tx.delete()
+
+    return HttpResponse()
+
+
+@superuser_required
+def remove_tag(request, tag_id):
+    """Deletes given Tag"""
+    tag = get_object_or_404(Tag, id=tag_id)
+    tag.delete()
+
+    return HttpResponse()

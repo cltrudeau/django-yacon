@@ -232,6 +232,22 @@ function load_tag_toolbar() {
     $('#add_tag_translation').button().click(function() {
         $('#add_tag_translation_dialog').dialog("open");
     });
+
+    $('#remove_tag').button().click(function() {
+        var node_id = active_node_id();
+        if( node_id != null ) {
+            action = confirm('Remove tag ?');
+            if( action ) {
+                $.ajax({
+                    url: "/yacon/nexus/control/remove_tag/" + node_id + "/",
+                    dataType: "json",
+                    success: function(data) {
+                        refresh_tree();
+                    }
+                });
+            }
+        }
+    });
 }
 
 function load_toolbars() {

@@ -31,6 +31,9 @@
               {% if default_translation %}
                 {{default_translation.language.code}} : 
                 {{default_translation.text}}
+                  <a href="javascript:void(0);" 
+        onclick="remove_tag_translation({{default_translation.id}}, '{{default_translation.text}}')">
+                    (delete)</a>
               {% else %}
                 <i>No Default Translation</i>
               {% endif %}
@@ -39,6 +42,9 @@
             {% for tx in tag_translations %}
               <li>
                   {{tx.language.code}} : {{tx.text}}
+                  <a href="javascript:void(0);" 
+                  onclick="remove_tag_translation({{tx.id}}, '{{tx.text}}')">
+                    (delete)</a>
               </li>
             {% endfor %}
         </ul>

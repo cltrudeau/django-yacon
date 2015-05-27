@@ -75,6 +75,19 @@ function remove_menuitem_translation(menuitem_id, title) {
     }
 }
 
+function remove_tag_translation(tag_id, text) {
+    action = confirm('Remove translation "' + text + '"?');
+    if( action ) {
+        $.ajax({
+            url: "/yacon/nexus/control/remove_tag_translation/" + tag_id + "/",
+            dataType: "json",
+            success: function(data) {
+                refresh_tree();
+            }
+        });
+    }
+}
+
 function edit_block(block_id) {
     $.ajax({
         url: "/yacon/fetch_block/" + block_id + "/",

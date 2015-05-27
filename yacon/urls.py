@@ -174,6 +174,9 @@ if conf.nexus.enabled:
         (r'^nexus/control/add_tag/(\d+)/(.*)/(.*)/$', 'add_tag'),
         (r'^nexus/control/add_tag_translation/(\d+)/(.*)/(.*)/$', 
             'add_tag_translation'),
+        (r'^nexus/control/remove_tag_translation/(\d+)/$',
+            'remove_tag_translation'),
+        (r'^nexus/control/remove_tag/(\d+)/$', 'remove_tag'),
     )
 
     # -------------------
