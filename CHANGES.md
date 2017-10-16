@@ -1,3 +1,13 @@
+# 0.8
+
+- added Page tagging
+
+# 0.7.0
+
+- can now hide pages on the edit screen
+- added single site mode for simpler setup, testing and get-go
+- added examples of translated pages to sample site
+
 # 0.6.1
 
 - bug fix with menus and Site needing to be in the context
