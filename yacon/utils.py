@@ -6,7 +6,7 @@ from PIL import Image
 from zipfile import ZipFile
 
 from django.conf import settings
-from django.http import HttpResponse, Http404
+from django.http import Http404
 
 from yacon import conf
 
@@ -19,11 +19,11 @@ locale.setlocale(locale.LC_ALL, '')
 
 # Choices
 #
-# borrowed and modified from:
+# idea borrowed, modified then converted to python 3 from:
 #  http://tomforb.es
 #      /using-python-metaclasses-to-make-awesome-django-model-field-choices
 
-class Choices(type):
+class ChoicesType(type):
     """A tuple of tuples pattern of (id, string) is common in django for
     choices fields, etc.  This object inspects its own members (i.e. the
     inheritors) and produces the corresponding tuples.
@@ -39,37 +39,29 @@ class Choices(type):
     >> list(Colours)
     [('r', 'Red'), ('b', 'Blueish')]
     """
-    def __init__(classobject, classname, baseclasses, attrs):
-        classobject._data = []
-        for name, value in inspect.getmembers(classobject):
+    def __init__(cls, classname, bases, attrs):
+        cls._data = []
+        for name, value in inspect.getmembers(cls):
             if not name.startswith('_') and not inspect.ismethod(value):
                 if isinstance(value, tuple) and len(value) > 1:
                     data = value
                 else:
                     pieces = [x.capitalize() for x in name.split('_')]
                     data = (value, ' '.join(pieces))
-                classobject._data.append(data)
-                setattr(classobject, name, data[0])
+                cls._data.append(data)
+                setattr(cls, name, data[0])
 
-        classobject._hash = dict(classobject._data)
+        cls._hash = dict(cls._data)
 
-    def __iter__(classobject):
-        for value, data in classobject._data:
+    def __iter__(cls):
+        for value, data in cls._data:
             yield (value, data)
 
+
+class Choices(metaclass=ChoicesType):
     @classmethod
     def get_value(cls, key):
         return cls._hash[key]
-
-
-class JSONResponse(HttpResponse):
-    def __init__(self, obj, **kwargs):
-        extra_headers = kwargs.pop('extra_headers', {})
-        kwargs['content_type'] = 'application/json'
-        super(JSONResponse, self).__init__(json.dumps(obj), **kwargs)
-
-        for key, value in extra_headers.items():
-            self[key] = value
 
 
 # QuerySetChain

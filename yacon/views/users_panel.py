@@ -9,8 +9,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.forms.utils import ErrorList
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 
 from yacon import conf
 from yacon.decorators import superuser_required
@@ -37,8 +36,7 @@ def list_users(request):
         'default_sort':'user__username',
     }
 
-    return render_to_response('yacon/nexus/list_users.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/list_users.html', data)
 
 
 @superuser_required
@@ -64,8 +62,7 @@ def edit_user(request, profile_id):
         'form':form,
     }
 
-    return render_to_response('yacon/nexus/edit_user.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/edit_user.html', data)
 
 
 @superuser_required
@@ -90,8 +87,7 @@ def add_user(request):
         form = USER_CURATOR.add_form_class()
 
     data['form'] = form
-    return render_to_response('yacon/nexus/edit_user.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/edit_user.html', data)
 
 
 @superuser_required
@@ -113,8 +109,7 @@ def user_password(request, profile_id):
         'clear_autocomplete':True,
     }
 
-    return render_to_response('yacon/nexus/edit_user.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/edit_user.html', data)
 
 
 @superuser_required

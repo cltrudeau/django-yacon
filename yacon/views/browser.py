@@ -8,14 +8,13 @@ from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from yacon import conf
 from yacon.decorators import verify_node, verify_file_url
-from yacon.utils import FileSpec, files_subtree, build_filetree, JSONResponse
+from yacon.utils import FileSpec, files_subtree, build_filetree
 
 logger = logging.getLogger(__name__)
 
@@ -134,8 +133,7 @@ def ckeditor_browser(request):
         'base_template':'yacon/browser_base.html',
         'popup':True,
     }
-    return render_to_response('yacon/browser/browser.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/browser.html', data)
 
 
 @login_required
@@ -155,8 +153,7 @@ def popup_browser(request, callback):
         'base_template':'yacon/browser_base.html',
         'popup':True,
     }
-    return render_to_response('yacon/browser/browser.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/browser.html', data)
 
 
 # ============================================================================
@@ -169,8 +166,7 @@ def root_control(request, tree_type):
         'tree_type':tree_type,
         'is_superuser':request.user.is_superuser,
     }
-    return render_to_response('yacon/browser/root_control.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/root_control.html', data)
 
 
 @login_required
@@ -277,8 +273,7 @@ def show_folder(request):
         'popup':popup,
     }
 
-    return render_to_response('yacon/browser/show_folder.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/show_folder.html', data)
 
 
 @login_required
@@ -316,8 +311,7 @@ def remove_folder_warn(request):
         'node':request.GET['node'],
     }
 
-    return render_to_response('yacon/browser/remove_folder_warning.html', 
-        data, context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/remove_folder_warning.html', data)
 
 
 @login_required
@@ -368,11 +362,9 @@ def image_edit(request):
         'spec':request.spec, # verify_file_url puts this in the request
     }
     if not os.path.exists(request.spec.full_filename):
-        return render_to_response('yacon/browser/image_edit_error.html', data, 
-            context_instance=RequestContext(request))
+        return render(request, 'yacon/browser/image_edit_error.html', data)
 
-    return render_to_response('yacon/browser/image_edit.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/image_edit.html', data)
 
 
 @login_required
@@ -443,4 +435,6 @@ def file_expand(request):
                 'msg':e.message,
             }
 
-    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
+    return response

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # ============================================================================
 
-class NodePermissionTypes(metaclass=Choices):
+class NodePermissionTypes(Choices):
     PUBLIC = 'pub'
     INHERIT = 'inh'
     LOGIN = 'log'

@@ -3,8 +3,7 @@
 # Views for dynamic content
 import logging, urllib
 
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from yacon.models.pages import Page, PageType, Block
 
@@ -43,5 +42,4 @@ def news_listing(request, data):
         data.update({
             'news_items':news_items,
         })
-    return render_to_response('news_listing.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'news_listing.html', data)

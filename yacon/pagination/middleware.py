@@ -4,9 +4,11 @@ def get_page(self):
     integer representing the current page.
     """
     try:
-        return int(self.REQUEST['page'])
+        num = self.GET.get('page', '') or self.POST.get('page', '')
+        return int(num)
     except (KeyError, ValueError, TypeError):
         return 1
+
 
 class PaginationMiddleware(object):
     """

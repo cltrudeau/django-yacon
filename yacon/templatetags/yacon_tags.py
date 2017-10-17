@@ -7,6 +7,7 @@ import logging, traceback, json
 
 from django import template
 from django.template import loader
+from django.utils.safestring import mark_safe
 
 from yacon import conf
 from yacon.models.pages import BlockType
@@ -240,7 +241,7 @@ def editable_block_by_key(context, key):
         if success:
             # didn't get an error, wrap the content using the editable template 
             context['content'] = content
-            content = templates['editable'].render(context)
+            content = templates['editable'].render(context.flatten())
 
     return content
 
@@ -254,8 +255,11 @@ def editable_page_title(context, page):
     "blocks/title_editable.html" and is loaded using the django template 
     loader so it can be overloaded.
     """
-    page = context['page']
-    page = context['page']
+    create_mode = context.get('create_mode', False)
+    if create_mode:
+        # don't show this tag when in create mode, handled by create form
+        return ''
+
     code = ''
     if page:
         code = page.language.code
@@ -265,13 +269,9 @@ def editable_page_title(context, page):
         'show_page', 'hide_page']
     for tag in tags:
         context['button_text'][tag] = get_system_text(code, tag)
-    create_mode = context.get('create_mode', False)
-    if create_mode:
-        # don't show this tag when in create mode, handled by create form
-        return ''
 
     context['page'] = page
-    content = templates['title_editable'].render(context)
+    content = templates['title_editable'].render(context.flatten())
     return content
 
 
@@ -327,7 +327,8 @@ def menu(context, name, separator=''):
         menuitem = _render_menuitem(item, language, select, last, separator, 1)
         results.append(menuitem)
 
-    return '\n'.join(results)
+    response = '\n'.join(results)
+    return mark_safe(response)
 
 
 @register.simple_tag(takes_context=True)

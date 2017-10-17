@@ -5,9 +5,9 @@ from yacon import __version__
 readme = os.path.join(os.path.dirname(__file__), 'README.rst')
 long_description = open(readme).read()
 
-setup(
+SETUP_ARGS = dict(
     name='django-yacon',
-    version=__version__
+    version=__version__,
     description='Django based Content Managment building framework',
     long_description=long_description,
     url='https://github.com/cltrudeau/django-yacon',
@@ -31,10 +31,10 @@ setup(
         'Django>=1.11',
         'Pillow>=4.3',
         'bleach>=2.1.1',
+        'django-awl>=0.13',
         'django-treebeard>=4.1.2',
     ],
     tests_require=[
-        'django-awl>=0.13',
     ],
 )
 

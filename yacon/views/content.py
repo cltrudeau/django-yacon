@@ -6,19 +6,20 @@ import logging, urllib
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.forms.utils import ErrorList
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import formats
 from django.views import static
 
+from awl.decorators import post_required
+
 from yacon import conf
-from yacon.decorators import post_required
 from yacon.forms import CreatePageForm
 from yacon.helpers import prepare_context, permission_to_edit_page
 from yacon.models.common import PagePermissionTypes
 from yacon.models.hierarchy import BadSlug, Node
 from yacon.models.pages import Block, Page, PageType, MetaPage
-from yacon.utils import FileSpec, JSONResponse, get_profile
+from yacon.utils import FileSpec, get_profile
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +142,7 @@ def _create_page_from_node(request, data, node, page_type_id, language_code,
                     raise Http404(('block type key "%s" ' % key +\
                         'not registered with PageType %s' % page_type))
 
-                block_hash[block_type] = urllib.unquote_plus(value)
+                block_hash[block_type] = urllib.parse.unquote_plus(value)
 
             # create the MetaPage and Page, then redirect to the page just 
             # created
@@ -211,19 +212,13 @@ def fetch_block(request, block_id):
         if len(pages) == 0:
             raise Http404('permission denied')
 
-    return JSONResponse(block.content)
+    return JsonResponse(block.content, safe=False)
 
 
 @login_required
-@post_required
+@post_required(['block_id', 'content'])
 def replace_block(request):
     """Ajax view for submitting edits to a block."""
-    if not request.REQUEST.has_key('block_id'):
-        raise Http404('replace_block requires "block_id" parameter')
-
-    if not request.REQUEST.has_key('content'):
-        raise Http404('replace_block requires "content" parameter')
-
     try:
         # block parameter is 'block_X' where X is the id we're after
         block_id = request.POST['block_id'][6:]
@@ -240,7 +235,7 @@ def replace_block(request):
             raise Http404('permission denied')
 
     # set the new block content
-    block.content = urllib.unquote(request.POST['content'])
+    block.content = urllib.parse.unquote(request.POST['content'])
     block.save()
 
     last_updated_list = []
@@ -253,7 +248,8 @@ def replace_block(request):
         'block_id':block.id,
         'last_updated_list':last_updated_list,
     }
-    response = JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
     return response
 
 
@@ -273,19 +269,13 @@ def fetch_owner(request, metapage_id):
         'selected':metapage.owner.id if metapage.owner else 0,
         'users':users,
     }
-    return JSONResponse(result)
+    return JsonResponse(result)
 
 
 @login_required
-@post_required
+@post_required(['owner_id', 'metapage_id'])
 def replace_owner(request):
     """Ajax view for change a page's owner."""
-    if not request.REQUEST.has_key('metapage_id'):
-        raise Http404('replace_page requires "metapage_id" parameter')
-
-    if not request.REQUEST.has_key('owner_id'):
-        raise Http404('replace_page requires "owner_id" parameter')
-
     metapage = get_object_or_404(MetaPage, id=request.POST['metapage_id'])
 
     # check permissions
@@ -309,20 +299,15 @@ def replace_owner(request):
         'success':True,
         'metapage_id':metapage.id,
     }
-    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
-
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 @login_required
-@post_required
+@post_required(['page_id', 'content'])
 def replace_title(request):
     """Ajax view for submitting edits to a block."""
-    if not request.REQUEST.has_key('page_id'):
-        raise Http404('replace_title requires "page_id" parameter')
-
-    if not request.REQUEST.has_key('content'):
-        raise Http404('replace_title requires "content" parameter')
-
     try:
         # page parameter is 'page_X' where X is the id we're after
         page_id = request.POST['page_id'][5:]
@@ -337,7 +322,7 @@ def replace_title(request):
             raise Http404('permission denied')
 
     # set the new block content
-    page.title = urllib.unquote(request.POST['content'])
+    page.title = urllib.parse.unquote(request.POST['content'])
     page.save()
 
     result = {
@@ -346,16 +331,15 @@ def replace_title(request):
             'DATETIME_FORMAT'),
         'page_id':page.id,
     }
-    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 @login_required
-@post_required
+@post_required(['page_id'])
 def flip_page_visible(request):
     """Ajax view for submitting edits to a block."""
-    if not request.REQUEST.has_key('page_id'):
-        raise Http404('flip_page_visible requires "page_id" parameter')
-
     try:
         # page parameter is 'page_X' where X is the id we're after
         page_id = request.POST['page_id'][5:]
@@ -383,7 +367,9 @@ def flip_page_visible(request):
         'page_id':page.id,
         'text':text,
     }
-    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 @login_required
@@ -397,15 +383,9 @@ def remove_page(request, page_id):
 
 
 @login_required
-@post_required
+@post_required(['metapage_id', 'perm'])
 def replace_metapage_perm(request):
     """Ajax view for submitting metapage permission changes."""
-    if not request.REQUEST.has_key('metapage_id'):
-        raise Http404('replace_title requires "metapage_id" parameter')
-
-    if not request.REQUEST.has_key('perm'):
-        raise Http404('replace_title requires "perm" parameter')
-
     metapage = get_object_or_404(MetaPage, id=request.POST['metapage_id'])
 
     # check permissions
@@ -421,19 +401,15 @@ def replace_metapage_perm(request):
         'success':True,
         'metapage_id':metapage.id,
     }
-    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 @login_required
-@post_required
+@post_required(['node_id', 'perm'])
 def replace_node_perm(request):
     """Ajax view for submitting node permission changes."""
-    if not request.REQUEST.has_key('node_id'):
-        raise Http404('replace_title requires "node_id" parameter')
-
-    if not request.REQUEST.has_key('perm'):
-        raise Http404('replace_title requires "perm" parameter')
-
     node = get_object_or_404(Node, id=request.POST['node_id'])
 
     # check permissions
@@ -447,7 +423,9 @@ def replace_node_perm(request):
         'success':True,
         'node_id':node.id,
     }
-    return JSONResponse(result, extra_headers={'Cache-Control':'no-cache'})
+    response = JsonResponse(result)
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 # ============================================================================
 # Private Media Serve

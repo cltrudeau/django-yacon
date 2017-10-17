@@ -6,16 +6,14 @@
 
 import logging
 
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404
 
 from yacon.decorators import superuser_required
 from yacon.models.hierarchy import (Node, NodeTranslation, Menu,
     MenuItem, MenuItemTranslation)
 from yacon.models.site import Site
 from yacon.models.pages import MetaPage, Tag
-from yacon.utils import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +29,7 @@ def site_info(request, site_id):
         'site':site,
         'alternate_languages':site.alternate_language.all(),
     }
-    return render_to_response('yacon/nexus/ajax/site_info.html', data,
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/site_info.html', data)
 
 
 # ============================================================================
@@ -80,8 +77,7 @@ def node_info(request, node_id):
 
         data['path_items'].append(item)
 
-    return render_to_response('yacon/nexus/ajax/node_info.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/node_info.html', data)
 
 
 @superuser_required
@@ -101,7 +97,7 @@ def missing_node_translations(request, node_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return JSONResponse(data)
+    return JsonResponse(data)
 
 
 # ============================================================================
@@ -128,8 +124,7 @@ def metapage_info(request, metapage_id):
         'menuitem':menuitem,
     }
 
-    return render_to_response('yacon/nexus/ajax/metapage_info.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/metapage_info.html', data)
 
 
 @superuser_required
@@ -149,7 +144,7 @@ def missing_metapage_translations(request, metapage_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return JSONResponse(data)
+    return JsonResponse(data)
 
 
 @superuser_required
@@ -163,7 +158,7 @@ def list_languages(request, site_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return JSONResponse(data)
+    return JsonResponse(data)
 
 
 # ============================================================================
@@ -172,8 +167,7 @@ def list_languages(request, site_id):
 
 @superuser_required
 def menus_control(request):
-    return render_to_response('yacon/nexus/ajax/menus_control.html', {}, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/menus_control.html', {})
 
 
 @superuser_required
@@ -185,8 +179,7 @@ def menu_info(request, menu_id):
         'menu':menu,
     }
 
-    return render_to_response('yacon/nexus/ajax/menu_info.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/menu_info.html', data)
 
 
 @superuser_required
@@ -258,8 +251,7 @@ def menuitem_info(request, menuitem_id):
         'translated_items':translated_items,
     }
 
-    return render_to_response('yacon/nexus/ajax/item_info.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/item_info.html', data)
 
 
 @superuser_required
@@ -279,7 +271,7 @@ def missing_menuitem_translations(request, menuitem_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return JSONResponse(data)
+    return JsonResponse(data)
 
 # ============================================================================
 # Control Panel: Tag Selected Methods
@@ -287,8 +279,7 @@ def missing_menuitem_translations(request, menuitem_id):
 
 @superuser_required
 def tags_control(request):
-    return render_to_response('yacon/nexus/ajax/tags_control.html', {}, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/tags_control.html', {})
 
 
 @superuser_required
@@ -302,8 +293,7 @@ def tag_info(request, tag_id):
         'tag_translations':tag.get_translations(ignore_default=True),
     }
 
-    return render_to_response('yacon/nexus/ajax/tag_info.html', data,
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/tag_info.html', data)
 
 
 @superuser_required
@@ -323,4 +313,4 @@ def missing_tag_translations(request, tag_id):
     for lang in langs:
         data[lang.identifier] = lang.name
 
-    return JSONResponse(data)
+    return JsonResponse(data)

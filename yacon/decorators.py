@@ -29,18 +29,6 @@ def superuser_required(target):
     return wrapper
 
 
-def post_required(target):
-    """Decorator for views that must only be called as POST"""
-    @wraps(target)
-    def wrapper(*args, **kwargs):
-        request = args[0]
-        if request.method != 'POST':
-            raise Http404('GET method not supported')
-
-        return target(*args, **kwargs)
-    return wrapper
-
-
 def profile_required(target):
     """Ensures request.user has a profile, returns it in the request object.
     Otherwise, raises 404."""

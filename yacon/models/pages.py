@@ -3,8 +3,7 @@ import logging, json
 
 from django.contrib.auth.models import User
 from django.db import models, IntegrityError, transaction
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 
 from yacon import conf
 from yacon.definitions import (SLUG_LENGTH, TITLE_LENGTH, ALLOWED_TAGS,
@@ -132,12 +131,11 @@ class PageType(TimeTrackedModel):
     def render(self, request, data):
         # if there is something in template, do a static render
         if self.template:
-            return render_to_response(self.template, data, 
-                context_instance=RequestContext(request))
+            return render(request, self.template, data)
 
         # dynamic content render, call the function that is registered to
         # return a response
-        fn = dynamic_load(self.dynamic.encode('ascii', 'ignore'))
+        fn = dynamic_load(self.dynamic)
         response = fn(request, data)
         return response
 

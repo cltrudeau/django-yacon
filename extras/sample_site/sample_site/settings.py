@@ -21,7 +21,6 @@ SECRET_KEY = ')k@ykqs^15v(sfl7vumv4uyf^em#p_9t5-hphqrk)1cg@xr81w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -53,15 +52,26 @@ MIDDLEWARE_CLASSES = (
     'yacon.pagination.middleware.PaginationMiddleware',
 )
 
-from django.conf import global_settings
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS  + (
-    'yacon.context_processors.processor',
-)
+TEMPLATES = [{
+    'BACKEND':'django.template.backends.django.DjangoTemplates',
+    'DIRS':[
+        os.path.abspath(os.path.join(BASE_DIR, 'templates')),
+    ],
+    'APP_DIRS':True,
+    'OPTIONS':{
+        'debug':DEBUG,
+        'context_processors':[
+            'django.template.context_processors.debug',
+            'django.template.context_processors.request',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+            'yacon.context_processors.processor',
+        ],
+    },
+}]
 
-TEMPLATE_DIRS = (
-    os.path.abspath(os.path.join(BASE_DIR, 'templates')),
-)
 
+STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.abspath(os.path.join(BASE_DIR, 'static')),
 )
@@ -82,48 +92,38 @@ DATABASES = {
 }
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 # Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'escaped': {
-            'format':'\033[1m%(funcName)s\033[0m: %(message)s',
-        },
-    },
-    'handlers': {
-        'default': {
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-            'formatter':'escaped',
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers':['default'],
-            'propagate': False,
-            'level':'DEBUG',
-        },
-    },
-}
+#LOGGING = {
+#    'version': 1,
+#    'disable_existing_loggers': True,
+#    'formatters': {
+#        'escaped': {
+#            'format':'\033[1m%(funcName)s\033[0m: %(message)s',
+#        },
+#    },
+#    'handlers': {
+#        'default': {
+#            'level':'DEBUG',
+#            'class':'logging.StreamHandler',
+#            'formatter':'escaped',
+#        },
+#    },
+#    'loggers': {
+#        '': {
+#            'handlers':['default'],
+#            'propagate': False,
+#            'level':'DEBUG',
+#        },
+#    },
+#}
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
-
-STATIC_URL = '/static/'
+# YACON Specific Config
 
 YACON = {
     'site':{

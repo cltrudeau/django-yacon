@@ -7,8 +7,7 @@
 
 import logging
 
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from yacon.decorators import superuser_required
 from yacon.models.common import Language
@@ -25,8 +24,7 @@ def control_panel(request):
         'title':'Control Panel',
     }
 
-    return render_to_response('yacon/nexus/control_panel.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/control_panel.html', data)
 
 
 @superuser_required
@@ -37,8 +35,7 @@ def config_panel(request):
         'langs':langs,
     }
 
-    return render_to_response('yacon/nexus/config_panel.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/config_panel.html', data)
 
 
 # users_panel redirects straight to list_users
@@ -56,5 +53,4 @@ def uploads_panel(request):
     request.session['image_only'] = False
     request.session['popup'] = False
 
-    return render_to_response('yacon/browser/browser.html', data, 
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/browser/browser.html', data)

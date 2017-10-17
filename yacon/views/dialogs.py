@@ -9,8 +9,7 @@ from collections import OrderedDict
 
 from django.db import IntegrityError
 from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 
 from yacon.decorators import superuser_required
 from yacon.models.common import Language
@@ -211,8 +210,7 @@ def remove_folder_warn(request, node_id):
         'aliases':aliases,
     }
 
-    return render_to_response('yacon/nexus/ajax/remove_folder_warning.html', 
-        data, context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/remove_folder_warning.html', data)
 
 
 @superuser_required
@@ -306,8 +304,7 @@ def remove_page_warn(request, metapage_id):
         'aliases':alias_list,
     }
 
-    return render_to_response('yacon/nexus/ajax/remove_page_warning.html', data,
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/remove_page_warning.html', data)
 
 
 @superuser_required
@@ -496,8 +493,7 @@ def remove_path_warn(request, translation_id):
         'nodes':nodes,
     }
 
-    return render_to_response('yacon/nexus/ajax/remove_path_warning.html', data,
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/remove_path_warning.html', data)
 
 
 @superuser_required
@@ -521,8 +517,7 @@ def edit_path_warn(request, translation_id):
         'nodes':nodes,
     }
 
-    return render_to_response('yacon/nexus/ajax/edit_path_warning.html', data,
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/edit_path_warning.html', data)
 
 
 @superuser_required
@@ -581,8 +576,7 @@ def remove_menu_warn(request, menu_id):
         'items': items_string,
     }
 
-    return render_to_response('yacon/nexus/ajax/remove_menu_warning.html', data,
-        context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/remove_menu_warning.html', data)
 
 
 @superuser_required
@@ -599,8 +593,8 @@ def remove_menuitem_warn(request, menuitem_id):
         'items': items_string,
     }
 
-    return render_to_response('yacon/nexus/ajax/remove_menuitem_warning.html', 
-        data, context_instance=RequestContext(request))
+    return render(request, 'yacon/nexus/ajax/remove_menuitem_warning.html', 
+        data)
 
 
 @superuser_required
