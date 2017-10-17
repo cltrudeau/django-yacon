@@ -3,13 +3,13 @@ import logging
 from django.db import models
 from django.conf import settings
 
-from yacon.utils import Enum
+from yacon.utils import Choices
 
 logger = logging.getLogger(__name__)
 
 # ============================================================================
 
-class NodePermissionTypes(Enum):
+class NodePermissionTypes(metaclass=Choices):
     PUBLIC = 'pub'
     INHERIT = 'inh'
     LOGIN = 'log'

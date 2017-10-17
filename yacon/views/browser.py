@@ -2,7 +2,7 @@
 #
 # File Browser Views
 
-import os, logging, json, shutil, operator, urllib
+import os, logging, json, shutil, operator
 from io import FileIO, BufferedWriter
 from PIL import Image
 
@@ -105,7 +105,7 @@ def _handle_upload(request, prefix=None):
             spec.make_thumbnail(conf.site.auto_thumbnails['dir'], 
                 key, value[0], value[1])
 
-    except KeyError, e:
+    except KeyError as e:
         logger.error(('auto_thumbnails missing conf key stopping thumbnail '
             'generation'), e.message)
 
@@ -354,7 +354,7 @@ def remove_file(request):
                         filename))
                     os.remove(full_filename)
 
-    except KeyError, e:
+    except KeyError as e:
         logger.error(('auto_thumbnails missing conf key stopping thumbnail '
             'removal'), e.message)
 
@@ -416,7 +416,7 @@ def image_edit_save(request):
             spec.make_thumbnail(conf.site.auto_thumbnails['dir'], 
                 key, value[0], value[1])
 
-    except KeyError, e:
+    except KeyError as e:
         logger.error(('auto_thumbnails missing conf key stopping thumbnail '
             'generation'), e.message)
 
@@ -426,9 +426,6 @@ def image_edit_save(request):
 @login_required
 @verify_file_url('file', True)
 def file_expand(request):
-    data = {
-        'spec':request.spec, # verify_file_url puts this in the request
-    }
     if not os.path.exists(request.spec.full_filename):
         result = {
             'success':False,

@@ -1,5 +1,5 @@
 # yacon.models.pages.py
-import exceptions, logging, json
+import logging, json
 
 from django.contrib.auth.models import User
 from django.db import models, IntegrityError, transaction
@@ -142,7 +142,7 @@ class PageType(TimeTrackedModel):
         return response
 
 
-class BadContentHandler(exceptions.Exception):
+class BadContentHandler(Exception):
     """Exception raised when an attempt is made to load or manipulate a
     ContentHandler and something goes wrong.  See:
     BlockType.get_content_handler()
@@ -200,7 +200,7 @@ class BlockType(TimeTrackedModel):
         try:
             mod = __import__(self.module_name, globals(), locals(),
                 [self.content_handler_name])
-        except Exception, e:
+        except Exception as e:
             logger.exception('importing mod caused exception')
             t = e.__class__.__name__
             msg = \
@@ -221,7 +221,7 @@ import errors in the module.
         try:
             klass = getattr(mod, self.content_handler_name)
             logger.debug('found class for content handler')
-        except Exception, e:
+        except Exception as e:
             logger.exception(\
                 'getting class object for content handler caused exception')
             t = e.__class__.__name__
@@ -240,7 +240,7 @@ exception was: "%s" with the message:
         try:
             parms = self.get_content_handler_parms()
             self.content_handler_instance = klass(self, parms)
-        except Exception, e:
+        except Exception as e:
             logger.exception('instantiating content handler caused exception')
             t = e.__class__.__name__
             msg = \
@@ -566,7 +566,8 @@ class MetaPage(TimeTrackedModel):
     is_node_default = models.BooleanField(default=False)
 
     owner = models.ForeignKey(User, null=True)
-    permission = models.CharField(max_length=3, choices=PagePermissionTypes,
+    permission = models.CharField(max_length=3, 
+        choices=list(PagePermissionTypes),
         default=PagePermissionTypes.INHERIT)
     hidden = models.BooleanField(default=False)
 

@@ -1,8 +1,9 @@
-# YACon
+YACon
+*****
 
-__yacon__: a sweet tasting root plant grown in the Andes
+**yacon**: a sweet tasting root plant grown in the Andes
 
-__YACon__: Yet Another CONtent management system
+**YACon**: Yet Another CONtent management system
 
 YACon was created for a client that had particular needs for a CMS that
 weren't easily addressed with existing software at the time.  It is a little
@@ -24,7 +25,8 @@ Some of the features:
 - multi-lingual support
 - multi-site support
 
-# Dependencies 
+Dependencies 
+============
 
 YACon depends a great deal on different 3rd-party libraries.  Some of them are
 included in the repo (see 
@@ -33,16 +35,22 @@ included in the repo (see
 that were required copied into the static deployment directory.  This was done
 to make it fairly easy to deploy YACon.
 
-There are also a limited number of django libraries that are required.  See
-the 
+There are also a limited number of django libraries that are required.  The
 [requirements.txt](https://github.com/cltrudeau/django-yacon/blob/master/requirements.txt)
-file for a list.
+file has more than what is required, it contains everything needed to build
+and test.
 
 In addition to the above, the following dependencies are accessed via CDN:
 
 - jquery-1.7.2
 - jquery-ui-1.8.19
 
-# Changes
+Installation
+============
+
+
+
+Changes
+=======
 
 See ([CHANGES.md](https://github.com/cltrudeau/django-yacon/blob/master/CHANGES.md)) 

@@ -1,5 +1,5 @@
 # yacon.models.hierarchy.py
-import re, exceptions, logging
+import re, logging
 
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -18,7 +18,7 @@ MATCH_WORD = re.compile('^[-\w]*$')
 # Exceptions
 # ============================================================================
 
-class BadSlug(exceptions.Exception):
+class BadSlug(Exception):
     pass
 
 # ============================================================================
@@ -55,8 +55,8 @@ class Node(BaseNode):
     around formatting of slugs, etc.  
     """
     site = models.ForeignKey('yacon.Site')
-    permission = models.CharField(max_length=3, choices=NodePermissionTypes,
-        default=NodePermissionTypes.INHERIT)
+    permission = models.CharField(max_length=3, 
+        choices=list(NodePermissionTypes), default=NodePermissionTypes.INHERIT)
 
     class Meta:
         app_label = 'yacon'
@@ -95,7 +95,7 @@ class Node(BaseNode):
             'slug', flat=True)
         existing.extend(slugs)
 
-        aliased_metapages = MetaPage.objects.filter(alias=self)
+        aliased_metapages = MetaPage.objects.filter(alias__in=metapages)
         slugs = Page.objects.filter(metapage__in=aliased_metapages).values_list(
             'slug', flat=True)
         existing.extend(slugs)

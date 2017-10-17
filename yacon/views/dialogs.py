@@ -235,7 +235,7 @@ def add_folder(request, node_id, title, slug):
     try:
         child = node.create_child(title, slug)
         data['key'] = 'node:%s' % child.id,
-    except BadSlug, e:
+    except BadSlug as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -252,7 +252,7 @@ def add_page(request, node_id, page_type_id, title, slug):
     data = {}
     try:
         MetaPage.create_page(node, page_type, title, slug, {})
-    except BadSlug, e:
+    except BadSlug as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -273,9 +273,9 @@ def add_path(request, node_id, lang, name, slug):
 
         NodeTranslation.objects.create(node=node, slug=slug, name=name, 
             language=langs[0])
-    except BadSlug, e:
+    except BadSlug as e:
         data['error'] = e.message
-    except ValueError, e:
+    except ValueError as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -335,9 +335,9 @@ def add_translation(request, metapage_id, lang, title, slug):
 
         Page.objects.create(metapage=metapage, title=title, slug=slug,
             language=langs[0])
-    except BadSlug, e:
+    except BadSlug as e:
         data['error'] = e.message
-    except ValueError, e:
+    except ValueError as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -378,7 +378,7 @@ def add_link_menuitem(request, menu_id, lang, name):
             raise ValueError('Bad language selected')
 
         menu.create_child(link=link, translations={langs[0]:name})
-    except ValueError, e:
+    except ValueError as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -397,7 +397,7 @@ def add_header_menuitem(request, menu_id, lang, name):
             raise ValueError('Bad language selected')
 
         menu.create_child(translations={langs[0]:name})
-    except ValueError, e:
+    except ValueError as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -417,7 +417,7 @@ def add_menuitem_translation(request, menuitem_id, lang, name):
 
         MenuItemTranslation.objects.create(menuitem=menuitem, name=name,
             language=langs[0])
-    except ValueError, e:
+    except ValueError as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -473,7 +473,7 @@ def create_menuitem_translation(request, menuitem_id, lang, name):
 
         MenuItemTranslation.objects.create(menuitem=menuitem, name=name,
             language=langs[0])
-    except ValueError, e:
+    except ValueError as e:
         data['error'] = e.message
         
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -652,7 +652,7 @@ def add_site(request, name, domain, lang_identifier):
     except Language.DoesNotExist:
         # only an ajax call, this dies and nothing happens anyhow
         data['error'] = 'Problem occurred with language code'
-    except IntegrityError, e:
+    except IntegrityError as e:
         if 'Key (name)' in e.message:
             data['error'] = 'Site with name "%s" already exists' % name
         elif 'Key (domain)' in e.message:
@@ -682,7 +682,7 @@ def edit_site(request, site_id, name, domain, lang_identifier):
     except Language.DoesNotExist:
         # only an ajax call, this dies and nothing happens anyhow
         data['error'] = 'Problem occurred with language code'
-    except IntegrityError, e:
+    except IntegrityError as e:
         if 'Key (name)' in e.message:
             data['error'] = 'Site with name "%s" already exists' % name
         elif 'Key (domain)' in e.message:
@@ -703,10 +703,10 @@ def add_tag(request, site_id, lang, text):
     data = {}
     langs = site.get_languages(lang)
     if len(langs) == 0:
-        data['error'] = e.message
+        data['error'] = 'No languages defined'
     else:
         try:
-            tx = TagTranslation.objects.get(tag__site=site, language=langs[0], 
+            TagTranslation.objects.get(tag__site=site, language=langs[0], 
                 text=text)
 
             # a tag for this text already exists
@@ -726,7 +726,7 @@ def add_tag_translation(request, tag_id, lang, text):
     data = {}
     langs = tag.site.get_languages(lang)
     if len(langs) == 0:
-        data['error'] = e.message
+        data['error'] = 'No languages defined'
     else:
         TagTranslation.objects.create(tag=tag, language=langs[0], text=text)
         

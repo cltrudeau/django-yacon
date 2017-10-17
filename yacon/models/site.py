@@ -75,8 +75,7 @@ class Site(TimeTrackedModel):
     domain = models.CharField(max_length=100, unique=True)
     doc_root = models.ForeignKey('yacon.Node', blank=True, null=True, 
         related_name='+')
-    menus = models.ManyToManyField('yacon.Node', blank=True, null=True,
-        related_name='+')
+    menus = models.ManyToManyField('yacon.Node', blank=True, related_name='+')
     default_language = models.ForeignKey(Language, related_name='+')
     alternate_language = models.ManyToManyField(Language, related_name='+')
 

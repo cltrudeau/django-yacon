@@ -17,20 +17,20 @@ locale.setlocale(locale.LC_ALL, '')
 # Utility Classes
 # ============================================================================
 
-# Enum
+# Choices
 #
 # borrowed and modified from:
 #  http://tomforb.es
 #      /using-python-metaclasses-to-make-awesome-django-model-field-choices
 
-class Enum(object):
+class Choices(type):
     """A tuple of tuples pattern of (id, string) is common in django for
     choices fields, etc.  This object inspects its own members (i.e. the
     inheritors) and produces the corresponding tuples.
 
     Example:
 
-    class Colours(Enum):
+    class Colours(Choices):
         RED = 'r'
         BLUE = 'b', 'Blueish'
 
@@ -39,28 +39,27 @@ class Enum(object):
     >> list(Colours)
     [('r', 'Red'), ('b', 'Blueish')]
     """
-    class __metaclass__(type):
-        def __init__(self, *args, **kwargs):
-            self._data = []
-            for name, value in inspect.getmembers(self):
-                if not name.startswith('_') and not inspect.ismethod(value):
-                    if isinstance(value, tuple) and len(value) > 1:
-                        data = value
-                    else:
-                        pieces = [x.capitalize() for x in name.split('_')]
-                        data = (value, ' '.join(pieces))
-                    self._data.append(data)
-                    setattr(self, name, data[0])
+    def __init__(classobject, classname, baseclasses, attrs):
+        classobject._data = []
+        for name, value in inspect.getmembers(classobject):
+            if not name.startswith('_') and not inspect.ismethod(value):
+                if isinstance(value, tuple) and len(value) > 1:
+                    data = value
+                else:
+                    pieces = [x.capitalize() for x in name.split('_')]
+                    data = (value, ' '.join(pieces))
+                classobject._data.append(data)
+                setattr(classobject, name, data[0])
 
-            self._hash = dict(self._data)
+        classobject._hash = dict(classobject._data)
 
-        def __iter__(self):
-            for value, data in self._data:
-                yield (value, data)
+    def __iter__(classobject):
+        for value, data in classobject._data:
+            yield (value, data)
 
     @classmethod
-    def get_value(self, key):
-        return self._hash[key]
+    def get_value(cls, key):
+        return cls._hash[key]
 
 
 class JSONResponse(HttpResponse):

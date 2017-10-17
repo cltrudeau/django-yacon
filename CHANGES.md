@@ -1,3 +1,9 @@
+# 0.10
+
+- large upgrade to django 1.11, python 3.6
+- IMPORTANT!!! No longer backward compatible with python 2.7
+    - might work, but no testing done
+
 # 0.8
 
 - added Page tagging

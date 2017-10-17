@@ -1,17 +1,15 @@
+import os
 from setuptools import setup, find_packages
+from yacon import __version__
+
+readme = os.path.join(os.path.dirname(__file__), 'README.rst')
+long_description = open(readme).read()
 
 setup(
     name='django-yacon',
-    version='0.8.0',
+    version=__version__
     description='Django based Content Managment building framework',
-    long_description=('Yacon is a django app for building websites based on '
-        'a CMS.  Yacon provides methods for managing hierarchical, '
-        'multi-lingual page content across multple sites.  Yacon ships with '
-        'ckedit and uses AJAX calls to allow the user to do inline WYSIWYG '
-        'editing of their web content.  Yacon does not provide any design '
-        'or templating tools, and so is not a full CMS, but provides '
-        'enough to support CMS features on any django site you are already '
-        'building.'),
+    long_description=long_description,
     url='https://github.com/cltrudeau/django-yacon',
     author='Christopher Trudeau',
     author_email='ctrudeau+pypi@arsensa.com',
@@ -23,17 +21,25 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='django,CMS',
-    packages=find_packages(),
+    test_suite="load_tests.get_suite",
     install_requires=[
-        'Django>=1.7',
-        'Pillow>=2.7',
-        'bleach>=1.4',
-        'django-treebeard>=3',
+        'Django>=1.11',
+        'Pillow>=4.3',
+        'bleach>=2.1.1',
+        'django-treebeard>=4.1.2',
+    ],
+    tests_require=[
+        'django-awl>=0.13',
     ],
 )
+
+if __name__ == '__main__':
+    from setuptools import setup, find_packages
+
+    SETUP_ARGS['packages'] = find_packages()
+    setup(**SETUP_ARGS)

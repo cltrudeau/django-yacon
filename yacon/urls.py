@@ -1,50 +1,52 @@
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.views.generic import TemplateView, RedirectView
 
 from yacon import conf
+from yacon.views import browser
+from yacon.views import content
 
-urlpatterns = patterns('yacon.views.browser',
-    (r'^ckeditor_browser/$', 'ckeditor_browser'),
-    (r'^popup_browser/(.*)/$', 'popup_browser'),
+urlpatterns = [
+    url(r'^ckeditor_browser/$', browser.ckeditor_browser),
+    url(r'^popup_browser/(.*)/$', browser.popup_browser),
 
     # left pane
-    (r'^browser/tree_top/$', 'tree_top'),
-    (r'^browser/sub_tree/$', 'sub_tree'),
+    url(r'^browser/tree_top/$', browser.tree_top),
+    url(r'^browser/sub_tree/$', browser.sub_tree),
 
     # right pane
-    (r'^browser/root_control/(.*)/$', 'root_control'),
-    (r'^browser/show_folder/$', 'show_folder'),
-    (r'^browser/add_folder/(.*)/$', 'add_folder'),
-    (r'^browser/remove_folder_warn/$', 'remove_folder_warn'),
-    (r'^browser/remove_folder/$', 'remove_folder'),
-    (r'^browser/remove_file/$', 'remove_file'),
-    (r'^browser/image_edit/$', 'image_edit'),
-    (r'^browser/image_edit_save/$', 'image_edit_save'),
-    (r'^browser/file_expand/$', 'file_expand'),
+    url(r'^browser/root_control/(.*)/$', browser.root_control),
+    url(r'^browser/show_folder/$', browser.show_folder),
+    url(r'^browser/add_folder/(.*)/$', browser.add_folder),
+    url(r'^browser/remove_folder_warn/$', browser.remove_folder_warn),
+    url(r'^browser/remove_folder/$', browser.remove_folder),
+    url(r'^browser/remove_file/$', browser.remove_file),
+    url(r'^browser/image_edit/$', browser.image_edit),
+    url(r'^browser/image_edit_save/$', browser.image_edit_save),
+    url(r'^browser/file_expand/$', browser.file_expand),
 
     # upload 
-    (r'^browser/upload_file/$', 'upload_file'),
-    (r'^browser/user_upload_file/$', 'user_upload_file'),
-)
+    url(r'^browser/upload_file/$', browser.upload_file),
+    url(r'^browser/user_upload_file/$', browser.user_upload_file),
+]
 
-urlpatterns += patterns('yacon.views.content',
-    (r'^fetch_block/(\d+)/$', 'fetch_block'),
-    (r'^fetch_owner/(\d+)/$', 'fetch_owner'),
-    (r'^replace_block/$', 'replace_block'),
-    (r'^replace_owner/$', 'replace_owner'),
-    (r'^replace_title/$', 'replace_title'),
-    (r'^flip_page_visible/$', 'flip_page_visible'),
-    (r'^replace_metapage_perm/$', 'replace_metapage_perm'),
-    (r'^replace_node_perm/$', 'replace_node_perm'),
-    (r'^remove_page/(\d+)/$', 'remove_page'),
-    (r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', 'create_page'),
-    (r'^create_page_from_node/(\d+)/(\d+)/([^/]*)/([^/]*)/$', 
-        'create_page_from_node'),
-)
+urlpatterns += [
+    url(r'^fetch_block/(\d+)/$', content.fetch_block),
+    url(r'^fetch_owner/(\d+)/$', content.fetch_owner),
+    url(r'^replace_block/$', content.replace_block),
+    url(r'^replace_owner/$', content.replace_owner),
+    url(r'^replace_title/$', content.replace_title),
+    url(r'^flip_page_visible/$', content.flip_page_visible),
+    url(r'^replace_metapage_perm/$', content.replace_metapage_perm),
+    url(r'^replace_node_perm/$', content.replace_node_perm),
+    url(r'^remove_page/(\d+)/$', content.remove_page),
+    url(r'^create_page/(\d+)/([^/]*)/([^/]*)/(.*)/$', content.create_page),
+    url(r'^create_page_from_node/(\d+)/(\d+)/([^/]*)/([^/]*)/$', 
+        content.create_page_from_node),
+]
 
-urlpatterns += patterns('',
-    (r'^denied/$', TemplateView.as_view(template_name='yacon/denied.html')),
-)
+urlpatterns += [
+    url(r'^denied/$', TemplateView.as_view(template_name='yacon/denied.html')),
+]
 
 if conf.site.static_serve and \
         (conf.nexus.enabled or conf.site.examples_enabled):
@@ -53,164 +55,190 @@ if conf.site.static_serve and \
     cur_dir = os.path.dirname(__file__)
     static_root = os.path.join(cur_dir, 'static')
 
-    urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+    urlpatterns += [
+        url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root':static_root}),
-    )
+    ]
 
 if conf.nexus.enabled:
     # nexus tabs
-    urlpatterns += patterns('yacon.views.nexus',
-        (r'^$', RedirectView.as_view(url='/yacon/nexus/control_panel/')),
-        (r'^nexus/$', RedirectView.as_view(url='/yacon/nexus/control_panel/')),
+    urlpatterns += [
+        url(r'^$', RedirectView.as_view(url='/yacon/nexus/control_panel/')),
+        url(r'^nexus/$', RedirectView.as_view(
+            url='/yacon/nexus/control_panel/')),
 
         # some of the JS is templated in order to be able to dynamically 
         #disable features
-        (r'^nexus/site_control/$', TemplateView.as_view(
+        url(r'^nexus/site_control/$', TemplateView.as_view(
             template_name='yacon/nexus/templated_js/site_control.js',
             content_type='application/javascript')),
-    )
+    ]
 
     # -------------------
     # Control Panel
-    urlpatterns += patterns('yacon.views.nexus',
-        (r'^nexus/control_panel/$', 'control_panel'),
-    )
+    from yacon.views import nexus 
+    urlpatterns += [
+        url(r'^nexus/control_panel/$', nexus.control_panel),
+    ]
 
     # control panel, left pane
-    urlpatterns += patterns('yacon.views.left_control',
-        (r'^nexus/control/get_sites/$', 'get_sites'),
-        (r'^nexus/control/tree_top/(\d+)/$', 'tree_top'),
-        (r'^nexus/control/tree_top_default_site/$', 'tree_top_default_site'),
-        (r'^nexus/control/sub_tree/$', 'sub_tree'),
-    )
+    from yacon.views import left_control 
+    urlpatterns += [
+        url(r'^nexus/control/get_sites/$', left_control.get_sites),
+        url(r'^nexus/control/tree_top/(\d+)/$', left_control.tree_top),
+        url(r'^nexus/control/tree_top_default_site/$', 
+            left_control.tree_top_default_site),
+        url(r'^nexus/control/sub_tree/$', left_control.sub_tree),
+    ]
 
     # control panel, right pane
-    urlpatterns += patterns('yacon.views.right_control',
-        (r'^nexus/control/site_info/(\d+)/$', 'site_info'),
-        (r'^nexus/control/node_info/(\d+)/$', 'node_info'),
-        (r'^nexus/control/metapage_info/(\d+)/$', 'metapage_info'),
-        (r'^nexus/control/list_languages/(\d+)/$', 'list_languages'),
-        (r'^nexus/control/menus_control/$', 'menus_control'),
-        (r'^nexus/control/menu_info/(\d+)/$', 'menu_info'),
-        (r'^nexus/control/menuitem_info/(\d+)/$', 'menuitem_info'),
-        (r'^nexus/control/missing_node_translations/(\d+)/$', 
-            'missing_node_translations'),
-        (r'^nexus/control/missing_metapage_translations/(\d+)/$', 
-            'missing_metapage_translations'),
-        (r'^nexus/control/missing_menuitem_translations/(\d+)/$', 
-            'missing_menuitem_translations'),
-        (r'^nexus/control/move_menuitem_out/(\d+)/$', 'move_menuitem_out'),
-        (r'^nexus/control/move_menuitem_up/(\d+)/$', 'move_menuitem_up'),
-        (r'^nexus/control/move_menuitem_down/(\d+)/$', 'move_menuitem_down'),
-        (r'^nexus/control/toggle_menuitem_requires_login/(\d+)/$',
-            'toggle_menuitem_requires_login'),
-        (r'^nexus/control/toggle_menuitem_requires_admin/(\d+)/$',
-            'toggle_menuitem_requires_admin'),
-        (r'^nexus/control/tags_control/$', 'tags_control'),
-        (r'^nexus/control/tag_info/(\d+)/$', 'tag_info'),
-        (r'^nexus/control/missing_tag_translations/(\d+)/$', 
-            'missing_tag_translations'),
-    )
+    from yacon.views import right_control 
+    urlpatterns += [
+        url(r'^nexus/control/site_info/(\d+)/$', right_control.site_info),
+        url(r'^nexus/control/node_info/(\d+)/$', right_control.node_info),
+        url(r'^nexus/control/metapage_info/(\d+)/$', 
+            right_control.metapage_info),
+        url(r'^nexus/control/list_languages/(\d+)/$', 
+            right_control.list_languages),
+        url(r'^nexus/control/menus_control/$', right_control.menus_control),
+        url(r'^nexus/control/menu_info/(\d+)/$', right_control.menu_info),
+        url(r'^nexus/control/menuitem_info/(\d+)/$', 
+            right_control.menuitem_info),
+        url(r'^nexus/control/missing_node_translations/(\d+)/$', 
+            right_control.missing_node_translations),
+        url(r'^nexus/control/missing_metapage_translations/(\d+)/$', 
+            right_control.missing_metapage_translations),
+        url(r'^nexus/control/missing_menuitem_translations/(\d+)/$', 
+            right_control.missing_menuitem_translations),
+        url(r'^nexus/control/move_menuitem_out/(\d+)/$', 
+            right_control.move_menuitem_out),
+        url(r'^nexus/control/move_menuitem_up/(\d+)/$', 
+            right_control.move_menuitem_up),
+        url(r'^nexus/control/move_menuitem_down/(\d+)/$', 
+            right_control.move_menuitem_down),
+        url(r'^nexus/control/toggle_menuitem_requires_login/(\d+)/$',
+            right_control.toggle_menuitem_requires_login),
+        url(r'^nexus/control/toggle_menuitem_requires_admin/(\d+)/$',
+            right_control.toggle_menuitem_requires_admin),
+        url(r'^nexus/control/tags_control/$', right_control.tags_control),
+        url(r'^nexus/control/tag_info/(\d+)/$', right_control.tag_info),
+        url(r'^nexus/control/missing_tag_translations/(\d+)/$', 
+            right_control.missing_tag_translations),
+    ]
 
     # control panel, dialogs
-    urlpatterns += patterns('yacon.views.dialogs',
+    from yacon.views import dialogs 
+    urlpatterns += [
         # node dialogs
-        (r'^nexus/control/remove_folder_warn/(\d+)/$', 'remove_folder_warn'),
-        (r'^nexus/control/remove_folder/(\d+)/$', 'remove_folder'),
-        (r'^nexus/control/add_folder/(\d+)/(.*)/(.*)/$', 'add_folder'),
-        (r'^nexus/control/add_page/(\d+)/(\d+)/(.*)/(.*)/$', 'add_page'),
-        (r'^nexus/control/add_path/(\d+)/(.*)/(.*)/(.*)/$', 'add_path'),
-        (r'^nexus/control/remove_path_warn/(\d+)/$', 'remove_path_warn'),
-        (r'^nexus/control/remove_path/(\d+)/$', 'remove_path'),
-        (r'^nexus/control/edit_path_warn/(\d+)/$', 'edit_path_warn'),
-        (r'^nexus/control/edit_path/(\d+)/(.*)/(.*)/$', 'edit_path'),
+        url(r'^nexus/control/remove_folder_warn/(\d+)/$', 
+            dialogs.remove_folder_warn),
+        url(r'^nexus/control/remove_folder/(\d+)/$', dialogs.remove_folder),
+        url(r'^nexus/control/add_folder/(\d+)/(.*)/(.*)/$', dialogs.add_folder),
+        url(r'^nexus/control/add_page/(\d+)/(\d+)/(.*)/(.*)/$', 
+            dialogs.add_page),
+        url(r'^nexus/control/add_path/(\d+)/(.*)/(.*)/(.*)/$', 
+            dialogs.add_path),
+        url(r'^nexus/control/remove_path_warn/(\d+)/$', 
+            dialogs.remove_path_warn),
+        url(r'^nexus/control/remove_path/(\d+)/$', dialogs.remove_path),
+        url(r'^nexus/control/edit_path_warn/(\d+)/$', dialogs.edit_path_warn),
+        url(r'^nexus/control/edit_path/(\d+)/(.*)/(.*)/$', dialogs.edit_path),
 
         # metapage dialogs
-        (r'^nexus/control/page_types/$', 'page_types'),
-        (r'^nexus/control/remove_page_warn/(\d+)/$', 'remove_page_warn'),
-        (r'^nexus/control/remove_page/(\d+)/$', 'remove_page'),
-        (r'^nexus/control/add_translation/(\d+)/(.*)/(.*)/(.*)/$', 
-            'add_translation'),
-        (r'^nexus/control/make_default_metapage/(\d+)/$', 
-            'make_default_metapage'),
-        (r'^nexus/control/remove_page_translation/(\d+)/$', 
-            'remove_page_translation'),
-        (r'^nexus/control/menu_listing/(\d+)/$', 'menu_listing'),
-        (r'^nexus/control/add_menuitem/(\d+)/(\d+)/(.*)/$', 'add_menuitem'),
+        url(r'^nexus/control/page_types/$', dialogs.page_types),
+        url(r'^nexus/control/remove_page_warn/(\d+)/$', 
+            dialogs.remove_page_warn),
+        url(r'^nexus/control/remove_page/(\d+)/$', dialogs.remove_page),
+        url(r'^nexus/control/add_translation/(\d+)/(.*)/(.*)/(.*)/$', 
+            dialogs.add_translation),
+        url(r'^nexus/control/make_default_metapage/(\d+)/$', 
+            dialogs.make_default_metapage),
+        url(r'^nexus/control/remove_page_translation/(\d+)/$', 
+            dialogs.remove_page_translation),
+        url(r'^nexus/control/menu_listing/(\d+)/$', dialogs.menu_listing),
+        url(r'^nexus/control/add_menuitem/(\d+)/(\d+)/(.*)/$', 
+            dialogs.add_menuitem),
 
         # site dialogs
-        (r'^nexus/control/missing_site_languages/(\d+)/$', 
-            'missing_site_languages'),
-        (r'^nexus/control/site_languages/(\d+)/$', 'site_languages'),
-        (r'^nexus/control/all_languages/$', 'all_languages'),
-        (r'^nexus/control/add_site_lang/(\d+)/(.*)/$', 'add_site_lang'),
-        (r'^nexus/control/edit_site/(\d+)/(.*)/(.*)/(.*)/$', 'edit_site'),
-        (r'^nexus/control/add_site/(.*)/(.*)/(.*)/$', 'add_site'),
+        url(r'^nexus/control/missing_site_languages/(\d+)/$', 
+            dialogs.missing_site_languages),
+        url(r'^nexus/control/site_languages/(\d+)/$', dialogs.site_languages),
+        url(r'^nexus/control/all_languages/$', dialogs.all_languages),
+        url(r'^nexus/control/add_site_lang/(\d+)/(.*)/$', 
+            dialogs.add_site_lang),
+        url(r'^nexus/control/edit_site/(\d+)/(.*)/(.*)/(.*)/$', 
+            dialogs.edit_site),
+        url(r'^nexus/control/add_site/(.*)/(.*)/(.*)/$', dialogs.add_site),
 
         # menu dialogs
-        (r'^nexus/control/add_menu/(\d+)/(.*)/$', 'add_menu'),
-        (r'^nexus/control/add_link_menuitem/(\d+)/(.*)/(.*)/$',
-            'add_link_menuitem'),
-        (r'^nexus/control/add_header_menuitem/(\d+)/(.*)/(.*)/$',
-            'add_header_menuitem'),
-        (r'^nexus/control/remove_menu_warn/(\d+)/$', 'remove_menu_warn'),
-        (r'^nexus/control/remove_menu/(\d+)/$', 'remove_menu'),
+        url(r'^nexus/control/add_menu/(\d+)/(.*)/$', dialogs.add_menu),
+        url(r'^nexus/control/add_link_menuitem/(\d+)/(.*)/(.*)/$',
+            dialogs.add_link_menuitem),
+        url(r'^nexus/control/add_header_menuitem/(\d+)/(.*)/(.*)/$',
+            dialogs.add_header_menuitem),
+        url(r'^nexus/control/remove_menu_warn/(\d+)/$', 
+            dialogs.remove_menu_warn),
+        url(r'^nexus/control/remove_menu/(\d+)/$', dialogs.remove_menu),
 
         # menuitem dialogs
-        (r'^nexus/control/remove_menuitem_translation/(\d+)/$', 
-            'remove_menuitem_translation'),
-        (r'^nexus/control/remove_menuitem_warn/(\d+)/$', 
-            'remove_menuitem_warn'),
-        (r'^nexus/control/remove_menuitem/(\d+)/$', 'remove_menuitem'),
-        (r'^nexus/control/add_menuitem_translation/(\d+)/(.*)/(.*)/$', 
-            'add_menuitem_translation'),
-        (r'^nexus/control/rename_menuitem_translation/(\d+)/(.*)/$', 
-            'rename_menuitem_translation'),
-        (r'^nexus/control/create_menuitem_translation/(\d+)/(.*)/(.*)/$', 
-            'create_menuitem_translation'),
+        url(r'^nexus/control/remove_menuitem_translation/(\d+)/$', 
+            dialogs.remove_menuitem_translation),
+        url(r'^nexus/control/remove_menuitem_warn/(\d+)/$', 
+            dialogs.remove_menuitem_warn),
+        url(r'^nexus/control/remove_menuitem/(\d+)/$', dialogs.remove_menuitem),
+        url(r'^nexus/control/add_menuitem_translation/(\d+)/(.*)/(.*)/$', 
+            dialogs.add_menuitem_translation),
+        url(r'^nexus/control/rename_menuitem_translation/(\d+)/(.*)/$', 
+            dialogs.rename_menuitem_translation),
+        url(r'^nexus/control/create_menuitem_translation/(\d+)/(.*)/(.*)/$', 
+            dialogs.create_menuitem_translation),
 
         # tag dialogs
-        (r'^nexus/control/add_tag/(\d+)/(.*)/(.*)/$', 'add_tag'),
-        (r'^nexus/control/add_tag_translation/(\d+)/(.*)/(.*)/$', 
-            'add_tag_translation'),
-        (r'^nexus/control/remove_tag_translation/(\d+)/$',
-            'remove_tag_translation'),
-        (r'^nexus/control/remove_tag/(\d+)/$', 'remove_tag'),
-    )
+        url(r'^nexus/control/add_tag/(\d+)/(.*)/(.*)/$', dialogs.add_tag),
+        url(r'^nexus/control/add_tag_translation/(\d+)/(.*)/(.*)/$', 
+            dialogs.add_tag_translation),
+        url(r'^nexus/control/remove_tag_translation/(\d+)/$',
+            dialogs.remove_tag_translation),
+        url(r'^nexus/control/remove_tag/(\d+)/$', dialogs.remove_tag),
+    ]
 
     # -------------------
     # Settings Panel
-    urlpatterns += patterns('yacon.views.nexus',
-        (r'^nexus/config_panel/$', 'config_panel'),
-    )
+    urlpatterns += [
+        url(r'^nexus/config_panel/$', nexus.config_panel),
+    ]
 
-    urlpatterns += patterns('yacon.views.config_panel',
-        (r'^nexus/config/add_language/(.*)/(.*)/$', 'add_language'),
-    )
+    from yacon.views import config_panel 
+    urlpatterns += [
+        url(r'^nexus/config/add_language/(.*)/(.*)/$', 
+            config_panel.add_language),
+    ]
 
     # -------------------
     # Users Panel
-    urlpatterns += patterns('yacon.views.nexus',
-        (r'^nexus/users_panel/$', RedirectView.as_view(
+    urlpatterns += [
+        url(r'^nexus/users_panel/$', RedirectView.as_view(
             url='/yacon/nexus/users/list_users/')),
-    )
+    ]
 
-    urlpatterns += patterns('yacon.views.users_panel',
-        (r'^nexus/users/list_users/$', 'list_users'),
-        (r'^nexus/users/edit_user/(\d+)/$', 'edit_user'),
-        (r'^nexus/users/add_user/$', 'add_user'),
-        (r'^nexus/users/user_password/(\d+)/$', 'user_password'),
-        (r'^nexus/users/su/(\d+)/$', 'switch_to_user'),
-    )
+    from yacon.views import users_panel 
+    urlpatterns += [
+        url(r'^nexus/users/list_users/$', users_panel.list_users),
+        url(r'^nexus/users/edit_user/(\d+)/$', users_panel.edit_user),
+        url(r'^nexus/users/add_user/$', users_panel.add_user),
+        url(r'^nexus/users/user_password/(\d+)/$', users_panel.user_password),
+        url(r'^nexus/users/su/(\d+)/$', users_panel.switch_to_user),
+    ]
 
     # -------------------
     # Uploads Panel
-    urlpatterns += patterns('yacon.views.nexus',
-        (r'^nexus/uploads_panel/$', 'uploads_panel'),
-    )
+    urlpatterns += [
+        url(r'^nexus/uploads_panel/$', nexus.uploads_panel),
+    ]
+
+
 
 if conf.site.examples_enabled:
-    urlpatterns += patterns('',
-        (r'^(examples/uploads/.+\.html)$', TemplateView.as_view()),
-    )
+    urlpatterns += [
+        url(r'^(examples/uploads/.+\.html)$', TemplateView.as_view()),
+    ]

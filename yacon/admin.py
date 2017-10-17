@@ -9,7 +9,6 @@ from treebeard.forms import movenodeform_factory
 from yacon.models.groupsq import GroupOfGroups
 from yacon.models.hierarchy import Node
 from yacon.models.pages import MetaPage, Page
-from yacon.models.site import Site
 
 logger = logging.getLogger(__name__)
 

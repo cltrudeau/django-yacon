@@ -7,7 +7,7 @@ import logging
 
 from django.contrib.auth import login
 from django.contrib.auth.forms import AdminPasswordChangeForm
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404

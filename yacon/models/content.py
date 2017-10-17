@@ -1,5 +1,5 @@
 # yacon.models.content.py
-import exceptions, logging, traceback
+import logging, traceback
 
 from django.http import Http404
 from django.template import RequestContext, Template
@@ -38,7 +38,7 @@ class AlwaysYesPermissionHandler(PermissionHandler):
 # ContentHandler Objects
 # ============================================================================
 
-class ContentRenderingException(exceptions.Exception):
+class ContentRenderingException(Exception):
     pass
 
 
@@ -60,10 +60,10 @@ class ContentHandler(object):
         caught and marking what is returned as safe."""
         try:
             return mark_safe(self.internal_render(request, context, block))
-        except Http404, h:
+        except Http404 as h:
             # don't want special handling for 404s, just pass them up
             raise h
-        except Exception, e:
+        except Exception as e:
             et = e.__class__.__name__
             ot = self.__class__.__name__
             msg = \
@@ -109,10 +109,10 @@ class DynamicContent(ContentHandler):
         f = getattr(mod, self.parms['function'])
         try:
             return f(request, context, block)
-        except Http404, h:
+        except Http404 as h:
             # don't want special handling for 404s, just pass them up
             raise h
-        except Exception, e:
+        except Exception as e:
             et = e.__class__.__name__
             msg = \
 """
