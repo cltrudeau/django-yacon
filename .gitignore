@@ -20,4 +20,5 @@ logs/*
 *.egg-info
 build/
 dist/
+htmlcov/
 extras/sample_site/uploads/

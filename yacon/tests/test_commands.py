@@ -4,10 +4,8 @@ from yacon.models.site import Site
 from yacon.tests.utils import create_test_site
 
 # ============================================================================
-# Yacon Management Commands Test Cases
-# ============================================================================
 
-class ManagementCommands(TestCase):
+class ManagementCommandTests(TestCase):
     def setUp(self):
         create_test_site()
 

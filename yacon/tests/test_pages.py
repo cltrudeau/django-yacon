@@ -7,10 +7,8 @@ from yacon.models.hierarchy import Node
 from yacon.tests.utils import create_test_site
 
 # ============================================================================
-# Page Test Cases
-# ============================================================================
 
-class PageTestCase(TestCase):
+class PageTests(TestCase):
     def setUp(self):
         # create a site to do testing with
         create_test_site()

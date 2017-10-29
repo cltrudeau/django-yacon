@@ -31,7 +31,7 @@ SETUP_ARGS = dict(
         'Django>=1.11',
         'Pillow>=4.3',
         'bleach>=2.1.1',
-        'django-awl>=0.13',
+        'django-awl>=0.14',
         'django-treebeard>=4.1.2',
     ],
     tests_require=[

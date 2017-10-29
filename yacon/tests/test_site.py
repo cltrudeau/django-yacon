@@ -5,10 +5,8 @@ from yacon.models.site import Site, ParsedPath
 from yacon.models.hierarchy import BadSlug
 
 # ============================================================================
-# Site and Hierachy Test Cases
-# ============================================================================
 
-class SiteTestCase(TestCase):
+class SiteTests(TestCase):
     def test_hierarchy(self):
         british = Language.factory(name='GB English', identifier='en-gb')
         french = Language.factory(name='French', identifier='fr')

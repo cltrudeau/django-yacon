@@ -33,6 +33,7 @@ def get_suite(labels=default_labels):
             'django.contrib.sessions',
             'django.contrib.admin',
             'django.contrib.staticfiles',
+            'awl',
             'yacon',
             'yacon.tests',
         ),

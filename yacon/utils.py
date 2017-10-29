@@ -1,7 +1,6 @@
 # yacon.utils.py
-import logging, json, inspect, urllib, os, locale, re, time, tarfile
+import logging, json, urllib, os, locale, re, time, tarfile
 from datetime import datetime
-from itertools import islice, chain
 from PIL import Image
 from zipfile import ZipFile
 
@@ -17,107 +16,16 @@ locale.setlocale(locale.LC_ALL, '')
 # Utility Classes
 # ============================================================================
 
-# Choices
-#
-# idea borrowed, modified then converted to python 3 from:
-#  http://tomforb.es
-#      /using-python-metaclasses-to-make-awesome-django-model-field-choices
-
-class ChoicesType(type):
-    """A tuple of tuples pattern of (id, string) is common in django for
-    choices fields, etc.  This object inspects its own members (i.e. the
-    inheritors) and produces the corresponding tuples.
-
-    Example:
-
-    class Colours(Choices):
-        RED = 'r'
-        BLUE = 'b', 'Blueish'
-
-    >> Colours.RED
-    'r'
-    >> list(Colours)
-    [('r', 'Red'), ('b', 'Blueish')]
-    """
-    def __init__(cls, classname, bases, attrs):
-        cls._data = []
-        for name, value in inspect.getmembers(cls):
-            if not name.startswith('_') and not inspect.ismethod(value):
-                if isinstance(value, tuple) and len(value) > 1:
-                    data = value
-                else:
-                    pieces = [x.capitalize() for x in name.split('_')]
-                    data = (value, ' '.join(pieces))
-                cls._data.append(data)
-                setattr(cls, name, data[0])
-
-        cls._hash = dict(cls._data)
-
-    def __iter__(cls):
-        for value, data in cls._data:
-            yield (value, data)
-
-
-class Choices(metaclass=ChoicesType):
-    @classmethod
-    def get_value(cls, key):
-        return cls._hash[key]
-
-
-# QuerySetChain
-#
-# borrowed and modified from:
-#   http://stackoverflow.com/questions/431628/
-#   by: http://stackoverflow.com/users/15770/akaihola
-class QuerySetChain(object):
-    """
-    Chains multiple subquerysets (possibly of different models) and behaves as
-    one queryset.  Supports minimal methods needed for use with
-    django.core.paginator.
-
-    Usage:
-        q1 = Thing.objects.filter(foo)
-        q2 = Stuff.objects.filter(bar)
-        qsc = QuerySetChain(q1, q2)
-    """
-
-    def __init__(self, *subquerysets):
-        self.querysets = subquerysets
-
-    def count(self):
-        """
-        Performs a .count() for all subquerysets and returns the number of
-        records as an integer.
-        """
-        return sum(qs.count() for qs in self.querysets)
-
-    def _clone(self):
-        "Returns a clone of this queryset chain"
-        return self.__class__(*self.querysets)
-
-    def _all(self):
-        "Iterates records in all subquerysets"
-        return chain(*self.querysets)
-
-    def __getitem__(self, index):
-        """
-        Retrieves an item or slice from the chained set of results from all
-        subquerysets.
-        """
-        if type(index) is slice:
-            return list(islice(self._all(), index.start, index.stop, 
-                index.step or 1))
-        else:
-            return islice(self._all(), index, index+1).next()
-
-
 class SummarizedPage(object):
     """Holder for Page objects with ability to return portions of its content
-    for displaying summaries."""
+    for displaying summaries.
 
-    def __init__(self, page, block_key, summary_size, block=None):
+    This is done as an object so that it can be used inside of the
+    ``summarize_pages`` tag with the content accessed via a property.
+    """
+
+    def __init__(self, page, block_key, summary_size):
         self.page = page
-        self.block = block
         self.block_key = block_key
         self.summary_size = summary_size
 

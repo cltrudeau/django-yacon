@@ -4,10 +4,8 @@ from django.contrib.auth.models import User, Group
 from yacon.models.groupsq import GroupOfGroups, OwnedGroupOfGroups
 
 # ============================================================================
-# GroupOfGroups Test Cases
-# ============================================================================
 
-class GroupOfGroupsTestCase(TestCase):
+class GroupOfGroupsTests(TestCase):
     def _user(self, username, email, password):
         try:
             u = User.objects.get(username=username)

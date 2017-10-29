@@ -6,7 +6,7 @@ from functools import wraps
 from django.contrib.auth.views import redirect_to_login
 from django.http import Http404
 
-from yacon.utils import FileSpec, get_profile
+from yacon.utils import FileSpec
 
 logger = logging.getLogger(__name__)
 
@@ -26,20 +26,6 @@ def superuser_required(target):
         # redirect to login page defined in settings with the current URL as
         # the "next" path
         return redirect_to_login(request.build_absolute_uri())
-    return wrapper
-
-
-def profile_required(target):
-    """Ensures request.user has a profile, returns it in the request object.
-    Otherwise, raises 404."""
-    @wraps(target)
-    def wrapper(*args, **kwargs):
-        request = args[0]
-        profile = get_profile(request.user)
-        if profile:
-            return target(*args, **kwargs)
-
-        raise Http404('no profile for user')
     return wrapper
 
 

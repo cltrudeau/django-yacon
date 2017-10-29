@@ -3,7 +3,7 @@ import logging
 from django.db import models
 from django.conf import settings
 
-from yacon.utils import Choices
+from awl.models import Choices
 
 logger = logging.getLogger(__name__)
 
